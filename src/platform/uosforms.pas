@@ -714,7 +714,11 @@ begin
   ShellContextMenu:= TShellContextMenu.Create(nil, Files, Background, UserWishForContextMenu);
   ShellContextMenu.OnClose := CloseEvent;
   // Show context menu
+  {$IF DEFINED(DARWIN)}
+  MacosServiceMenuHelper.PopUp( ShellContextMenu, uLng.rsMenuMacOsServices );
+  {$ELSE}
   ShellContextMenu.PopUp(X, Y);
+  {$ENDIF}
 end;
 {$ENDIF}
 

@@ -53,6 +53,8 @@ uses
   , Qt5, QtWidgets
   {$ELSEIF DEFINED(LCLGTK2)}
   , Glib2, Gtk2
+  {$ELSEIF DEFINED(DARWIN)}
+  , uMyDarwin
   {$ENDIF}
   , Types, LMessages;
 
@@ -865,6 +867,12 @@ type
     procedure RestoreWindow;
     procedure LoadTabs;
     procedure LoadTabsCommandLine(Params: TCommandLineParams);
+    procedure AddTab(ANoteBook: TFileViewNotebook; aPath: String);
+    {$IF DEFINED(DARWIN)}
+    procedure OnNSServiceOpenWithNewTab( filenames:TStringList );
+    function NSServiceMenuIsReady(): boolean;
+    function NSServiceMenuGetFilenames(): TStringList;
+    {$ENDIF}
     procedure LoadWindowState;
     procedure SaveWindowState;
 
@@ -1207,6 +1215,10 @@ begin
   UpdateSelectedDrives;
   UpdateFreeSpace(fpLeft, True);
   UpdateFreeSpace(fpRight, True);
+
+{$IF DEFINED(DARWIN)}
+  InitNSServiceProvider( @OnNSServiceOpenWithNewTab, @NSServiceMenuIsReady, @NSServiceMenuGetFilenames );
+{$ENDIF}
 end;
 
 procedure TfrmMain.btnLeftClick(Sender: TObject);
@@ -6007,24 +6019,6 @@ end;
 
 procedure TfrmMain.LoadTabsCommandLine(Params: TCommandLineParams);
 
-  procedure AddTab(ANoteBook: TFileViewNotebook; aPath: String);
-  var
-    Page: TFileViewPage;
-    AFileView: TFileView;
-    AFileViewFlags: TFileViewFlags;
-    aFileSource: IFileSource;
-  begin
-    Page := ANoteBook.AddPage;
-    aFileSource := TFileSystemFileSource.GetFileSource;
-    if gDelayLoadingTabs then
-      AFileViewFlags := [fvfDelayLoadingFiles]
-    else
-      AFileViewFlags := [];
-    AFileView := TColumnsFileView.Create(Page, aFileSource, aPath, AFileViewFlags);
-    AssignEvents(AFileView);
-    ANoteBook.PageIndex := ANoteBook.PageCount - 1;
-  end;
-
   procedure LoadPanel(aNoteBook: TFileViewNotebook; aPath: String);
   begin
     if Length(aPath) <> 0 then
@@ -6066,6 +6060,74 @@ begin
 
   ActiveFrame.SetFocus;
 end;
+
+procedure TfrmMain.AddTab(ANoteBook: TFileViewNotebook; aPath: String);
+var
+  Page: TFileViewPage;
+  AFileView: TFileView;
+  AFileViewFlags: TFileViewFlags;
+  aFileSource: IFileSource;
+begin
+  Page := ANoteBook.AddPage;
+  aFileSource := TFileSystemFileSource.GetFileSource;
+  if gDelayLoadingTabs then
+    AFileViewFlags := [fvfDelayLoadingFiles]
+  else
+    AFileViewFlags := [];
+  AFileView := TColumnsFileView.Create(Page, aFileSource, aPath, AFileViewFlags);
+  AssignEvents(AFileView);
+  ANoteBook.PageIndex := ANoteBook.PageCount - 1;
+end;
+
+{$IF DEFINED(DARWIN)}
+procedure TfrmMain.OnNSServiceOpenWithNewTab( filenames:TStringList );
+begin
+  if Assigned(filenames) and (filenames.Count>0) then
+  begin
+    AddTab( nbRight, filenames[0] );
+    SetActiveFrame(fpRight);
+    ActiveFrame.SetFocus;
+  end;
+end;
+
+function TfrmMain.NSServiceMenuIsReady(): boolean;
+begin
+  Result:= true;
+end;
+
+function TfrmMain.NSServiceMenuGetFilenames(): TStringList;
+var
+  filenames: TStringList;
+  i: Integer;
+  files: TFiles;
+  activeFile: TFile;
+begin
+  Result:= nil;
+  filenames:= TStringList.Create;
+
+  files:= ActiveFrame.CloneSelectedFiles();
+  if files.Count>0 then
+  begin
+    for i:=0 to files.Count-1 do
+    begin
+      filenames.add( files[i].FullPath );
+    end;
+  end;
+  FreeAndNil( files );
+
+  if filenames.Count = 0 then
+  begin
+    activeFile:= ActiveFrame.CloneActiveFile;
+    if activeFile.IsNameValid() then
+      filenames.add( activeFile.FullPath )
+    else
+      filenames.add( activeFile.Path );
+    FreeAndNil( activeFile );
+  end;
+
+  if filenames.Count>0 then Result:= filenames;
+end;
+{$ENDIF}
 
 procedure TfrmMain.LoadWindowState;
 var
