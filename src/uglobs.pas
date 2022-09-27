@@ -324,6 +324,7 @@ var
 
   gAutoFillColumns: Boolean;
   gAutoSizeColumn: Integer;
+  gColumnsLongInStatus : Boolean;
   gColumnsAutoSaveWidth: Boolean;
   gColumnsTitleStyle: TTitleStyle;
   gCustomColumnsChangeAllColumns: Boolean;
@@ -645,6 +646,7 @@ var
 
   { Differ }
   gDifferIgnoreCase,
+  gDifferAutoCompare,
   gDifferKeepScrolling,
   gDifferLineDifferences,
   gDifferPaintBackground,
@@ -1653,6 +1655,7 @@ begin
   gWheelScrollLines:= Mouse.WheelScrollLines;
   gAutoFillColumns := False;
   gAutoSizeColumn := 1;
+  gColumnsLongInStatus := False;
   gColumnsAutoSaveWidth := True;
   gColumnsTitleStyle := tsNative;
   gCustomColumnsChangeAllColumns := False;
@@ -2063,6 +2066,7 @@ begin
 
   { Differ }
   gDifferIgnoreCase := False;
+  gDifferAutoCompare := True;
   gDifferKeepScrolling := True;
   gDifferPaintBackground := True;
   gDifferLineDifferences := False;
@@ -2846,6 +2850,7 @@ begin
       SubNode := FindNode(Node, 'ColumnsView');
       if Assigned(SubNode) then
       begin
+        gColumnsLongInStatus := GetValue(SubNode, 'LongInStatus', gColumnsLongInStatus);
         gColumnsAutoSaveWidth := GetValue(SubNode, 'AutoSaveWidth', gColumnsAutoSaveWidth);
         gColumnsTitleStyle := TTitleStyle(GetValue(SubNode, 'TitleStyle', Integer(gColumnsTitleStyle)));
       end;
@@ -3171,6 +3176,7 @@ begin
     if Assigned(Node) then
     begin
       gDifferIgnoreCase := GetValue(Node, 'IgnoreCase', gDifferIgnoreCase);
+      gDifferAutoCompare := GetValue(Node, 'AutoCompare', gDifferAutoCompare);
       gDifferKeepScrolling := GetValue(Node, 'KeepScrolling', gDifferKeepScrolling);
       gDifferPaintBackground := GetValue(Node, 'PaintBackground', gDifferPaintBackground);
       gDifferLineDifferences := GetValue(Node, 'LineDifferences', gDifferLineDifferences);
@@ -3559,6 +3565,7 @@ begin
     SetValue(SubNode, 'NewFilesPosition', Integer(gNewFilesPosition));
     SetValue(SubNode, 'UpdatedFilesPosition', Integer(gUpdatedFilesPosition));
     SubNode := FindNode(Node, 'ColumnsView', True);
+    SetValue(SubNode, 'LongInStatus', gColumnsLongInStatus);
     SetValue(SubNode, 'AutoSaveWidth', gColumnsAutoSaveWidth);
     SetValue(SubNode, 'TitleStyle', Integer(gColumnsTitleStyle));
     SubNode := FindNode(Node, 'BriefView', True);
@@ -3789,6 +3796,7 @@ begin
     { Differ }
     Node := FindNode(Root, 'Differ',True);
     SetValue(Node, 'IgnoreCase', gDifferIgnoreCase);
+    SetValue(Node, 'AutoCompare', gDifferAutoCompare);
     SetValue(Node, 'KeepScrolling', gDifferKeepScrolling);
     SetValue(Node, 'PaintBackground', gDifferPaintBackground);
     SetValue(Node, 'LineDifferences', gDifferLineDifferences);
