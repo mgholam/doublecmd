@@ -649,7 +649,6 @@ var
   HMFindFiles: THMForm;
 begin
   if not gShowMenuBarInFindFiles then FreeAndNil(mmMainMenu);
-  Height := pnlFindFile.Height + 22;
   DsxPlugins := TDSXModuleList.Create;
   FoundedStringCopy := TStringListTemp.Create;
   FoundedStringCopy.OwnsObjects := True;
@@ -1359,11 +1358,10 @@ begin
     begin                          // if user don't press anything - focus on results
       if (pgcSearch.ActivePage = tsResults) and (lsFoundedFiles.Count > 0) then
       begin
+        btnGoToPath.SetFocus;
         lsFoundedFiles.SetFocus;
-        if (lsFoundedFiles.ItemIndex <> -1) then
-        begin
-          lsFoundedFiles.Selected[lsFoundedFiles.ItemIndex] := True;
-        end;
+        if lsFoundedFiles.ItemIndex<0 then lsFoundedFiles.ItemIndex:=0;
+        lsFoundedFiles.Selected[lsFoundedFiles.ItemIndex] := True;
       end
       else
       begin
@@ -1769,8 +1767,6 @@ begin
   lblFound.Caption := EmptyStr;
   SetWindowCaption(wcs_NewSearch);
   if pgcSearch.ActivePage = tsStandard then cmbFindFileMask.SetFocus;
-
-  btnStart.Default := True;
 end;
 
 { TfrmFindDlg.cm_LastSearch }
@@ -2210,6 +2206,7 @@ end;
 { TfrmFindDlg.FormShow }
 procedure TfrmFindDlg.frmFindDlgShow(Sender: TObject);
 begin
+  AutoSize:=false;
   pgcSearch.PageIndex := 0;
 
   if cmbFindFileMask.Visible then
@@ -2357,13 +2354,16 @@ begin
     //1. If we're using at least plug in, switch to it.
     //2. If not but we're using at least something from the "Advanced" tab, switch to it.
     //3. If nothing above, at least switch to "Standard" tab.
+    pgcSearch.Options:= pgcSearch.Options + [nboDoChangeOnSetIndex];
     if (cbUsePlugin.Checked OR frmContentPlugins.chkUsePlugins.Checked) then
       pgcSearch.ActivePage := tsPlugins
     else
       if (cbNotOlderThan.Checked OR cbFileSizeFrom.Checked OR cbFileSizeTo.Checked OR cbDateFrom.Checked OR cbDateTo.Checked OR cbTimeFrom.Checked OR cbTimeTo.Checked OR (edtAttrib.Text<>'')) then
         pgcSearch.ActivePage := tsAdvanced
-      else
+      else begin
         pgcSearch.ActivePage := tsStandard;
+      end;
+    pgcSearch.Options:= pgcSearch.Options - [nboDoChangeOnSetIndex];
   end;
 end;
 
