@@ -3,7 +3,7 @@
     -------------------------------------------------------------------------
     This unit contains specific UNIX functions.
 
-    Copyright (C) 2008-2021 Alexander Koblov (alexx2000@mail.ru)
+    Copyright (C) 2008-2022 Alexander Koblov (alexx2000@mail.ru)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -176,7 +176,7 @@ uses
   , uMimeActions, uMimeType, uGVolume
 {$ENDIF}
 {$IFDEF LINUX}
-  , uUDisks, uUDisks2
+  , uUDisks2
 {$ENDIF}
   ;
 
@@ -506,21 +506,6 @@ begin
         WriteLn(Drive^.DeviceId, ' -> ', MountPath);
       end
     end;
-    if not Result and uUDisks.Initialize then
-    begin
-      try
-        Result := uUDisks.Mount(DeviceFileToUDisksObjectPath(Drive^.DeviceId), EmptyStr, nil, MountPath);
-      except
-        on E: Exception do
-        begin
-          Result := False;
-          WriteLn(E.Message);
-        end;
-      end;
-      if Result then
-        Drive^.Path := MountPath;
-      uUDisks.Finalize;
-    end;
     if not Result and HavePMount and Drive^.IsMediaRemovable then
       Result := fpSystemStatus('pmount ' + Drive^.DeviceId) = 0;
 {$ELSE IF DEFINED(DARWIN)}
@@ -546,11 +531,6 @@ begin
     Result := False;
     if HasUDisks2 then
       Result := uUDisks2.Unmount(Drive^.DeviceId);
-    if not Result and uUDisks.Initialize then
-    begin
-      Result := uUDisks.Unmount(DeviceFileToUDisksObjectPath(Drive^.DeviceId), nil);
-      uUDisks.Finalize;
-    end;
     if not Result and HavePMount and Drive^.IsMediaRemovable then
       Result := fpSystemStatus('pumount ' + Drive^.DeviceId) = 0;
     if not Result then
@@ -566,7 +546,17 @@ end;
 
 function EjectDrive(Drive: PDrive): Boolean;
 begin
-{$IF DEFINED(DARWIN)}
+{$IF NOT DEFINED(DARWIN)}
+  Result:= uGVolume.Eject(Drive^.Path);
+  if not Result then
+{$ENDIF}
+
+{$IF DEFINED(LINUX)}
+  Result := False;
+  if HasUDisks2 then
+    Result := uUDisks2.Eject(Drive^.DeviceId);
+  if not Result then
+{$ELSE IF DEFINED(DARWIN)}
   Result := fpSystemStatus('diskutil eject ' + Drive^.DeviceId) = 0;
   if not Result then
 {$ENDIF}
