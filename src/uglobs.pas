@@ -638,6 +638,7 @@ var
   gViewerWrapText: Boolean;
   gViewerLeftMargin: Integer;
   gViewerLineSpacing: Integer;
+  gViewerAutoCopy: Boolean;
 
   { Editor }
   gEditWaitTime: Integer;
@@ -645,6 +646,7 @@ var
   gEditorSynEditTabWidth,
   gEditorSynEditRightEdge,
   gEditorSynEditBlockIndent: Integer;
+  gEditorFindWordAtCursor: Boolean;
 
   { Differ }
   gDifferIgnoreCase,
@@ -2060,6 +2062,7 @@ begin
   gViewerLeftMargin := 4;
   gViewerLineSpacing := 0;
   gPrintMargins:= Classes.Rect(200, 200, 200, 200);
+  gViewerAutoCopy := True;
 
   { Editor }
   gEditWaitTime := 2000;
@@ -2067,6 +2070,7 @@ begin
   gEditorSynEditTabWidth := 8;
   gEditorSynEditRightEdge := 80;
   gEditorSynEditBlockIndent := 2;
+  gEditorFindWordAtCursor := True;
 
   { Differ }
   gDifferIgnoreCase := False;
@@ -3157,6 +3161,7 @@ begin
       gBookBackgroundColor := GetValue(Node, 'BackgroundColor', gBookBackgroundColor);
       gBookFontColor := GetValue(Node, 'FontColor', gBookFontColor);
       gTextPosition := GetValue(Node, 'TextPosition',  gTextPosition);
+      gViewerAutoCopy := GetValue(Node, 'AutoCopy',  gViewerAutoCopy);
       if LoadedConfigVersion < 7 then
       begin
         gThumbSave := GetValue(Node, 'SaveThumbnails', gThumbSave);
@@ -3172,6 +3177,7 @@ begin
       gEditorSynEditTabWidth := GetValue(Node, 'SynEditTabWidth', gEditorSynEditTabWidth);
       gEditorSynEditRightEdge := GetValue(Node, 'SynEditRightEdge', gEditorSynEditRightEdge);
       gEditorSynEditBlockIndent := GetValue(Node, 'SynEditBlockIndent', gEditorSynEditBlockIndent);
+      gEditorFindWordAtCursor := GetValue(Node, 'FindWordAtCursor', gEditorFindWordAtCursor);
     end;
 
     { Differ }
@@ -3788,6 +3794,7 @@ begin
     SetValue(Node, 'BackgroundColor', gBookBackgroundColor);
     SetValue(Node, 'FontColor', gBookFontColor);
     SetValue(Node, 'TextPosition', gTextPosition);
+    SetValue(Node, 'AutoCopy', gViewerAutoCopy);
 
     { Editor }
     Node := FindNode(Root, 'Editor',True);
@@ -3796,6 +3803,7 @@ begin
     SetValue(Node, 'SynEditTabWidth', gEditorSynEditTabWidth);
     SetValue(Node, 'SynEditRightEdge', gEditorSynEditRightEdge);
     SetValue(Node, 'SynEditBlockIndent', gEditorSynEditBlockIndent);
+    SetValue(Node, 'FindWordAtCursor', gEditorFindWordAtCursor);
 
     { Differ }
     Node := FindNode(Root, 'Differ',True);
