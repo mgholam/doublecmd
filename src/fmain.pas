@@ -788,7 +788,9 @@ type
 
   protected
     procedure CreateWnd; override;
+    {$IFNDEF LCLCOCOA}
     procedure DoFirstShow; override;
+    {$ENDIF}
     procedure DoAutoAdjustLayout(const AMode: TLayoutAdjustmentPolicy;
                             const AXProportion, AYProportion: Double); override;
 
@@ -2580,9 +2582,7 @@ begin
     end;
   end;
 
-  if Assigned(QuickViewPanel) then
-    Commands.cm_QuickView(['Close']);
-
+  QuickViewClose;
   UpdatePrompt;
   UpdateTreeViewPath;
   UpdateMainTitleBar;
@@ -3984,6 +3984,7 @@ begin
   Application.MainForm.Tag:= Handle;
 end;
 
+{$IFNDEF LCLCOCOA}
 procedure TfrmMain.DoFirstShow;
 var
   ANode: TXmlNode;
@@ -3998,6 +3999,7 @@ begin
 
   lastWindowState := WindowState;
 end;
+{$ENDIF}
 
 procedure TfrmMain.WMMove(var Message: TLMMove);
 begin
@@ -4974,7 +4976,7 @@ begin
        else
          Exit(1);
     end;
-    if Assigned(QuickViewPanel) then QuickViewClose;
+    QuickViewClose;
     ANoteBook.RemovePage(iPageIndex);
 
     if UserAnswer=mmrAll then Result:=3 else Result:= 0;
@@ -5128,6 +5130,8 @@ var
 begin
   if Destination<>tclNone then
   begin
+    QuickViewClose;
+
     // 1. Normalize our destination side and destination to keep in case params specified active/inactive
     if ((Destination=tclActive) and (ActiveFrame=FrameLeft)) OR ((Destination=tclInactive) and (NotActiveFrame=FrameLeft)) then Destination:=tclLeft;
     if ((Destination=tclActive) and (ActiveFrame=FrameRight)) OR ((Destination=tclInactive) and (NotActiveFrame=FrameRight)) then Destination:=tclRight;
@@ -6178,6 +6182,10 @@ begin
       FRestoredWidth := MulDiv(FRestoredWidth, Screen.PixelsPerInch, FPixelsPerInch);
       FRestoredHeight := MulDiv(FRestoredHeight, Screen.PixelsPerInch, FPixelsPerInch);
     end;
+    if gConfig.GetValue(ANode, 'Maximized', True) then
+      lastWindowState:= TWindowState.wsMaximized
+    else
+      lastWindowState:= TWindowState.wsNormal;
     SetBounds(FRestoredLeft, FRestoredTop, FRestoredWidth, FRestoredHeight);
   end;
 end;
