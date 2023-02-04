@@ -92,6 +92,7 @@ type
     actCopyToClipboardFormatted: TAction;
     actChangeEncoding: TAction;
     actAutoReload: TAction;
+    actUndo: TAction;
     actShowTransparency: TAction;
     actWrapText: TAction;
     actShowCaret: TAction;
@@ -264,7 +265,6 @@ type
     procedure btnRedEyeClick(Sender: TObject);
     procedure btnResizeClick(Sender: TObject);
     procedure btnSlideShowClick(Sender: TObject);
-    procedure btnUndoClick(Sender: TObject);
     procedure DrawPreviewDrawCell(Sender: TObject; aCol, aRow: Integer;
       aRect: TRect; aState: TGridDrawState);
     procedure DrawPreviewSelection(Sender: TObject; aCol, aRow: Integer);
@@ -422,6 +422,7 @@ type
     procedure cm_StretchOnlyLarge(const Params: array of string);
     procedure cm_ShowTransparency(const Params: array of string);
     procedure cm_Save(const Params:array of string);
+    procedure cm_Undo(const Params: array of string);
     procedure cm_SaveAs(const Params: array of string);
     procedure cm_Rotate90(const Params: array of string);
     procedure cm_Rotate180(const Params: array of string);
@@ -2210,7 +2211,7 @@ begin
     end;
   btnCutTuImage.Enabled:= btnHightlight.Down;
   btnRedEye.Enabled:= btnHightlight.Down;
-  btnUndo.Enabled:= btnPaint.Down;
+  actUndo.Enabled:= btnPaint.Down;
   btnPenMode.Enabled:= btnPaint.Down;
   btnPenWidth.Enabled:= btnPaint.Down;
   btnPenColor.Enabled:= btnPaint.Down;
@@ -2257,11 +2258,6 @@ end;
 procedure TfrmViewer.btnSlideShowClick(Sender: TObject);
 begin
   btnSlideShow.Down:= not btnSlideShow.Down;
-end;
-
-procedure TfrmViewer.btnUndoClick(Sender: TObject);
-begin
-  UndoTmp;
 end;
 
 procedure TfrmViewer.FormDestroy(Sender: TObject);
@@ -2687,13 +2683,23 @@ begin
         if bTextFound then FLastSearchPos := PAnsiAddr - ViewerControl.GetDataAdr;
       end
       // Using very slow search algorithm
-      else if (ViewerControl.Encoding in ViewerEncodingMultiByte) or bSearchBackwards then
+      else if (ViewerControl.Encoding in [veUtf32le, veUtf32be]) then
       begin
         PAdr := ViewerControl.FindUtf8Text(FLastSearchPos, sSearchTextU,
                                            FFindDialog.cbCaseSens.Checked,
                                            bSearchBackwards);
         bTextFound := (PAdr <> PtrInt(-1));
         if bTextFound then FLastSearchPos := PAdr;
+      end
+      // Using special case insensitive single byte encoding search algorithm
+      else if bSearchBackwards then
+      begin
+        RecodeTable:= InitRecodeTable(ViewerControl.EncodingName, FFindDialog.cbCaseSens.Checked);
+        PAnsiAddr := PosMemA(ViewerControl.GetDataAdr, ViewerControl.FileSize,
+                            FLastSearchPos, sSearchTextA,
+                            FFindDialog.cbCaseSens.Checked, bSearchBackwards, RecodeTable);
+        bTextFound := (PAnsiAddr <> Pointer(-1));
+        if bTextFound then FLastSearchPos := PAnsiAddr - ViewerControl.GetDataAdr;
       end
       // Using very fast Boyer–Moore search algorithm
       else begin
@@ -2974,6 +2980,11 @@ begin
       DrawPreview.EndUpdate;
     end;
   end;
+end;
+
+procedure TfrmViewer.cm_Undo(const Params: array of string);
+begin
+  if bImage then UndoTmp;
 end;
 
 procedure TfrmViewer.cm_SaveAs(const Params: array of string);
