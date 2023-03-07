@@ -27,7 +27,11 @@ unit uFileSystemWatcher;
 interface
 
 uses
-  Classes, SysUtils, LCLVersion;
+  Classes, SysUtils, LCLVersion
+  {$IFDEF DARWIN}
+  , uDarwinFSWatch
+  {$ENDIF}
+  ;
 
 //{$DEFINE DEBUG_WATCHER}
 
@@ -48,6 +52,9 @@ type
     FileName: String;    // Valid for fswFileCreated, fswFileChanged, fswFileDeleted, fswFileRenamed
     NewFileName: String; // Valid for fswFileRenamed
     UserData: Pointer;
+{$IFDEF DARWIN}
+    OriginalEvent: TDarwinFSWatchEvent;
+{$ENDIF}
   end;
   PFSWatcherEventData = ^TFSWatcherEventData;
 
@@ -77,14 +84,14 @@ type
 implementation
 
 uses
-  LCLProc, LazUTF8, LazMethodList, uDebug, uExceptions, syncobjs, fgl
+  LCLProc, LazUTF8, LazMethodList, uDebug, uExceptions, syncobjs, fgl, Forms
   {$IF DEFINED(MSWINDOWS)}
   , Windows, JwaWinNT, JwaWinBase, DCWindows, DCStrUtils, uGlobs, DCOSUtils,
     DCConvertEncoding
   {$ELSEIF DEFINED(LINUX)}
   , inotify, BaseUnix, FileUtil, DCConvertEncoding, DCUnix
   {$ELSEIF DEFINED(DARWIN)}
-  , uGlobs, uDarwinFSWatch
+  , uFileView, uGlobs
   {$ELSEIF DEFINED(BSD)}
   , BSD, Unix, BaseUnix, UnixType, FileUtil, DCOSUtils
   {$ELSEIF DEFINED(HAIKU)}
@@ -268,6 +275,13 @@ type
 var
   FileSystemWatcher: TFileSystemWatcherImpl = nil;
 
+procedure SyncDoWatcherEvent; inline;
+begin
+  // if Main Thread terminated, Synchronize() will never return
+  if not Application.Terminated then
+    FileSystemWatcher.Synchronize( @FileSystemWatcher.DoWatcherEvent );
+end;
+
 { TFileSystemWatcher }
 
 class procedure TFileSystemWatcher.CreateFileSystemWatcher;
@@ -418,7 +432,7 @@ begin
       FCurrentEventData.EventType := fswUnknownChange;
       FCurrentEventData.FileName := EmptyStr;
       FCurrentEventData.NewFileName := EmptyStr;
-      Synchronize(@DoWatcherEvent);
+      SyncDoWatcherEvent;
       Exit;
     end;
 
@@ -490,7 +504,7 @@ begin
 
       if (fnInfo^.Action <> FILE_ACTION_RENAMED_OLD_NAME) and
          ((gWatcherMode <> fswmWholeDrive) or IsPathObserved(Watch, FCurrentEventData.FileName)) then
-        Synchronize(@DoWatcherEvent);
+        SyncDoWatcherEvent;
 
       if fnInfo^.NextEntryOffset = 0 then
         Break
@@ -801,7 +815,7 @@ begin
             end;
 
             // call event handler
-            Synchronize(@DoWatcherEvent);
+            SyncDoWatcherEvent;
 
             Break;
           end; { if }
@@ -858,7 +872,7 @@ begin
           NewFileName := EmptyStr;
         end;
 
-        Synchronize(@DoWatcherEvent);
+        SyncDoWatcherEvent;
       end;
     end; { case }
   end; { while }
@@ -882,13 +896,14 @@ begin
   if event.isDropabled then exit;
 
   FCurrentEventData.Path := event.watchPath;
-  FCurrentEventData.FileName := Copy( event.fullPath, event.watchPath.Length+2, MaxInt );
+  FCurrentEventData.FileName := EmptyStr;
   FCurrentEventData.NewFileName := EmptyStr;
+  FCurrentEventData.OriginalEvent := event;
   FCurrentEventData.EventType := fswUnknownChange;
 
   if TDarwinFSWatchEventCategory.ecRootChanged in event.categories then begin
     FCurrentEventData.EventType := fswSelfDeleted;
-  end else if not FCurrentEventData.FileName.IsEmpty then begin
+  end else if event.fullPath.Length >= event.watchPath.Length+2 then begin
     // 1. file-level update only valid if there is a FileName,
     //    otherwise keep directory-level update
     // 2. the order of the following judgment conditions must be preserved
@@ -899,11 +914,18 @@ begin
        ([ecStructChanged, ecAttribChanged] * event.categories = [ecAttribChanged])
          then exit;
 
+    FCurrentEventData.FileName := ExtractFileName( event.fullPath );
+
     if TDarwinFSWatchEventCategory.ecRemoved in event.categories then
       FCurrentEventData.EventType := fswFileDeleted
-    else if TDarwinFSWatchEventCategory.ecRenamed in event.categories then
-      FCurrentEventData.EventType := fswUnknownChange
-    else if TDarwinFSWatchEventCategory.ecCreated in event.categories then
+    else if TDarwinFSWatchEventCategory.ecRenamed in event.categories then begin
+      if ExtractFilePath(event.fullPath)=ExtractFilePath(event.renamedPath) then begin
+        // fswFileRenamed only when FileName and NewFileName in the same dir
+        // otherwise keep fswUnknownChange
+        FCurrentEventData.EventType := fswFileRenamed;
+        FCurrentEventData.NewFileName := ExtractFileName( event.renamedPath );
+      end;
+    end else if TDarwinFSWatchEventCategory.ecCreated in event.categories then
       FCurrentEventData.EventType := fswFileCreated
     else if TDarwinFSWatchEventCategory.ecCoreAttribChanged in event.categories then
       FCurrentEventData.EventType := fswFileChanged
@@ -914,9 +936,10 @@ begin
   {$IFDEF DEBUG_WATCHER}
   DCDebug('FSWatcher: Send event, Path %s', [FCurrentEventData.Path]);
   {$ENDIF};
-  Synchronize(@DoWatcherEvent);
-end;
+  SyncDoWatcherEvent;
 
+  FCurrentEventData.OriginalEvent := nil;
+end;
 {$ENDIF}
 
 {$IF DEFINED(HAIKUQT)}
@@ -929,22 +952,24 @@ begin
   {$IFDEF DEBUG_WATCHER}
   DCDebug('FSWatcher: Send event, Path %s', [FCurrentEventData.Path]);
   {$ENDIF};
-  DoWatcherEvent;
+  SyncDoWatcherEvent;
 end;
 {$ENDIF}
 
 procedure TFileSystemWatcherImpl.DoWatcherEvent;
 var
   i, j: Integer;
+  AWatchPath: String;
 begin
   if not Terminated then
   begin
+    AWatchPath := FCurrentEventData.Path;
     try
       FWatcherLock.Acquire;
       try
         for i := 0 to FOSWatchers.Count - 1 do
         begin
-          if FOSWatchers[i].WatchPath = FCurrentEventData.Path then
+          if FOSWatchers[i].WatchPath = AWatchPath then
           begin
             for j := 0 to FOSWatchers[i].Observers.Count - 1 do
             begin
@@ -968,6 +993,19 @@ begin
                   {$IFDEF MSWINDOWS}
                   if gWatcherMode = fswmWholeDrive then
                     FCurrentEventData.Path := RegisteredWatchPath;
+                  {$ENDIF}
+                  {$IFDEF DARWIN}
+                  // FlatView Watch is supported on MacOS
+                  // FCurrentEventData.Path contains WatchPath
+                  // so in FlatView Mode, Path need to be adjusted to the Real Path
+                  if TFileView(UserData).FlatView then begin
+                    FCurrentEventData.Path := ExcludeTrailingPathDelimiter(ExtractFilePath(FCurrentEventData.OriginalEvent.fullPath));
+                  end else begin
+                    if TDarwinFSWatchEventCategory.ecChildChanged in FCurrentEventData.OriginalEvent.categories then
+                      // not watching SubDir, then SubDir event should be discarded
+                      continue;
+                    FCurrentEventData.Path := AWatchPath;
+                  end;
                   {$ENDIF}
                   WatcherEvent(FCurrentEventData);
                 end;

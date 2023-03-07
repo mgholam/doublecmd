@@ -1169,32 +1169,38 @@ begin
   end;
 end;
 
-procedure lngLoadLng(const sFileName:String);
+procedure lngLoadLng(const sFileName: String);
+const
+  DEFAULT_PO = 'doublecmd.pot';
 var
   Lang: String = '';
   FallbackLang: String = '';
 begin
   // Default english interface
-  if StrBegins(sFileName, 'doublecmd.po') then Exit;
-
+  if StrBegins(sFileName, 'doublecmd.po') then
+  begin
+    gPOFileName := DEFAULT_PO;
+    Exit;
+  end;
   gPOFileName := sFileName;
   if not mbFileExists(gpLngDir + gPOFileName) then
-    begin
-      gPOFileName := 'doublecmd.%s.po';
-      GetLanguageIDs(Lang, FallbackLang);
-      gPOFileName := Format(gPOFileName,[FallbackLang]);
-    end;
+  begin
+    gPOFileName := 'doublecmd.%s.po';
+    GetLanguageIDs(Lang, FallbackLang);
+    gPOFileName := Format(gPOFileName,[FallbackLang]);
+  end;
   if not mbFileExists(gpLngDir + gPOFileName) then
-    begin
-      gPOFileName := Format(gPOFileName,[Lang]);
-    end;
-  if mbFileExists(gpLngDir + gPOFileName) then
-    begin
-      DCDebug('Loading lng file: ' + gpLngDir + gPOFileName);
-      LRSTranslator := TTranslator.Create(gpLngDir + gPOFileName);
-      Translations.TranslateResourceStrings(gpLngDir + gPOFileName);
-      TranslateLCL(gPOFileName);
-    end;
+  begin
+    gPOFileName := Format(gPOFileName,[Lang]);
+  end;
+  if not mbFileExists(gpLngDir + gPOFileName) then
+    gPOFileName := DEFAULT_PO
+  else begin
+    DCDebug('Loading lng file: ' + gpLngDir + gPOFileName);
+    LRSTranslator := TTranslator.Create(gpLngDir + gPOFileName);
+    Translations.TranslateResourceStrings(TTranslator(LRSTranslator).POFile);
+    TranslateLCL(gPOFileName);
+  end;
 end;
 
 procedure DoLoadLng;
@@ -1203,7 +1209,6 @@ begin
 end;
 
 finalization
-  if Assigned(LRSTranslator) then
-    FreeAndNil(LRSTranslator);
+  FreeAndNil(LRSTranslator);
 
 end.

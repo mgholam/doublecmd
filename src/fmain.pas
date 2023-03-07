@@ -570,6 +570,8 @@ type
     procedure dskToolButtonMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure FormKeyUp( Sender: TObject; var {%H-}Key: Word; Shift: TShiftState) ;
+    procedure FormResize(Sender: TObject);
+    procedure lblDriveInfoResize(Sender: TObject);
     function MainToolBarToolItemShortcutsHint(Sender: TObject; ToolItem: TKASNormalItem): String;
     procedure mnuAllOperStartClick(Sender: TObject);
     procedure mnuAllOperStopClick(Sender: TObject);
@@ -2589,7 +2591,8 @@ begin
   end;
 
   QuickViewClose;
-  UpdatePrompt;
+  if Visible then
+     UpdatePrompt;
   UpdateTreeViewPath;
   UpdateMainTitleBar;
 end;
@@ -3513,6 +3516,7 @@ function TfrmMain.CopyFiles(SourceFileSource, TargetFileSource: IFileSource;
                             bShowDialog: Boolean;
                             QueueIdentifier: TOperationsManagerQueueIdentifier): Boolean;
 var
+  BaseDir: String;
   sDestination: String;
   sDstMaskTemp: String;
   FileSource: IFileSource;
@@ -3605,9 +3609,15 @@ begin
 
         sDestination := CopyDialog.edtDst.Text;
 
+        if SourceFileSource.IsClass(TArchiveFileSource) then
+          BaseDir := ExtractFilePath(SourceFileSource.CurrentAddress)
+        else begin
+          BaseDir := SourceFiles.Path;
+        end;
+
         GetDestinationPathAndMask(SourceFiles, SourceFileSource,
                                   TargetFileSource, sDestination,
-                                  SourceFiles.Path, TargetPath, sDstMaskTemp);
+                                  BaseDir, TargetPath, sDstMaskTemp);
 
         if (TargetFileSource = nil) or (Length(TargetPath) = 0) then
         begin
@@ -4051,6 +4061,23 @@ procedure TfrmMain.FormKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState) ;
 begin
   SetDragCursor(Shift);
+end;
+
+procedure TfrmMain.FormResize(Sender: TObject);
+begin
+  UpdatePrompt;
+end;
+
+procedure TfrmMain.lblDriveInfoResize(Sender: TObject);
+begin
+  with TLabel(Sender) do
+  begin
+    if Canvas.TextWidth(Caption) > Width then
+      Alignment:= taLeftJustify
+    else begin
+      Alignment:= taCenter;
+    end;
+  end;
 end;
 
 procedure TfrmMain.FormKeyDown(Sender: TObject; var Key: Word;
@@ -4532,6 +4559,7 @@ begin
               begin
                 NewPage := ANotebook.Page[i];
                 PageAlreadyExists := Assigned(NewPage.FileView) and
+                  mbCompareFileNames(NewPage.FileView.CurrentAddress, NewFileSource.CurrentAddress) and
                   mbCompareFileNames(NewPage.FileView.CurrentPath, NewPath);
                 if PageAlreadyExists then
                   Break;
@@ -6641,8 +6669,6 @@ begin
 end;
 
 procedure TfrmMain.UpdatePrompt;
-const
-  PTLen = 40;
 var
   st: String;
   Properties: TFileSourceProperties;
@@ -6652,18 +6678,11 @@ begin
     with lblCommandPath do
     begin
       Visible := True;
-      AutoSize := False;
-      if UTF8Length(ActiveFrame.CurrentPath) > PTLen
-      then
-        st:= UTF8Copy(ActiveFrame.CurrentPath,
-                              UTF8Length(ActiveFrame.CurrentPath) - PTLen,
-                              PTLen)
-      else
-        st:= ActiveFrame.CurrentPath;
-      //
-      Caption := Format(fmtCommandPath, [st]);
-      AutoSize := True;
-      Left := 1;
+      st := ExcludeTrailingBackslash(ActiveFrame.CurrentPath);
+      Hint := st;
+
+      Caption := MinimizeFilePath(Format(fmtCommandPath, [st]),
+              Canvas, pnlCommand.Width div 3);
     end;
 
     // Change path in terminal
