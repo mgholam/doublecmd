@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Double Commander 1.1.0 alpha\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-11-15 11:15+0300\n"
-"PO-Revision-Date: 2023-01-07 17:27+0100\n"
+"PO-Revision-Date: 2023-03-29 01:55+0200\n"
 "Last-Translator: Jozef Gaal <preklady@mayday.sk>\n"
 "Language-Team: Jozef Gaál <preklady@mayday.sk>\n"
 "Language: sk\n"
@@ -5914,6 +5914,10 @@ msgstr "Kliknite pre zmenu ikony!"
 msgid "Apply current settings to all current configured filenames and paths"
 msgstr "Použiť aktuálne nastavenia na všetky aktuálne nakonfigurované názvy súborov a ciest"
 
+#: tfrmoptionsfileassocextra.cbdefaultcontextactions.caption
+msgid "Default context actions (View/Edit)"
+msgstr "Predvolené kontextové akcie (Zobraziť/Upraviť)"
+
 #: tfrmoptionsfileassocextra.cbexecuteviashell.caption
 msgctxt "tfrmoptionsfileassocextra.cbexecuteviashell.caption"
 msgid "Execute via shell"
@@ -9719,7 +9723,6 @@ msgid "Stretch only large"
 msgstr "Natiahnuť iba veľké"
 
 #: tfrmviewer.actundo.caption
-#, fuzzy
 msgctxt "tfrmviewer.actundo.caption"
 msgid "Undo"
 msgstr "Späť"
@@ -14276,4 +14279,3 @@ msgstr "Žiadne nahradenie nebolo vykonané."
 #, object-pascal-format
 msgid "No setup named \"%s\""
 msgstr "Žiadne nastavenie s názvom \"%s\""
-

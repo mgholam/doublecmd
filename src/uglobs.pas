@@ -172,7 +172,7 @@ type
 
 const
   { Default hotkey list version number }
-  hkVersion = 58;
+  hkVersion = 59;
   // 54 - In "Viewer" context, added the "W" for "cm_WrapText", "4" for "cm_ShowAsDec", "8" for "cm_ShowOffice".
   // 53 - In "Main" context, change shortcut "Alt+`" to "Alt+0" for the "cm_ActivateTabByIndex".
   // 52 - In "Main" context, add shortcut "Ctrl+Shift+B" for "cm_FlatViewSel".
@@ -357,6 +357,7 @@ var
   glsVolumeSizeHistory : TStringListEx;
   glsIgnoreList : TStringListEx;
   gOnlyOneAppInstance,
+  gColumnsTitleLikeValues: Boolean;
   gCutTextToColWidth : Boolean;
   gExtendCellWidth : Boolean;
   gSpaceMovesDown: Boolean;
@@ -445,7 +446,8 @@ var
 
   gInactivePanelBrightness: Integer; // 0 .. 100 (black .. full color)
   gIndUseGradient : Boolean; // use gradient on drive label
-  gIndForeColor, // foreColor of use space on drive label
+  gIndForeColor, // foreColor of used space on drive label
+  gIndThresholdForeColor, // foreColor for mote than Threshold of used space on drive label
   gIndBackColor: TColor; // backColor of free space on drive label
 
   gLogInfoColor,
@@ -640,6 +642,7 @@ var
   gViewerLeftMargin: Integer;
   gViewerLineSpacing: Integer;
   gViewerAutoCopy: Boolean;
+  gViewerSynEditMask: String;
 
   { Editor }
   gEditWaitTime: Integer;
@@ -679,6 +682,7 @@ var
   gFileAssociationLastCustomAction: string;
   gOfferToAddToFileAssociations: boolean;
   gExtendedContextMenu: boolean;
+  gDefaultContextActions: boolean;
   gOpenExecuteViaShell: boolean;
   gExecuteViaTerminalClose: boolean;
   gExecuteViaTerminalStayOpen: boolean;
@@ -715,6 +719,10 @@ var
   crArrowCopy: Integer = 1;
   crArrowMove: Integer = 2;
   crArrowLink: Integer = 3;
+
+{$IF DEFINED(UNIX) AND NOT (DEFINED(DARWIN) OR DEFINED(HAIKU))}
+  gSystemItemProperties: Boolean = False;
+{$ENDIF}
 
   { TotalCommander Import/Export }
   {$IFDEF MSWINDOWS}
@@ -755,7 +763,7 @@ implementation
 uses
    LCLProc, LCLType, Dialogs, Laz2_XMLRead, LazUTF8, LConvEncoding, uExifWdx,
    uGlobsPaths, uLng, uShowMsg, uFileProcs, uOSUtils, uFindFiles, uEarlyConfig,
-   uDCUtils, fMultiRename, uFile, uDCVersion, uDebug, uFileFunctions,
+   uDCUtils, fMultiRename, uDCVersion, uDebug, uFileFunctions,
    uDefaultPlugins, Lua, uKeyboard, DCOSUtils, DCStrUtils, uPixMapManager,
    uSynDiffControls
    {$IF DEFINED(MSWINDOWS)}
@@ -1230,6 +1238,7 @@ begin
       AddIfNotExists(['6'],[],'cm_ShowGraphics');
       AddIfNotExists(['7'],[],'cm_ShowPlugins');
       AddIfNotExists(['8'],[],'cm_ShowOffice');
+      AddIfNotExists(['9'],[],'cm_ShowCode');
 
       AddIfNotExists(['C'],[],'cm_ImageCenter');
       AddIfNotExists(['F'],[],'cm_StretchImage');
@@ -1257,6 +1266,7 @@ begin
       //AddIfNotExists(['Down'],[],'cm_Rotate90');
 
       AddIfNotExists(VK_P, [ssModifier], 'cm_Print');
+      AddIfNotExists(VK_G, [ssModifier], 'cm_GotoLine');
       AddIfNotExists(VK_A, [ssModifier], 'cm_SelectAll');
       AddIfNotExists(VK_C, [ssModifier], 'cm_CopyToClipboard');
       AddIfNotExists(VK_Z, [ssModifier], 'cm_Undo');
@@ -1680,6 +1690,7 @@ begin
   gColumnsTitleStyle := tsNative;
   gCustomColumnsChangeAllColumns := False;
   gDateTimeFormat := DefaultDateTimeFormat;
+  gColumnsTitleLikeValues := False;
   gCutTextToColWidth := True;
   gExtendCellWidth := False;
   gShowSystemFiles := False;
@@ -1812,7 +1823,8 @@ begin
 
   gInactivePanelBrightness := 100; // Full brightness
   gIndUseGradient := True;
-  gIndForeColor := clBlack;
+  gIndForeColor := clSkyBlue;
+  gIndThresholdForeColor := clRed;
   gIndBackColor := clWhite;
 
   gLogInfoColor:= clNavy;
@@ -2078,6 +2090,7 @@ begin
   gViewerLineSpacing := 0;
   gPrintMargins:= Classes.Rect(200, 200, 200, 200);
   gViewerAutoCopy := True;
+  gViewerSynEditMask := AllFilesMask;
 
   { Editor }
   gEditWaitTime := 2000;
@@ -2118,6 +2131,7 @@ begin
   gOfferToAddToFileAssociations := False;
   gExtendedContextMenu := False;
   gOpenExecuteViaShell := False;
+  gDefaultContextActions := True;
   gExecuteViaTerminalClose := False;
   gExecuteViaTerminalStayOpen := False;
   gIncludeFileAssociation := False;
@@ -2442,7 +2456,6 @@ end;
 
 procedure SaveGlobs;
 var
-  TmpConfig: TXmlConfig;
   ErrMsg: String = '';
 begin
   if (gUseConfigInProgramDirNew <> gUseConfigInProgramDir) and
@@ -2708,6 +2721,7 @@ begin
       gAutoFillColumns := GetValue(Node, 'AutoFillColumns', gAutoFillColumns);
       gAutoSizeColumn := GetValue(Node, 'AutoSizeColumn', gAutoSizeColumn);
       gDateTimeFormat := GetValidDateTimeFormat(GetValue(Node, 'DateTimeFormat', gDateTimeFormat), DefaultDateTimeFormat);
+      gColumnsTitleLikeValues := GetValue(Node, 'ColumnsTitleLikeValues', gColumnsTitleLikeValues);
       gCutTextToColWidth := GetValue(Node, 'CutTextToColumnWidth', gCutTextToColWidth);
       gExtendCellWidth := GetValue(Node, 'ExtendCellWidth', gExtendCellWidth);
       gShowSystemFiles := GetValue(Node, 'ShowSystemFiles', gShowSystemFiles);
@@ -2778,6 +2792,7 @@ begin
       gInactivePanelBrightness := GetValue(Node, 'InactivePanelBrightness', gInactivePanelBrightness);
       gIndUseGradient := GetValue(Node, 'FreeSpaceIndicator/UseGradient', gIndUseGradient);
       gIndForeColor := GetValue(Node, 'FreeSpaceIndicator/ForeColor', gIndForeColor);
+      gIndThresholdForeColor := GetValue(Node, 'FreeSpaceIndicator/ThresholdForeColor', gIndThresholdForeColor);
       gIndBackColor := GetValue(Node, 'FreeSpaceIndicator/BackColor', gIndBackColor);
 
       gLogInfoColor:= GetValue(Node, 'LogWindow/Info', gLogInfoColor);
@@ -3085,6 +3100,9 @@ begin
       gHotDirPathToBeRelativeTo := gConfig.GetValue(Node, 'PathToBeRelativeTo', gHotDirPathToBeRelativeTo);
       gHotDirPathModifierElements := tHotDirPathModifierElements(GetValue(Node, 'PathModifierElements', Integer(gHotDirPathModifierElements)));
       gDefaultTextEncoding := NormalizeEncoding(GetValue(Node, 'DefaultTextEncoding', gDefaultTextEncoding));
+{$IF DEFINED(UNIX) AND NOT (DEFINED(DARWIN) OR DEFINED(HAIKU))}
+      gSystemItemProperties := GetValue(Node, 'SystemItemProperties', gSystemItemProperties);
+{$ENDIF}
     end;
 
     { Thumbnails }
@@ -3185,6 +3203,7 @@ begin
       gBookFontColor := GetValue(Node, 'FontColor', gBookFontColor);
       gTextPosition := GetValue(Node, 'TextPosition',  gTextPosition);
       gViewerAutoCopy := GetValue(Node, 'AutoCopy',  gViewerAutoCopy);
+      gViewerSynEditMask := GetValue(Node, 'SynEditMask', gViewerSynEditMask);
       if LoadedConfigVersion < 7 then
       begin
         gThumbSave := GetValue(Node, 'SaveThumbnails', gThumbSave);
@@ -3258,6 +3277,7 @@ begin
       gOfferToAddToFileAssociations := GetValue(Node, 'OfferToAddNewFileType', gOfferToAddToFileAssociations);
       gFileAssociationLastCustomAction := GetValue(Node, 'LastCustomAction', gFileAssociationLastCustomAction);
       gExtendedContextMenu := GetValue(Node, 'ExpandedContextMenu', gExtendedContextMenu);
+      gDefaultContextActions := GetValue(Node,'DefaultContextActions', gDefaultContextActions);
       gOpenExecuteViaShell := GetValue(Node,'ExecuteViaShell', gOpenExecuteViaShell);
       gExecuteViaTerminalClose := GetValue(Node,'OpenSystemWithTerminalClose', gExecuteViaTerminalClose);
       gExecuteViaTerminalStayOpen := GetValue(Node,'OpenSystemWithTerminalStayOpen', gExecuteViaTerminalStayOpen);
@@ -3460,6 +3480,7 @@ begin
     SetValue(Node, 'CustomColumnsChangeAllColumns', gCustomColumnsChangeAllColumns);
     SetValue(Node, 'BriefViewFileExtAligned', gBriefViewFileExtAligned);
     SetValue(Node, 'DateTimeFormat', gDateTimeFormat);
+    SetValue(Node, 'ColumnsTitleLikeValues', gColumnsTitleLikeValues);
     SetValue(Node, 'CutTextToColumnWidth', gCutTextToColWidth);
     SetValue(Node, 'ExtendCellWidth', gExtendCellWidth);
     SetValue(Node, 'ShowSystemFiles', gShowSystemFiles);
@@ -3523,6 +3544,7 @@ begin
     SetValue(Node, 'InactivePanelBrightness', gInactivePanelBrightness);
     SetValue(Node, 'FreeSpaceIndicator/UseGradient', gIndUseGradient);
     SetValue(Node, 'FreeSpaceIndicator/ForeColor', gIndForeColor);
+    SetValue(Node, 'FreeSpaceIndicator/ThresholdForeColor', gIndThresholdForeColor);
     SetValue(Node, 'FreeSpaceIndicator/BackColor', gIndBackColor);
 
     SetValue(Node, 'LogWindow/Info', gLogInfoColor);
@@ -3742,6 +3764,9 @@ begin
     SetValue(Node, 'PathToBeRelativeTo', gHotDirPathToBeRelativeTo);
     SetValue(Node, 'PathModifierElements', Integer(gHotDirPathModifierElements));
     SetValue(Node, 'DefaultTextEncoding', gDefaultTextEncoding);
+{$IF DEFINED(UNIX) AND NOT (DEFINED(DARWIN) OR DEFINED(HAIKU))}
+    SetValue(Node, 'SystemItemProperties', gSystemItemProperties);
+{$ENDIF}
 
     { Thumbnails }
     Node := FindNode(Root, 'Thumbnails', True);
@@ -3819,6 +3844,7 @@ begin
     SetValue(Node, 'FontColor', gBookFontColor);
     SetValue(Node, 'TextPosition', gTextPosition);
     SetValue(Node, 'AutoCopy', gViewerAutoCopy);
+    SetValue(Node, 'SynEditMask', gViewerSynEditMask);
 
     { Editor }
     Node := FindNode(Root, 'Editor',True);
@@ -3868,6 +3894,7 @@ begin
     SetValue(Node, 'OfferToAddNewFileType', gOfferToAddToFileAssociations);
     SetValue(Node, 'LastCustomAction', gFileAssociationLastCustomAction);
     SetValue(Node, 'ExpandedContextMenu', gExtendedContextMenu);
+    SetValue(Node, 'DefaultContextActions', gDefaultContextActions);
     SetValue(Node, 'ExecuteViaShell', gOpenExecuteViaShell);
     SetValue(Node, 'OpenSystemWithTerminalClose', gExecuteViaTerminalClose);
     SetValue(Node, 'OpenSystemWithTerminalStayOpen', gExecuteViaTerminalStayOpen);

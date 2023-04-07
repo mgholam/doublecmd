@@ -4215,6 +4215,10 @@ msgstr "Фиксированная ширина колонок"
 msgid "Dark mode"
 msgstr "Тёмный режим"
 
+#: tfrmoptionscolumnsview.cbcolumnstitlelikevalues.caption
+msgid "Column titles alignment &like values"
+msgstr "&Выравнивать заголовки как значения"
+
 #: tfrmoptionscolumnsview.cbcuttexttocolwidth.caption
 msgctxt "TFRMOPTIONSCOLUMNSVIEW.CBCUTTEXTTOCOLWIDTH.CAPTION"
 msgid "Cut &text to column width"
@@ -5912,6 +5916,10 @@ msgstr "Нажмите здесь для смены значка"
 msgid "Apply current settings to all current configured filenames and paths"
 msgstr "Применить настройки ко всем именам файлов и путям"
 
+#: tfrmoptionsfileassocextra.cbdefaultcontextactions.caption
+msgid "Default context actions (View/Edit)"
+msgstr "Контекстные действия по умолчанию (просмотр/редактирование)"
+
 #: tfrmoptionsfileassocextra.cbexecuteviashell.caption
 msgctxt "tfrmoptionsfileassocextra.cbexecuteviashell.caption"
 msgid "Execute via shell"
@@ -6122,6 +6130,12 @@ msgctxt "TFRMOPTIONSFILEPANELSCOLORS.BTNINDCOLOR.CAPTION"
 msgid ">>"
 msgstr ">>"
 
+#: tfrmoptionsfilepanelscolors.btnindthresholdcolor.caption
+#, fuzzy
+msgctxt "tfrmoptionsfilepanelscolors.btnindthresholdcolor.caption"
+msgid ">>"
+msgstr ">>"
+
 #: tfrmoptionsfilepanelscolors.btnmarkcolor.caption
 msgctxt "TFRMOPTIONSFILEPANELSCOLORS.BTNMARKCOLOR.CAPTION"
 msgid ">>"
@@ -6206,6 +6220,11 @@ msgstr "Цвет фона &индикатора:"
 #: tfrmoptionsfilepanelscolors.lblindcolor.caption
 msgid "&Indicator Fore Color:"
 msgstr "&Цвет индикатора:"
+
+#: tfrmoptionsfilepanelscolors.lblindthresholdcolor.caption
+msgctxt "tfrmoptionsfilepanelscolors.lblindthresholdcolor.caption"
+msgid "Indicator &Threshold Color:"
+msgstr "Цвет &предела индикатора:"
 
 #: tfrmoptionsfilepanelscolors.lblmarkcolor.caption
 msgctxt "TFRMOPTIONSFILEPANELSCOLORS.LBLMARKCOLOR.CAPTION"

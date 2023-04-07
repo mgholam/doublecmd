@@ -64,6 +64,7 @@ object frmFileProperties: TfrmFileProperties
             Height = 32
             Top = 0
             Width = 32
+            Stretch = True
           end
         end
         object lblFileName: TLabel
@@ -787,7 +788,6 @@ object frmFileProperties: TfrmFileProperties
     BorderSpacing.Bottom = 4
     Caption = 'Ski&p this file'
     Kind = bkIgnore
-    ModalResult = 5
     OnClick = btnSkipFileClick
     TabOrder = 4
   end
