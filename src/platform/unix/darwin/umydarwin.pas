@@ -3,7 +3,7 @@
    -------------------------------------------------------------------------
    This unit contains specific DARWIN functions.
 
-   Copyright (C) 2016-2021 Alexander Koblov (alexx2000@mail.ru)
+   Copyright (C) 2016-2023 Alexander Koblov (alexx2000@mail.ru)
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -33,10 +33,7 @@ unit uMyDarwin;
 interface
 
 uses
-  Classes, SysUtils, UnixType,
-  InterfaceBase, Controls, Menus,
-  MacOSAll, CocoaAll, CocoaPrivate, CocoaInt,
-  Cocoa_Extra, CocoaWSMenus, CocoaUtils;
+  Classes, SysUtils, UnixType, MacOSAll, CocoaAll, CocoaUtils, CocoaInt, Cocoa_Extra, InterfaceBase, Menus, CocoaWSMenus;
 
 // Darwin Util Function
 function StringToNSString(const S: String): NSString;
@@ -46,14 +43,14 @@ function ListToNSArray(const list:TStrings): NSArray;
 
 function getMacOSDefaultTerminal(): String;
 
-procedure cocoaInvalidControlCursor( const control:TWinControl );
-
 function NSGetTempPath: String;
 
 function NSGetFolderPath(Folder: NSSearchPathDirectory): String;
 
 function GetFileDescription(const FileName: String): String;
 function MountNetworkDrive(const serverAddress: String): Boolean;
+
+function unmountAndEject(const path: String): Boolean;
 
 // Workarounds for FPC RTL Bug
 // copied from ptypes.inc and modified fstypename only
@@ -343,16 +340,9 @@ begin
   CFRelease(FileNameRef);
 end;
 
-
-procedure cocoaInvalidControlCursor( const control:TWinControl );
-var
-  view: NSView;
+function unmountAndEject(const path: String): Boolean;
 begin
-  if control.HandleAllocated then
-  begin
-    view:= NSObject(control.Handle).lclContentView;
-    view.window.invalidateCursorRectsForView( view );
-  end;
+  Result:= NSWorkspace.sharedWorkspace.unmountAndEjectDeviceAtPath( StringToNSString(path) );
 end;
 
 
@@ -399,6 +389,7 @@ procedure Finalize;
 begin
   if (NetFS <> NilHandle) then FreeLibrary(NetFS);
   if (CoreServices <> NilHandle) then FreeLibrary(CoreServices);
+  FreeAndNil( MacosServiceMenuHelper );
 end;
 
 initialization

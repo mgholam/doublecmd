@@ -71,11 +71,11 @@ implementation
 uses
   LCLProc, Dialogs, Graphics, uFindEx, uDCUtils, uShowMsg, uFileSystemFileSource,
   uOSUtils, uFileProcs, uShellExecute, uLng, uPixMapManager, uMyUnix, uOSForms,
-  fMain, fFileProperties, DCOSUtils, DCStrUtils, uExts, uArchiveFileSourceUtil
+  fMain, fFileProperties, DCOSUtils, DCStrUtils, uExts, uArchiveFileSourceUtil, uSysFolders
   {$IF DEFINED(DARWIN)}
   , MacOSAll
   {$ELSEIF NOT DEFINED(HAIKU)}
-  , uKeyFile, uMimeActions, uSysFolders
+  , uKeyFile, uMimeActions
     {$IF DEFINED(LINUX)}
   , uRabbitVCS
     {$ENDIF}
@@ -215,14 +215,14 @@ begin
   begin
     if IsInPath(FDrive.Path, frmMain.ActiveFrame.CurrentPath, True, True) then
     begin
-      frmMain.ActiveFrame.CurrentPath:= PathDelim;
+      frmMain.ActiveFrame.CurrentPath:= GetHomeDir;
     end;
   end;
   if frmMain.NotActiveFrame.FileSource.IsClass(TFileSystemFileSource) then
   begin
     if IsInPath(FDrive.Path, frmMain.NotActiveFrame.CurrentPath, True, True) then
     begin
-      frmMain.NotActiveFrame.CurrentPath:= PathDelim;
+      frmMain.NotActiveFrame.CurrentPath:= GetHomeDir;
     end;
   end
 end;
@@ -525,11 +525,17 @@ begin
     end
   else
     begin
+      {$IF not DEFINED(DARWIN)}
       mi.Caption := rsMnuUmount;
       mi.OnClick := Self.DriveUnmountSelect;
+      {$ELSE}
+      mi.Caption := rsMnuUmount + ' / ' + rsMnuEject;
+      mi.OnClick := Self.DriveEjectSelect;
+      {$ENDIF}
     end;
   Self.Items.Add(mi);
 
+  {$IF not DEFINED(DARWIN)}
   if ADrive^.IsMediaEjectable then
     begin
       mi :=TMenuItem.Create(Self);
@@ -537,6 +543,7 @@ begin
       mi.OnClick := Self.DriveEjectSelect;
       Self.Items.Add(mi);
     end;
+  {$ENDIF}
 end;
 
 { TShellContextMenu.CreateActionSubMenu }
@@ -953,8 +960,8 @@ end;
 
 destructor TShellContextMenu.Destroy;
 begin
-  FreeThenNil(FFiles);
-  FreeThenNil(FMenuImageList);
+  FreeAndNil(FFiles);
+  FreeAndNil(FMenuImageList);
   inherited Destroy;
 end;
 

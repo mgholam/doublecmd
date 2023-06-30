@@ -68,6 +68,7 @@ type
 
   TfrmMain = class(TAloneForm, IFormCommands)
     actAddPlugin: TAction;
+    actSaveFileDetailsToFile: TAction;
     actLoadList: TAction;
     actExtractFiles: TAction;
     actAddPathToCmdLine: TAction;
@@ -773,6 +774,7 @@ type
     procedure AppActivate(Sender: TObject);
     procedure AppDeActivate(Sender: TObject);
     procedure AppEndSession(Sender: TObject);
+    procedure AppThemeChange(Sender: TObject);
     procedure AppQueryEndSession(var Cancel: Boolean);
     procedure AppException(Sender: TObject; E: Exception);
     procedure AppShowHint(var HintStr: string; var CanShow: Boolean; var HintInfo: THintInfo);
@@ -878,8 +880,6 @@ type
     procedure LoadTabsCommandLine(Params: TCommandLineParams);
     procedure AddTab(ANoteBook: TFileViewNotebook; aPath: String);
     {$IF DEFINED(DARWIN)}
-    procedure resetScreenCursor;
-    procedure FormActivate(Sender: TObject);
     procedure OnNSServiceOpenWithNewTab( filenames:TStringList );
     function NSServiceMenuIsReady(): boolean;
     function NSServiceMenuGetFilenames(): TStringList;
@@ -937,7 +937,7 @@ implementation
 {$R *.lfm}
 
 uses
-  uFileProcs, uShellContextMenu, fTreeViewMenu, uSearchResultFileSource,
+  Themes, uFileProcs, uShellContextMenu, fTreeViewMenu, uSearchResultFileSource,
   Math, LCLIntf, Dialogs, uGlobs, uLng, uMasks, fCopyMoveDlg, uQuickViewPanel,
   uShowMsg, uDCUtils, uLog, uGlobsPaths, LCLProc, uOSUtils, uPixMapManager, LazUTF8,
   uDragDropEx, uKeyboard, uFileSystemFileSource, fViewOperations, uMultiListFileSource,
@@ -948,7 +948,7 @@ uses
   Laz2_XMLRead, DCOSUtils, DCStrUtils, fOptions, fOptionsFrame, fOptionsToolbar, uClassesEx,
   uHotDir, uFileSorting, DCBasicTypes, foptionsDirectoryHotlist, uConnectionManager,
   fOptionsToolbarBase, fOptionsToolbarMiddle, fEditor, uColumns, StrUtils, uSysFolders,
-  uColumnsFileView
+  uColumnsFileView, dmHigh
 {$IFDEF MSWINDOWS}
   , uNetworkThread
 {$ENDIF}
@@ -1208,6 +1208,14 @@ begin
   // 5. the issue can be effectively avoided by setting a larger width.
   nbLeft.Width:= 2048;
   nbRight.Width:= 2048;
+
+  // in LCLCOCOA, there is an issue about the order of CM_ENTER messages in edtCommand
+  // since CM_ENTER is sent delayed, when we press a Key in the main form,
+  // edtCommand.SelStart set in TypeInCommandLine() is overwritten when CM_ENTER is processed.
+  // if edtCommand.AutoSelect=True, it will cause all selected.
+  // there is the MR in LCL, but it has not been merged yet.
+  // see also: https://gitlab.com/freepascal.org/lazarus/lazarus/-/merge_requests/116
+  edtCommand.AutoSelect:= false;
   {$ENDIF}
 
   LoadTabs;
@@ -1238,8 +1246,9 @@ begin
   UpdateFreeSpace(fpLeft, True);
   UpdateFreeSpace(fpRight, True);
 
+  ThemeServices.OnThemeChange:= @AppThemeChange;
+
 {$IF DEFINED(DARWIN)}
-  self.OnActivate:= @FormActivate;
   InitNSServiceProvider( @OnNSServiceOpenWithNewTab, @NSServiceMenuIsReady, @NSServiceMenuGetFilenames );
   InitNSThemeChangedObserver( @NSThemeChangedHandler );
 {$ENDIF}
@@ -4334,8 +4343,8 @@ end;
 
 procedure TfrmMain.sboxDrivePaint(Sender: TObject);
 begin
-  PaintDriveFreeBar(Sender, gIndUseGradient, gIndForeColor,
-    gIndThresholdForeColor, gIndBackColor);
+  with gColors.FreeSpaceInd^ do
+    PaintDriveFreeBar(Sender, gIndUseGradient, ForeColor, ThresholdForeColor, BackColor);
 end;
 
 procedure TfrmMain.PaintDriveFreeBar(Sender: TObject; const bIndUseGradient: boolean;
@@ -4402,15 +4411,18 @@ var
 begin
   LogMsgTypeObject := seLogWindow.Lines.Objects[Line-1];
   Special := True;
-  case LogMsgType of
-  lmtInfo:
-    FG := gLogInfoColor;
-  lmtSuccess:
-    FG := gLogSuccessColor;
-  lmtError:
-    FG := gLogErrorColor
-  else
-    FG := clWindowText;
+  with gColors.Log^ do
+  begin
+    case LogMsgType of
+    lmtInfo:
+      FG := InfoColor;
+    lmtSuccess:
+      FG := SuccessColor;
+    lmtError:
+      FG := ErrorColor
+    else
+      FG := clWindowText;
+    end;
   end;
 end;
 
@@ -4800,9 +4812,12 @@ begin
 
   if gSeparateTree then
   begin
-    ShellTreeView.Font.Color := gForeColor;
-    ShellTreeView.BackgroundColor := gBackColor;
-    ShellTreeView.SelectionColor := gCursorColor;
+    with gColors.FilePanel^ do
+    begin
+      ShellTreeView.Font.Color := ForeColor;
+      ShellTreeView.BackgroundColor := BackColor;
+      ShellTreeView.SelectionColor := CursorColor;
+    end;
     FontOptionsToFont(gFonts[dcfMain], ShellTreeView.Font);
   end;
 end;
@@ -5114,7 +5129,6 @@ begin
       TabNode := TabNode.NextSibling;
     end;
   end;
-
   // Create at least one tab.
   if ANoteBook.PageCount = 0 then
   begin
@@ -5125,6 +5139,7 @@ begin
     else
       AFileViewFlags := [];
     AFileView := TColumnsFileView.Create(Page, aFileSource, gpExePath, AFileViewFlags);
+    Commands.DoSortByFunctions(AFileView, ColSet.GetColumnSet('Default').GetColumnFunctions(0));
     AssignEvents(AFileView);
   end
   else if Assigned(RootNode) then
@@ -6149,17 +6164,6 @@ begin
 end;
 
 {$IF DEFINED(DARWIN)}
-procedure TfrmMain.resetScreenCursor;
-begin
-  Screen.Cursor:= crDefault;
-  cocoaInvalidControlCursor( self );
-end;
-
-procedure TfrmMain.FormActivate(Sender: TObject);
-begin
-  resetScreenCursor;
-end;
-
 procedure TfrmMain.OnNSServiceOpenWithNewTab( filenames:TStringList );
 begin
   if Assigned(filenames) and (filenames.Count>0) then
@@ -6210,8 +6214,7 @@ end;
 
 procedure TfrmMain.NSThemeChangedHandler;
 begin
-  FrameLeft.UpdateColor;
-  FrameRight.UpdateColor;
+  ThemeServices.IntfDoOnThemeChange;
 end;
 {$ENDIF}
 
@@ -7046,10 +7049,6 @@ end;
 
 procedure TfrmMain.AppActivate(Sender: TObject);
 begin
-  {$IFDEF DARWIN}
-  resetScreenCursor;
-  {$ENDIF}
-
   if Assigned(FrameLeft) then
     FrameLeft.ReloadIfNeeded;
   if Assigned(FrameRight) then
@@ -7072,6 +7071,24 @@ begin
   frmMainClose(Sender, CloseAction);
 end;
 
+procedure TfrmMain.AppThemeChange(Sender: TObject);
+var
+  Index: Integer;
+begin
+  FrameLeft.UpdateColor;
+  FrameRight.UpdateColor;
+
+  gColorExt.UpdateStyle;
+  gHighlighters.UpdateStyle;
+
+  DCDEbug('AppThemeChange');
+
+  for Index:= 0 to Screen.CustomFormCount - 1 do
+  begin
+    Screen.CustomForms[Index].Perform(CM_THEMECHANGED, 0, 0);
+  end;
+end;
+
 procedure TfrmMain.AppQueryEndSession(var Cancel: Boolean);
 var
   CanClose: Boolean = True;
@@ -7084,14 +7101,20 @@ end;
 function TfrmMain.QObjectEventFilter(Sender: QObjectH; Event: QEventH): Boolean; cdecl;
 begin
   Result:= False;
-  if QEvent_type(Event) = QEventClose then
-  begin
-    TQtWidget(Self.Handle).SlotClose;
-    Result:= CloseQueryResult;
-    if Result then
-      QEvent_accept(Event)
-    else
-      QEvent_ignore(Event);
+  case QEvent_type(Event) of
+    QEventApplicationPaletteChange:
+    begin
+      ThemeServices.IntfDoOnThemeChange;
+    end;
+    QEventClose:
+    begin
+      TQtWidget(Self.Handle).SlotClose;
+      Result:= CloseQueryResult;
+      if Result then
+        QEvent_accept(Event)
+      else
+        QEvent_ignore(Event);
+    end;
   end;
 end;
 {$ENDIF}

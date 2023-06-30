@@ -28,7 +28,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  ExtCtrls, Buttons, ComCtrls, Grids, Menus, ActnList, EditBtn, LazUTF8Classes,
+  ExtCtrls, Buttons, ComCtrls, Grids, Menus, ActnList, EditBtn, DCClassesUtf8,
   uFileView, uFileSource, uFileSourceCopyOperation, uFile, uFileSourceOperation,
   uFileSourceOperationMessageBoxesUI, uFormCommands, uHotkeyManager, uClassesEx,
   uFileSourceDeleteOperation, KASProgressBar;
@@ -153,13 +153,13 @@ type
     { private declarations }
     FCancel: Boolean;
     FScanning: Boolean;
-    FFoundItems: TStringListUtf8;
-    FVisibleItems: TStringListUtf8;
+    FFoundItems: TStringListEx;
+    FVisibleItems: TStringListEx;
     FSortIndex: Integer;
     FSortDesc: Boolean;
     FNtfsShift: Boolean;
     FFileExists: TSyncRecState;
-    FSelectedItems: TStringListUtf8;
+    FSelectedItems: TStringListEx;
     FFileSourceL, FFileSourceR: IFileSource;
     FCmpFileSourceL, FCmpFileSourceR: IFileSource;
     FCmpFilePathL, FCmpFilePathR: string;
@@ -234,7 +234,7 @@ implementation
 
 uses
   fMain, uDebug, fDiffer, fSyncDirsPerformDlg, uGlobs, LCLType, LazUTF8, LazFileUtils,
-  DCClassesUtf8, uFileSystemFileSource, uFileSourceOperationOptions, DCDateTimeUtils,
+  uFileSystemFileSource, uFileSourceOperationOptions, DCDateTimeUtils,
   uDCUtils, uFileSourceUtil, uFileSourceOperationTypes, uShowForm, uAdministrator,
   uOSUtils, uLng, uMasks, Math, uClipboard, IntegerList, fMaskInputDlg, uSearchTemplate,
   StrUtils, uTypes, uFileSystemDeleteOperation;
@@ -754,8 +754,11 @@ begin
   gSyncDirsShowFilterCopyLeft   := sbCopyLeft.Down;
   gSyncDirsShowFilterDuplicates := sbDuplicates.Down;
   gSyncDirsShowFilterSingles    := sbSingles.Down;
-  if not IsMaskSearchTemplate(cbExtFilter.Text) then
-    gSyncDirsFileMask           := cbExtFilter.Text;
+  if gSyncDirsFileMaskSave = True then
+  begin
+    if not IsMaskSearchTemplate(cbExtFilter.Text) then
+      gSyncDirsFileMask         := cbExtFilter.Text;
+  end;
   if chkByContent.Enabled then
     gSyncDirsByContent          := chkByContent.Checked;
   glsMaskHistory.Assign(cbExtFilter.Items);
@@ -811,6 +814,14 @@ begin
   sbCopyLeft.Down        := gSyncDirsShowFilterCopyLeft;
   sbDuplicates.Down      := gSyncDirsShowFilterDuplicates;
   sbSingles.Down         := gSyncDirsShowFilterSingles;
+  if gSyncDirsFileMaskSave = False then
+  begin
+    Index := glsMaskHistory.IndexOf(gSyncDirsFileMask);
+    if Index <> -1 then
+      glsMaskHistory.Move(Index, 0)
+    else
+      glsMaskHistory.Insert(0, gSyncDirsFileMask);
+  end;
   cbExtFilter.Items.Assign(glsMaskHistory);
   cbExtFilter.Text       := gSyncDirsFileMask;
 
@@ -863,13 +874,16 @@ begin
         TextRect(Rect(Left, aRect.Top, Left + Width, aRect.Bottom),
           Left + 2, aRect.Top + 2, FVisibleItems[aRow]);
     end else begin
-      case r.FState of
-      srsNotEq:       Font.Color := gSyncUnknownColor;
-      srsCopyLeft:    Font.Color := gSyncRightColor;
-      srsCopyRight:   Font.Color := gSyncLeftColor;
-      srsDeleteLeft:  Font.Color := gSyncLeftColor;
-      srsDeleteRight: Font.Color := gSyncRightColor;
-      else Font.Color := clWindowText;
+      with gColors.SyncDirs^ do
+      begin
+        case r.FState of
+        srsNotEq:       Font.Color := UnknownColor;
+        srsCopyLeft:    Font.Color := RightColor;
+        srsCopyRight:   Font.Color := LeftColor;
+        srsDeleteLeft:  Font.Color := LeftColor;
+        srsDeleteRight: Font.Color := RightColor;
+        else Font.Color := clWindowText;
+        end;
       end;
       if Assigned(r.FFileL) then
       begin
@@ -1150,7 +1164,7 @@ begin
   if Assigned(FVisibleItems) then
     FVisibleItems.Clear
   else begin
-    FVisibleItems := TStringListUtf8.Create;
+    FVisibleItems := TStringListEx.Create;
     FVisibleItems.CaseSensitive := FileNameCaseSensitive;
   end;
   { init filter }
@@ -1283,23 +1297,23 @@ var
   var
     i, j, tot: Integer;
     it: TStringList;
-    dirsLeft, dirsRight: TStringListUtf8;
+    dirsLeft, dirsRight: TStringListEx;
     d: string;
   begin
     i := FFoundItems.IndexOf(dir);
     if i < 0 then
     begin
-      it := TStringListUtf8.Create;
+      it := TStringListEx.Create;
       it.CaseSensitive := FileNameCaseSensitive;
       it.Sorted := True;
       FFoundItems.AddObject(dir, it);
     end else
       it := TStringList(FFoundItems.Objects[i]);
     if dir <> '' then dir := AppendPathDelim(dir);
-    dirsLeft := TStringListUtf8.Create;
+    dirsLeft := TStringListEx.Create;
     dirsLeft.CaseSensitive := FileNameCaseSensitive;
     dirsLeft.Sorted := True;
-    dirsRight := TStringListUtf8.Create;
+    dirsRight := TStringListEx.Create;
     dirsRight.CaseSensitive := FileNameCaseSensitive;
     dirsRight.Sorted := True;
     try
@@ -1866,7 +1880,7 @@ var
   AFiles: TFiles;
 begin
   inherited Create(AOwner);
-  FFoundItems := TStringListUtf8.Create;
+  FFoundItems := TStringListEx.Create;
   FFoundItems.CaseSensitive := FileNameCaseSensitive;
   FFoundItems.Sorted := True;
   FFileSourceL := FileView1.FileSource;
@@ -1886,7 +1900,7 @@ begin
   FSortDesc := False;
   MainDrawGrid.RowCount := 0;
   // ---------------------------------------------------------------------------
-  FSelectedItems := TStringListUtf8.Create;
+  FSelectedItems := TStringListEx.Create;
   FSelectedItems.Sorted := True;
   FSelectedItems.Duplicates := dupIgnore;
   FSelectedItems.CaseSensitive := FileNameCaseSensitive;

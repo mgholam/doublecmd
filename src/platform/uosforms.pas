@@ -120,12 +120,13 @@ function GetControlHandle(AWindow: TWinControl): HWND;
 function GetWindowHandle(AWindow: TWinControl): HWND; overload;
 function GetWindowHandle(AHandle: HWND): HWND; overload;
 procedure CopyNetNamesToClip;
+function DarkStyle: Boolean;
 
 implementation
 
 uses
   ExtDlgs, LCLProc, Menus, Graphics, InterfaceBase, WSForms, LMessages, LCLIntf,
-  fMain, uConnectionManager, uShowMsg, uLng
+  fMain, uConnectionManager, uShowMsg, uLng, uDCUtils
   {$IF DEFINED(MSWINDOWS)}
   , LCLStrConsts, ComObj, ActiveX, DCOSUtils, uOSUtils, uFileSystemFileSource
   , uTotalCommander, FileUtil, Windows, ShlObj, uShlObjAdditional
@@ -133,7 +134,10 @@ uses
   , uDCReadRSVG, uFileSourceUtil, uGdiPlusJPEG, uListGetPreviewBitmap
   , Dialogs, Clipbrd, uDebug, JwaDbt, uThumbnailProvider, uShellFolder
   , uRecycleBinFileSource, uWslFileSource, uDCReadHEIF, uDCReadWIC
-    {$IFDEF LCLQT5}
+  , uShellFileSource
+    {$IF DEFINED(DARKWIN)}
+    , uDarkStyle
+    {$ELSEIF DEFINED(LCLQT5)}
     , qt5, qtwidgets, uDarkStyle
     {$ENDIF}
   {$ENDIF}
@@ -156,7 +160,7 @@ uses
     , qt6, qtwidgets
     {$ENDIF}
     {$IF DEFINED(LCLGTK2)}
-    , gtk2
+    , Gtk2,  Glib2, Themes
     {$ENDIF}
   {$ENDIF}
   , uDCReadSVG, uTurboJPEG;
@@ -545,6 +549,13 @@ begin
     MountNetworkDrive(Address);
 end;
 
+{$ELSEIF DEFINED(LCLGTK2)}
+
+procedure OnThemeChange; cdecl;
+begin
+  ThemeServices.IntfDoOnThemeChange;
+end;
+
 {$ENDIF}
 
 procedure MainFormCreate(MainForm : TCustomForm);
@@ -569,6 +580,16 @@ begin
     Screen.AddHandlerFormVisibleChanged(TScreenFormEvent(Handler), True);
   end;
 {$ENDIF}
+  // Register shell folder file source
+  if (Win32MajorVersion > 5) then
+  begin
+    RegisterVirtualFileSource(TShellFileSource.RootName, TShellFileSource);
+  end;
+  // Register recycle bin file source
+  if CheckWin32Version(5, 1) then
+  begin
+    RegisterVirtualFileSource(rsVfsRecycleBin, TRecycleBinFileSource);
+  end;
   // Register Windows Subsystem for Linux (WSL) file source
   if CheckWin32Version(10) then
   begin
@@ -576,11 +597,6 @@ begin
   end;
   // Register network file source
   RegisterVirtualFileSource(rsVfsNetwork, TWinNetFileSource);
-  // Register recycle bin file source
-  if CheckWin32Version(5, 1) then
-  begin
-    RegisterVirtualFileSource(rsVfsRecycleBin, TRecycleBinFileSource);
-  end;
 
   // If run under administrator
   if (IsUserAdmin = dupAccept) then
@@ -665,6 +681,15 @@ begin
   Screen.AddHandlerFormAdded(TScreenFormEvent(Handler), True);
   {$ENDIF}
 
+  {$IF DEFINED(LCLGTK2)}
+  Handler.Data:= gtk_settings_get_default();
+  if Assigned(Handler.Data) then
+  begin
+    g_signal_connect_data(Handler.Data, 'notify::gtk-theme-name',
+                          @OnThemeChange, nil, nil, 0);
+  end;
+  {$ENDIF}
+
   {$IF DEFINED(DARWIN)}
   if HasMountURL then
   begin
@@ -705,7 +730,7 @@ begin
     ShellContextMenu.PopUp(X, Y);
   finally
     // Free created menu
-    FreeThenNil(ShellContextMenu);
+    FreeAndNil(ShellContextMenu);
   end;
 end;
 {$ELSE}
@@ -717,7 +742,7 @@ begin
   end;
 
   // Free previous created menu
-  FreeThenNil(ShellContextMenu);
+  FreeAndNil(ShellContextMenu);
   // Create new context menu
   ShellContextMenu:= TShellContextMenu.Create(nil, Files, Background, UserWishForContextMenu);
   ShellContextMenu.OnClose := CloseEvent;
@@ -755,7 +780,7 @@ begin
   else
   begin
     // Free previous created menu
-    FreeThenNil(ShellContextMenu);
+    FreeAndNil(ShellContextMenu);
     // Create new context menu
     ShellContextMenu:= TShellContextMenu.Create(nil, ADrive);
     ShellContextMenu.OnClose := CloseEvent;
@@ -955,6 +980,17 @@ begin
 end;
 {$ENDIF}
 
+function DarkStyle: Boolean;
+{$IF DEFINED(DARKWIN)}
+begin
+  Result:= g_darkModeEnabled;
+end;
+{$ELSE}
+begin
+  Result:= not ColorIsLight(ColorToRGB(clWindow));
+end;
+{$ENDIF}
+
 {$IF DEFINED(UNIX) AND NOT (DEFINED(DARWIN) OR DEFINED(HAIKU))}
 procedure ShowOpenWithDialog(TheOwner: TComponent; const FileList: TStringList);
 begin
@@ -986,7 +1022,7 @@ initialization
 {$ENDIF}
 
 finalization
-  FreeThenNil(ShellContextMenu);
+  FreeAndNil(ShellContextMenu);
 
 end.
 

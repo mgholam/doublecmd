@@ -48,9 +48,6 @@ uses
   uWin32WidgetSetFix,
   {$ENDIF}
   {$ENDIF}
-  {$IFDEF LCLCOCOA}
-  uCocoaWidgetSetFix,
-  {$ENDIF}
   LCLProc,
   Classes,
   SysUtils,
@@ -185,10 +182,6 @@ begin
   Application.ShowMainForm:= False;
   Application.CreateForm(TfrmHackForm, frmHackForm);
 
-  {$IFDEF LCLCOCOA}
-  uCocoaWidgetSetFix.Initialize;
-  {$ENDIF}
-
   ProcessCommandLineParams; // before load paths
 
   if (gSplashForm) and (not CommandLineParams.NoSplash) then
@@ -216,7 +209,6 @@ begin
       InitPasswordStore;
       LoadPixMapManager;
       Application.CreateForm(TfrmMain, frmMain); // main form
-      Application.CreateForm(TdmHighl, dmHighl); // highlighters
       Application.CreateForm(TdmComData, dmComData); // common data
       Application.CreateForm(TdmHelpManager, dmHelpMgr); // help manager
 
