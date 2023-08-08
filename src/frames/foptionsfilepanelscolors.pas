@@ -29,7 +29,7 @@ interface
 uses
   //Lazarus, Free-Pascal, etc.
   Graphics, Classes, SysUtils, ComCtrls, StdCtrls, ColorBox, ExtCtrls, Dialogs,
-  DividerBevel, LMessages,
+  DividerBevel, LMessages, KASComboBox,
 
   //DC
   uColumns, fOptionsFrame, uColumnsFileView, Controls;
@@ -37,82 +37,58 @@ uses
 type
   { TfrmOptionsFilePanelsColors }
   TfrmOptionsFilePanelsColors = class(TOptionsEditor)
-    btnCursorBorderColor: TButton;
-    btnIndThresholdColor: TButton;
     btnResetToDCDefault: TButton;
     cbAllowOverColor: TCheckBox;
-    cbIndThresholdColor: TColorBox;
+    cbPathActiveText: TKASColorBoxButton;
+    cbPathInactiveText: TKASColorBoxButton;
     cbUseCursorBorder: TCheckBox;
-    cbCursorBorderColor: TColorBox;
-    lblIndThresholdColor: TLabel;
-    lblTextColor: TLabel;
-    cbTextColor: TColorBox;
-    btnForeColor: TButton;
-    lblBackgroundColor: TLabel;
-    cbBackColor: TColorBox;
-    btnBackColor: TButton;
-    lblBackgroundColor2: TLabel;
-    cbBackColor2: TColorBox;
-    btnBackColor2: TButton;
-    lblMarkColor: TLabel;
-    cbMarkColor: TColorBox;
-    btnMarkColor: TButton;
-    lblCursorColor: TLabel;
-    cbCursorColor: TColorBox;
-    btnCursorColor: TButton;
-    lblCursorText: TLabel;
-    cbCursorText: TColorBox;
-    btnCursorText: TButton;
-    lblInactiveCursorColor: TLabel;
-    cbInactiveCursorColor: TColorBox;
-    btnInactiveCursorColor: TButton;
-    lblInactiveMarkColor: TLabel;
-    cbInactiveMarkColor: TColorBox;
-    btnInactiveMarkColor: TButton;
+    cbCursorBorderColor: TKASColorBoxButton;
     dbOptionsVertical: TDividerBevel;
+    lblPathInactiveText: TLabel;
+    lblPathActiveText: TLabel;
+    lblTextColor: TLabel;
+    cbTextColor: TKASColorBoxButton;
+    lblBackgroundColor: TLabel;
+    cbBackColor: TKASColorBoxButton;
+    lblBackgroundColor2: TLabel;
+    cbBackColor2: TKASColorBoxButton;
+    lblMarkColor: TLabel;
+    cbMarkColor: TKASColorBoxButton;
+    lblCursorColor: TLabel;
+    cbCursorColor: TKASColorBoxButton;
+    lblCursorText: TLabel;
+    cbCursorText: TKASColorBoxButton;
+    lblInactiveCursorColor: TLabel;
+    cbInactiveCursorColor: TKASColorBoxButton;
+    lblInactiveMarkColor: TLabel;
+    cbInactiveMarkColor: TKASColorBoxButton;
     cbbUseInvertedSelection: TCheckBox;
     cbbUseInactiveSelColor: TCheckBox;
     cbbUseFrameCursor: TCheckBox;
     lblInactivePanelBrightness: TLabel;
     spPanelSplitter: TSplitter;
     tbInactivePanelBrightness: TTrackBar;
-    dbFreeSpaceIndicator: TDividerBevel;
-    cbbUseGradientInd: TCheckBox;
-    pbxFakeDrive: TPaintBox;
-    lblIndColor: TLabel;
-    cbIndColor: TColorBox;
-    btnIndColor: TButton;
-    lblIndBackColor: TLabel;
-    cbIndBackColor: TColorBox;
-    btnIndBackColor: TButton;
+    dbCurrentPath: TDividerBevel;
+    lblPathActiveBack: TLabel;
+    cbPathActiveBack: TKASColorBoxButton;
+    lblPathInactiveBack: TLabel;
+    cbPathInactiveBack: TKASColorBoxButton;
     pnlPreviewCont: TPanel;
     lblPreview: TLabel;
     pnlLeftPreview: TPanel;
     pnlRightPreview: TPanel;
     optColorDialog: TColorDialog;
-    procedure btnCursorBorderColorClick(Sender: TObject);
     procedure btnResetToDCDefaultClick(Sender: TObject);
-    procedure btnIndThresholdColorClick(Sender: TObject);
     procedure cbbUseFrameCursorChange(Sender: TObject);
     procedure cbColorBoxChange(Sender: TObject);
-    procedure btnForeColorClick(Sender: TObject);
-    procedure btnBackColorClick(Sender: TObject);
-    procedure btnBackColor2Click(Sender: TObject);
-    procedure btnMarkColorClick(Sender: TObject);
-    procedure btnCursorColorClick(Sender: TObject);
-    procedure btnCursorTextClick(Sender: TObject);
-    procedure btnInactiveCursorColorClick(Sender: TObject);
-    procedure btnInactiveMarkColorClick(Sender: TObject);
     procedure cbbUseInactiveSelColorChange(Sender: TObject);
+    procedure cbPathActiveTextChange(Sender: TObject);
+    procedure cbPathInactiveBackChange(Sender: TObject);
+    procedure cbPathInactiveTextChange(Sender: TObject);
     procedure cbUseCursorBorderChange(Sender: TObject);
-    procedure pbxFakeDriveClick(Sender: TObject);
     procedure tbInactivePanelBrightnessChange(Sender: TObject);
-    procedure cbbUseGradientIndChange(Sender: TObject);
-    procedure cbIndColorChange(Sender: TObject);
-    procedure btnIndColorClick(Sender: TObject);
-    procedure btnIndBackColorClick(Sender: TObject);
+    procedure cbPathActiveBackChange(Sender: TObject);
     procedure RefreshPreviewPanel;
-    procedure pbxFakeDrivePaint(Sender: TObject);
     procedure pnlLeftPreviewEnter(Sender: TObject);
     procedure pnlRightPreviewEnter(Sender: TObject);
     function JustForConfigDim(AColor: TColor): TColor;
@@ -123,7 +99,6 @@ type
     PreviewRightPanel: TColumnsFileView;
     ColumnClass: TPanelColumnsClass;
     ColPrm: TColPrm;
-    procedure ChooseColorClick(AColorBox: TColorBox);
   protected
     procedure Load; override;
     function Save: TOptionsEditorSaveFlags; override;
@@ -171,15 +146,15 @@ begin
   //2. Let's load the current settings to be shown on screen
   with gColors.FilePanel^ do
   begin
-    SetColorInColorBox(cbTextColor, ForeColor);
-    SetColorInColorBox(cbBackColor, BackColor);
-    SetColorInColorBox(cbBackColor2, BackColor2);
-    SetColorInColorBox(cbMarkColor, MarkColor);
-    SetColorInColorBox(cbCursorColor, CursorColor);
-    SetColorInColorBox(cbCursorText, CursorText);
-    SetColorInColorBox(cbInactiveCursorColor, InactiveCursorColor);
-    SetColorInColorBox(cbInactiveMarkColor, InactiveMarkColor);
-    SetColorInColorBox(cbCursorBorderColor, CursorBorderColor);
+    cbTextColor.Selected := ForeColor;
+    cbBackColor.Selected := BackColor;
+    cbBackColor2.Selected := BackColor2;
+    cbMarkColor.Selected := MarkColor;
+    cbCursorColor.Selected := CursorColor;
+    cbCursorText.Selected := CursorText;
+    cbInactiveCursorColor.Selected := InactiveCursorColor;
+    cbInactiveMarkColor.Selected := InactiveMarkColor;
+    cbCursorBorderColor.Selected := CursorBorderColor;
   end;
   cbAllowOverColor.Checked := gAllowOverColor;
   cbbUseInvertedSelection.Checked := gUseInvertedSelection;
@@ -187,13 +162,6 @@ begin
   cbbUseFrameCursor.Checked := gUseFrameCursor;
   cbUseCursorBorder.Checked := gUseCursorBorder;
   tbInactivePanelBrightness.Position := gInactivePanelBrightness;
-  with gColors.FreeSpaceInd^ do
-  begin
-    SetColorInColorBox(cbIndColor, ForeColor);
-    SetColorInColorBox(cbIndBackColor, BackColor);
-    SetColorInColorBox(cbIndThresholdColor, ThresholdForeColor);
-  end;
-  cbbUseGradientInd.Checked := gIndUseGradient;
   cbbUseFrameCursorChange(cbbUseFrameCursor);
   cbbUseInactiveSelColorChange(cbbUseInactiveSelColor);
 
@@ -208,16 +176,24 @@ begin
   //4. Let's define which ColumnClass it's gonna follow
   PreviewLeftPanel.ActiveColmSlave := ColumnClass;
   PreviewLeftPanel.isSlave := True;
+  PreviewLeftPanel.Demo := True;
   PreviewRightPanel.ActiveColmSlave := ColumnClass;
   PreviewRightPanel.isSlave := True;
+  PreviewRightPanel.Demo := True;
+
+  with gColors.Path^ do
+  begin
+    cbPathActiveText.Selected := ActiveFontColor;
+    cbPathActiveBack.Selected := ActiveColor;
+    cbPathInactiveText.Selected := InactiveFontColor;
+    cbPathInactiveBack.Selected := InactiveColor;
+  end;
 
   //5. Let's refresh the panel so we will show something
   RefreshPreviewPanel;
 
   //6. Good. Loading is completed.
   bLoadCompleted := True;
-
-  pbxFakeDrive.Hint := pbxFakeDrive.Tag.ToString + '%';
 end;
 
 { TfrmOptionsFilePanelsColors.Save }
@@ -241,12 +217,12 @@ begin
   gUseFrameCursor := cbbUseFrameCursor.Checked;
   gUseCursorBorder := cbUseCursorBorder.Checked;
   gInactivePanelBrightness := tbInactivePanelBrightness.Position;
-  gIndUseGradient := cbbUseGradientInd.Checked;
-  with gColors.FreeSpaceInd^ do
+  with gColors.Path^ do
   begin
-    ForeColor := cbIndColor.Selected;
-    BackColor := cbIndBackColor.Selected;
-    ThresholdForeColor := cbIndThresholdColor.Selected;
+    ActiveFontColor:= cbPathActiveText.Selected;
+    ActiveColor:= cbPathActiveBack.Selected;
+    InactiveFontColor:= cbPathInactiveText.Selected;
+    InactiveColor:= cbPathInactiveBack.Selected;
   end;
   Result := [];
 end;
@@ -263,43 +239,28 @@ begin
     RefreshPreviewPanel;
 end;
 
-procedure TfrmOptionsFilePanelsColors.btnCursorBorderColorClick(Sender: TObject);
-begin
-  optColorDialog.Color := cbCursorBorderColor.Selected;
-  if optColorDialog.Execute then
-  begin
-    SetColorInColorBox(cbCursorBorderColor, optColorDialog.Color);
-    RefreshPreviewPanel;
-  end;
-end;
-
 procedure TfrmOptionsFilePanelsColors.btnResetToDCDefaultClick(Sender: TObject);
 begin
-  SetColorInColorBox(cbTextColor, clWindowText);
-  SetColorInColorBox(cbBackColor, clWindow);
-  SetColorInColorBox(cbBackColor2, clWindow);
-  SetColorInColorBox(cbMarkColor, clRed);
-  SetColorInColorBox(cbCursorColor, clHighlight);
-  SetColorInColorBox(cbCursorText, clHighlightText);
-  SetColorInColorBox(cbInactiveCursorColor, clInactiveCaption);
-  SetColorInColorBox(cbInactiveMarkColor, clMaroon);
+  cbTextColor.Selected := clWindowText;
+  cbBackColor.Selected := clWindow;
+  cbBackColor2.Selected := clWindow;
+  cbMarkColor.Selected := clRed;
+  cbCursorColor.Selected := clHighlight;
+  cbCursorText.Selected := clHighlightText;
+  cbInactiveCursorColor.Selected := clInactiveCaption;
+  cbInactiveMarkColor.Selected := clMaroon;
   cbAllowOverColor.Checked := True;
   cbbUseInvertedSelection.Checked := False;
   cbbUseInactiveSelColor.Checked := False;
   cbbUseFrameCursor.Checked := False;
   cbUseCursorBorder.Checked := False;
-  SetColorInColorBox(cbCursorBorderColor, clHighlight);
+  cbCursorBorderColor.Selected := clHighlight;
   tbInactivePanelBrightness.Position := 100;
-  SetColorInColorBox(cbIndColor, clSkyBlue);
-  SetColorInColorBox(cbIndThresholdColor, clRed);
-  SetColorInColorBox(cbIndBackColor, clWhite);
-  cbbUseGradientInd.Checked := True;
+  cbPathActiveText.Selected := clHighlightText;
+  cbPathActiveBack.Selected := clHighlight;
+  cbPathInactiveText.Selected := clBtnText;
+  cbPathInactiveBack.Selected := clBtnFace;
   cbbUseFrameCursorChange(cbbUseFrameCursor);
-end;
-
-procedure TfrmOptionsFilePanelsColors.btnIndThresholdColorClick(Sender: TObject);
-begin
-  ChooseColorClick(cbIndThresholdColor);
 end;
 
 procedure TfrmOptionsFilePanelsColors.cbbUseFrameCursorChange(Sender: TObject);
@@ -307,100 +268,7 @@ begin
   cbUseCursorBorder.Enabled := not cbbUseFrameCursor.Checked;
   lblCursorText.Enabled := not cbbUseFrameCursor.Checked;
   cbCursorText.Enabled := not cbbUseFrameCursor.Checked;
-  btnCursorText.Enabled := not cbbUseFrameCursor.Checked;
-  if not cbbUseFrameCursor.Checked then
-    cbCursorText.Font.Color := clDefault
-  else
-    cbCursorText.Font.Color := clInactiveCaption;
   cbUseCursorBorderChange(cbUseCursorBorder);
-end;
-
-{ TfrmOptionsFilePanelsColors.btnForeColorClick }
-procedure TfrmOptionsFilePanelsColors.btnForeColorClick(Sender: TObject);
-begin
-  optColorDialog.Color := cbTextColor.Selected;
-  if optColorDialog.Execute then
-  begin
-    SetColorInColorBox(cbTextColor, optColorDialog.Color);
-    RefreshPreviewPanel;
-  end;
-end;
-
-{ TfrmOptionsFilePanelsColors.btnBackColorClick }
-procedure TfrmOptionsFilePanelsColors.btnBackColorClick(Sender: TObject);
-begin
-  optColorDialog.Color := cbBackColor.Selected;
-  if optColorDialog.Execute then
-  begin
-    SetColorInColorBox(cbBackColor, optColorDialog.Color);
-    RefreshPreviewPanel;
-  end;
-end;
-
-{ TfrmOptionsFilePanelsColors.btnBackColor2Click }
-procedure TfrmOptionsFilePanelsColors.btnBackColor2Click(Sender: TObject);
-begin
-  optColorDialog.Color := cbBackColor2.Selected;
-  if optColorDialog.Execute then
-  begin
-    SetColorInColorBox(cbBackColor2, optColorDialog.Color);
-    RefreshPreviewPanel;
-  end;
-end;
-
-{ TfrmOptionsFilePanelsColors.btnMarkColorClick }
-procedure TfrmOptionsFilePanelsColors.btnMarkColorClick(Sender: TObject);
-begin
-  optColorDialog.Color := cbMarkColor.Selected;
-  if optColorDialog.Execute then
-  begin
-    SetColorInColorBox(cbMarkColor, optColorDialog.Color);
-    RefreshPreviewPanel;
-  end;
-end;
-
-{ TfrmOptionsFilePanelsColors.btnCursorColorClick }
-procedure TfrmOptionsFilePanelsColors.btnCursorColorClick(Sender: TObject);
-begin
-  optColorDialog.Color := cbCursorColor.Selected;
-  if optColorDialog.Execute then
-  begin
-    SetColorInColorBox(cbCursorColor, optColorDialog.Color);
-    RefreshPreviewPanel;
-  end;
-end;
-
-{ TfrmOptionsFilePanelsColors.btnCursorTextClick }
-procedure TfrmOptionsFilePanelsColors.btnCursorTextClick(Sender: TObject);
-begin
-  optColorDialog.Color := cbCursorText.Selected;
-  if optColorDialog.Execute then
-  begin
-    SetColorInColorBox(cbCursorText, optColorDialog.Color);
-    RefreshPreviewPanel;
-  end;
-end;
-
-{ TfrmOptionsFilePanelsColors.btnInactiveCursorColorClick }
-procedure TfrmOptionsFilePanelsColors.btnInactiveCursorColorClick(Sender: TObject);
-begin
-  optColorDialog.Color := cbInactiveCursorColor.Selected;
-  if optColorDialog.Execute then
-  begin
-    SetColorInColorBox(cbInactiveCursorColor, optColorDialog.Color);
-    RefreshPreviewPanel;
-  end;
-end;
-
-{ TfrmOptionsFilePanelsColors.btnInactiveMarkColorClick }
-procedure TfrmOptionsFilePanelsColors.btnInactiveMarkColorClick(Sender: TObject);
-begin
-  optColorDialog.Color := cbInactiveMarkColor.Selected;
-  if optColorDialog.Execute then
-  begin
-    SetColorInColorBox(cbInactiveMarkColor, optColorDialog.Color);
-    RefreshPreviewPanel;
-  end;
 end;
 
 { TfrmOptionsFilePanelsColors.cbbUseInactiveSelColorChange }
@@ -408,44 +276,45 @@ procedure TfrmOptionsFilePanelsColors.cbbUseInactiveSelColorChange(Sender: TObje
 begin
   lblInactiveCursorColor.Enabled := cbbUseInactiveSelColor.Checked and cbbUseInactiveSelColor.Enabled;
   cbInactiveCursorColor.Enabled := cbbUseInactiveSelColor.Checked and cbbUseInactiveSelColor.Enabled;
-  btnInactiveCursorColor.Enabled := cbbUseInactiveSelColor.Checked and cbbUseInactiveSelColor.Enabled;
   lblInactiveMarkColor.Enabled := cbbUseInactiveSelColor.Checked and cbbUseInactiveSelColor.Enabled;
   cbInactiveMarkColor.Enabled := cbbUseInactiveSelColor.Checked and cbbUseInactiveSelColor.Enabled;
-  btnInactiveMarkColor.Enabled := cbbUseInactiveSelColor.Checked and cbbUseInactiveSelColor.Enabled;
 
   if bLoadCompleted then
   begin
-    if cbbUseInactiveSelColor.Checked and cbbUseInactiveSelColor.Enabled then
-    begin
-      cbInactiveCursorColor.Font.Color := clDefault;
-      cbInactiveMarkColor.Font.Color := clDefault;
-    end
-    else
-    begin
-      cbInactiveCursorColor.Font.Color := clInactiveCaption;
-      cbInactiveMarkColor.Font.Color := clInactiveCaption;
-    end;
     RefreshPreviewPanel;
   end;
+end;
+
+procedure TfrmOptionsFilePanelsColors.cbPathActiveTextChange(Sender: TObject);
+begin
+  PreviewLeftPanel.Header.PathLabel.ActiveFontColor:= cbPathActiveText.Selected;
+  PreviewRightPanel.Header.PathLabel.ActiveFontColor:= cbPathActiveText.Selected;
+end;
+
+{ TfrmOptionsFilePanelsColors.cbIndColorChange }
+procedure TfrmOptionsFilePanelsColors.cbPathActiveBackChange(Sender: TObject);
+begin
+  PreviewLeftPanel.Header.PathLabel.ActiveColor:= cbPathActiveBack.Selected;
+  PreviewRightPanel.Header.PathLabel.ActiveColor:= cbPathActiveBack.Selected;
+end;
+
+procedure TfrmOptionsFilePanelsColors.cbPathInactiveBackChange(Sender: TObject);
+begin
+  PreviewLeftPanel.Header.PathLabel.InactiveColor:= cbPathInactiveBack.Selected;
+  PreviewRightPanel.Header.PathLabel.InactiveColor:= cbPathInactiveBack.Selected;
+end;
+
+procedure TfrmOptionsFilePanelsColors.cbPathInactiveTextChange(Sender: TObject);
+begin
+  PreviewLeftPanel.Header.PathLabel.InactiveFontColor:= cbPathInactiveText.Selected;
+  PreviewRightPanel.Header.PathLabel.InactiveFontColor:= cbPathInactiveText.Selected;
 end;
 
 procedure TfrmOptionsFilePanelsColors.cbUseCursorBorderChange(Sender: TObject);
 begin
   cbCursorBorderColor.Enabled := cbUseCursorBorder.Checked and cbUseCursorBorder.Enabled;
-  btnCursorBorderColor.Enabled := cbUseCursorBorder.Checked and cbUseCursorBorder.Enabled;
-  if cbUseCursorBorder.Checked and cbUseCursorBorder.Enabled then
-    cbCursorBorderColor.Font.Color := clDefault
-  else
-    cbCursorBorderColor.Font.Color := clInactiveCaption;
   if bLoadCompleted then
     RefreshPreviewPanel;
-end;
-
-procedure TfrmOptionsFilePanelsColors.pbxFakeDriveClick(Sender: TObject);
-begin
-  pbxFakeDrive.Tag := (pbxFakeDrive.ScreenToClient(Mouse.CursorPos).X * 100) div pbxFakeDrive.Width;
-  pbxFakeDrive.Hint := pbxFakeDrive.Tag.ToString + '%';
-  pbxFakeDrive.Repaint;
 end;
 
 { TfrmOptionsFilePanelsColors.tbInactivePanelBrightnessChange }
@@ -458,55 +327,6 @@ begin
     PreviewRightPanel.UpdateColumnsView;
     PreviewRightPanel.Reload;
   end;
-end;
-
-{ TfrmOptionsFilePanelsColors.cbbUseGradientIndChange }
-procedure TfrmOptionsFilePanelsColors.cbbUseGradientIndChange(Sender: TObject);
-var vNoGradient: boolean;
-begin
-  vNoGradient := not (cbbUseGradientInd.Checked);
-
-  lblIndThresholdColor.Enabled := vNoGradient;
-  lblIndColor.Enabled := vNoGradient;
-  lblIndBackColor.Enabled := vNoGradient;
-
-  cbIndThresholdColor.Enabled := vNoGradient;
-  cbIndColor.Enabled := vNoGradient;
-  cbIndBackColor.Enabled := vNoGradient;
-
-  btnIndThresholdColor.Enabled := vNoGradient;
-  btnIndColor.Enabled := vNoGradient;
-  btnIndBackColor.Enabled := vNoGradient;
-
-  pbxFakeDrive.Repaint;
-end;
-
-{ TfrmOptionsFilePanelsColors.cbIndColorChange }
-procedure TfrmOptionsFilePanelsColors.cbIndColorChange(Sender: TObject);
-begin
-  pbxFakeDrive.Repaint;
-end;
-
-procedure TfrmOptionsFilePanelsColors.ChooseColorClick(AColorBox: TColorBox);
-begin
-  optColorDialog.Color := AColorBox.Selected;
-  if optColorDialog.Execute then
-  begin
-    SetColorInColorBox(AColorBox, optColorDialog.Color);
-    pbxFakeDrive.Repaint;
-  end;
-end;
-
-{ TfrmOptionsFilePanelsColors.btnIndColorClick }
-procedure TfrmOptionsFilePanelsColors.btnIndColorClick(Sender: TObject);
-begin
-  ChooseColorClick(cbIndColor);
-end;
-
-{ TfrmOptionsFilePanelsColors.btnIndBackColorClick }
-procedure TfrmOptionsFilePanelsColors.btnIndBackColorClick(Sender: TObject);
-begin
-  ChooseColorClick(cbIndBackColor);
 end;
 
 { TfrmOptionsFilePanelsColors.RefreshPreviewPanel }
@@ -551,13 +371,6 @@ begin
 
   PreviewLeftPanel.UpdateColumnsView;
   PreviewRightPanel.UpdateColumnsView;
-end;
-
-{ TfrmOptionsFilePanelsColors.pbxFakeDrivePaint }
-procedure TfrmOptionsFilePanelsColors.pbxFakeDrivePaint(Sender: TObject);
-begin
-  frmMain.PaintDriveFreeBar(pbxFakeDrive, cbbUseGradientInd.Checked,
-    cbIndColor.Selected, cbIndThresholdColor.Selected, cbIndBackColor.Selected);
 end;
 
 { TfrmOptionsFilePanelsColors.pnlLeftPreviewEnter }

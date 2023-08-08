@@ -332,6 +332,7 @@ type
     procedure UpdateImagePlacement;
 
   private
+    FFileName: String;
     FileList: TStringList;
     iActiveFile,
     tmpX, tmpY,
@@ -399,11 +400,13 @@ type
     procedure DeleteCurrentFile;
     procedure EnableActions(AEnabled: Boolean);
     procedure SavingProperties(Sender: TObject);
+    procedure SetFileName(const AValue: String);
     procedure SaveImageAs (Var sExt: String; senderSave: boolean; Quality: integer);
     procedure ImagePaintBackground(ASender: TObject; ACanvas: TCanvas; ARect: TRect);
     procedure CreatePreview(FullPathToFile:string; index:integer; delete: boolean = false);
 
     property Commands: TFormCommands read FCommands implements IFormCommands;
+    property FileName: String write SetFileName;
 
   protected
     procedure WMCommand(var Message: TLMCommand); message LM_COMMAND;
@@ -790,7 +793,7 @@ begin
       ActivatePanel(pnlText)
     end;
 
-    Status.Panels[sbpFileName].Text:= aFileName;
+    FileName:= aFileName;
   finally
     Screen.EndWaitCursor;
   end;
@@ -804,8 +807,8 @@ begin
       if (FWlxModule.CallListLoadNext(Self.Handle, FileList[Index], PluginShowFlags) <> LISTPLUGIN_ERROR) then
       begin
         Status.Panels[sbpFileNr].Text:= Format('%d/%d', [Index + 1, FileList.Count]);
-        Status.Panels[sbpFileName].Text:= FileList[Index];
-        Caption:= ReplaceHome(FileList[Index]);
+        FileName:= FileList[Index];
+        Caption:= ReplaceHome(FFileName);
         iActiveFile := Index;
         Exit;
       end;
@@ -827,7 +830,7 @@ begin
       begin
         if CallListLoadNext(Self.Handle, aFileName, PluginShowFlags) <> LISTPLUGIN_ERROR then
         begin
-          Status.Panels[sbpFileName].Text:= aFileName;
+          FileName:= aFileName;
           Exit;
         end;
       end;
@@ -1398,6 +1401,16 @@ begin
   if miFullScreen.Checked then SessionProperties:= EmptyStr;
 end;
 
+procedure TfrmViewer.SetFileName(const AValue: String);
+begin
+  if actAutoReload.Checked then
+    Status.Panels[sbpFileName].Text:= '* ' + AValue
+  else begin
+    Status.Panels[sbpFileName].Text:= AValue;
+  end;
+  FFileName:= AValue;
+end;
+
 procedure TfrmViewer.CutToImage;
 var
   w,h:integer;
@@ -1710,61 +1723,76 @@ begin
   CreateTmp;
 end;
 
-
 procedure TfrmViewer.SaveImageAs(var sExt: String; senderSave: boolean; Quality: integer);
 var
-  sFileName: string;
-  ico : TIcon = nil;
-  jpg : TJpegImage = nil;
+  sFileName: String;
   fsFileStream: TFileStreamEx;
-  pnm : TPortableAnyMapGraphic = nil;
 begin
   if senderSave then
-    sFileName:= FileList.Strings[iActiveFile]
-  else
+  begin
+    sExt:= LowerCase(sExt);
+    sFileName:= FileList.Strings[iActiveFile];
+  end
+  else begin
+    with SavePictureDialog do
     begin
-      if not SavePictureDialog.Execute then Exit;
-      sFileName:= ChangeFileExt(SavePictureDialog.FileName, sExt);
+      FileName:= EmptyStr;
+      InitialDir:= ExtractFileDir(FileList.Strings[iActiveFile]);
+      if not Execute then Exit;
+      sExt:= ExtensionSeparator + GetFilterExt;
+      sFileName:= ChangeFileExt(FileName, sExt);
     end;
+
+    if (sExt = '.jpg') or (sExt = '.jpeg') then
+    begin
+      FModSizeDialog:= TfrmModView.Create(Self);
+      try
+        FModSizeDialog.pnlSize.Visible:= False;
+        FModSizeDialog.pnlCopyMoveFile.Visible:= False;
+        FModSizeDialog.pnlQuality.Visible:= True;
+        FModSizeDialog.Caption:= SavePictureDialog.Title;
+        if FModSizeDialog.ShowModal <> mrOk then Exit;
+        Quality:= FModSizeDialog.teQuality.Value;
+      finally
+        FreeAndNil(FModSizeDialog);
+      end;
+    end;
+  end;
 
   try
     fsFileStream:= TFileStreamEx.Create(sFileName, fmCreate);
     try
       if (sExt = '.jpg') or (sExt = '.jpeg') then
-        begin
-          jpg := TJpegImage.Create;
-          try
-            jpg.Assign(Image.Picture.Graphic);
-            jpg.CompressionQuality := Quality;
-            jpg.SaveToStream(fsFileStream);
-          finally
-            jpg.Free;
+      begin
+        with TJpegImage.Create do
+        try
+          // Special case
+          if Image.Picture.Graphic is TJPEGImage then
+          begin
+            LoadFromRawImage(Image.Picture.Jpeg.RawImage, False);
+          end
+          else begin
+            Assign(Image.Picture.Graphic);
           end;
-        end
-      else if sExt = '.ico' then
-        begin
-          ico := TIcon.Create;
-          try
-            ico.Assign(Image.Picture.Graphic);
-            ico.SaveToStream(fsFileStream);
-          finally
-            ico.Free;
-          end;
-        end
-      else if sExt = '.pnm' then
-        begin
-          pnm := TPortableAnyMapGraphic.Create;
-          try
-            pnm.Assign(Image.Picture.Graphic);
-            pnm.SaveToStream(fsFileStream);
-          finally
-            pnm.Free;
-          end;
-        end
-      else if (sExt = '.png') or (sExt = '.bmp') then
-        begin
-          Image.Picture.SaveToStreamWithFileExt(fsFileStream, sExt);
+          CompressionQuality := Quality;
+          SaveToStream(fsFileStream);
+        finally
+          Free;
         end;
+      end
+      else if sExt = '.ico' then
+      begin
+        with TIcon.Create do
+        try
+          Assign(Image.Picture.Graphic);
+          SaveToStream(fsFileStream);
+        finally
+          Free;
+        end;
+      end
+      else begin
+        Image.Picture.SaveToStreamWithFileExt(fsFileStream, sExt);
+      end;
     finally
       FreeAndNil(fsFileStream);
     end;
@@ -2124,6 +2152,13 @@ begin
 
   HotMan.Register(pnlText ,'Text files');
   HotMan.Register(pnlImage,'Image files');
+
+  SavePictureDialog.Filter:= GraphicFilter(TPortableNetworkGraphic) + '|' +
+                             GraphicFilter(TBitmap) + '|' +
+                             GraphicFilter(TJPEGImage) + '|' +
+                             GraphicFilter(TIcon) + '|' +
+                             GraphicFilter(TPortableAnyMapGraphic);
+
 end;
 
 procedure TfrmViewer.FormKeyPress(Sender: TObject; var Key: Char);
@@ -3157,6 +3192,7 @@ begin
   actAutoReload.Checked := not actAutoReload.Checked;
   if actAutoReload.Checked then ViewerControl.GoEnd;
   TimerReload.Enabled := actAutoReload.Checked;
+  FileName:= FFileName;
 end;
 
 procedure TfrmViewer.cm_LoadNextFile(const Params: array of string);
@@ -3259,25 +3295,13 @@ begin
 end;
 
 procedure TfrmViewer.cm_SaveAs(const Params: array of string);
+var
+  sExt: String;
 begin
   if bAnimation or bImage then
   begin
-    FModSizeDialog:= TfrmModView.Create(Self);
-    try
-      FModSizeDialog.pnlSize.Visible:=false;
-      FModSizeDialog.pnlCopyMoveFile.Visible :=false;
-      FModSizeDialog.pnlQuality.Visible:=true;
-      FModSizeDialog.Caption:= rsViewImageType;
-      if FModSizeDialog.ShowModal = mrOk then
-      begin
-        if StrToInt(FModSizeDialog.teQuality.Text)<=100 then
-          SaveImageAs(FModSizeDialog.sExt,false,StrToInt(FModSizeDialog.teQuality.Text))
-        else
-          msgError(rsViewBadQuality);
-      end
-    finally
-      FreeAndNil(FModSizeDialog);
-    end;
+    sExt:= EmptyStr;
+    SaveImageAs(sExt, False, gViewerJpegQuality);
   end;
 end;
 

@@ -950,7 +950,7 @@ uses
   fOptionsToolbarBase, fOptionsToolbarMiddle, fEditor, uColumns, StrUtils, uSysFolders,
   uColumnsFileView, dmHigh
 {$IFDEF MSWINDOWS}
-  , uNetworkThread
+  , uShellFileSource, uNetworkThread
 {$ENDIF}
   ;
 
@@ -1208,14 +1208,6 @@ begin
   // 5. the issue can be effectively avoided by setting a larger width.
   nbLeft.Width:= 2048;
   nbRight.Width:= 2048;
-
-  // in LCLCOCOA, there is an issue about the order of CM_ENTER messages in edtCommand
-  // since CM_ENTER is sent delayed, when we press a Key in the main form,
-  // edtCommand.SelStart set in TypeInCommandLine() is overwritten when CM_ENTER is processed.
-  // if edtCommand.AutoSelect=True, it will cause all selected.
-  // there is the MR in LCL, but it has not been merged yet.
-  // see also: https://gitlab.com/freepascal.org/lazarus/lazarus/-/merge_requests/116
-  edtCommand.AutoSelect:= false;
   {$ENDIF}
 
   LoadTabs;
@@ -4884,6 +4876,10 @@ begin
       end;
     end;
   end;
+  if (Win32MajorVersion > 5) then
+  begin
+    TShellFileSource.ListDrives(DrivesList, gUpperCaseDriveLetter);
+  end;
 {$ENDIF}
 
   UpdateDriveList(DrivesList);
@@ -5322,7 +5318,7 @@ begin
     CommandFuncResult:=Commands.Commands.ExecuteCommand(CommandItem.Command, CommandItem.Params);
     if gToolbarReportErrorWithCommands AND (CommandFuncResult=cfrNotFound) then
     begin
-      MsgError('Command not found! ('+CommandItem.Command+')');
+      MsgError(Format(rsMsgCommandNotFound, [CommandItem.Command]));
     end;
   end;
   Draging := False;
@@ -6358,7 +6354,7 @@ begin
 
     for I := 0 to DrivesList.Count - 1 do
     begin
-      if DrivesList[I]^.DriveType = dtSpecial then
+      if (DrivesList[I]^.DriveType = dtSpecial) and (Length(Address) > 0) then
       begin
         if Pos(Address, DrivesList[I]^.Path) = 1 then
           Exit(I);
@@ -7078,10 +7074,11 @@ begin
   FrameLeft.UpdateColor;
   FrameRight.UpdateColor;
 
+  ColSet.UpdateStyle;
   gColorExt.UpdateStyle;
   gHighlighters.UpdateStyle;
 
-  DCDEbug('AppThemeChange');
+  DCDebug('AppThemeChange');
 
   for Index:= 0 to Screen.CustomFormCount - 1 do
   begin

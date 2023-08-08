@@ -33,13 +33,17 @@ unit uMyDarwin;
 interface
 
 uses
-  Classes, SysUtils, UnixType, MacOSAll, CocoaAll, CocoaUtils, CocoaInt, Cocoa_Extra, InterfaceBase, Menus, CocoaWSMenus;
+  Classes, SysUtils, UnixType,
+  Cocoa_Extra, MacOSAll, CocoaAll, CocoaUtils, CocoaInt,
+  InterfaceBase, Menus, CocoaWSMenus;
 
 // Darwin Util Function
 function StringToNSString(const S: String): NSString;
 function StringToCFStringRef(const S: String): CFStringRef;
 function NSArrayToList(const theArray:NSArray): TStringList;
 function ListToNSArray(const list:TStrings): NSArray;
+
+procedure setMacOSAppearance( mode:Integer );
 
 function getMacOSDefaultTerminal(): String;
 
@@ -137,6 +141,25 @@ implementation
 uses
   DynLibs;
 
+procedure setMacOSAppearance( mode:Integer );
+var
+  appearance: NSAppearance;
+begin
+  if not NSApp.respondsToSelector( ObjCSelector('appearance') ) then
+    exit;
+
+  case mode of
+    0,1:
+      appearance:= nil;
+    2:
+      appearance:= NSAppearance.appearanceNamed( NSSTR_DARK_NAME );
+    3:
+      appearance:= NSAppearance.appearanceNamed( NSAppearanceNameAqua );
+  end;
+  NSApp.setAppearance( appearance );
+  NSAppearance.setCurrentAppearance( appearance );
+end;
+
 procedure TMacosServiceMenuHelper.attachServicesMenu( Sender:TObject);
 var
   servicesItem: TMenuItem;
@@ -153,7 +176,7 @@ begin
   begin
     subMenu:= TCocoaMenu.alloc.initWithTitle(NSString.string_);
     TCocoaMenuItem(servicesItem.Handle).setSubmenu( subMenu );
-    TCocoaWidgetSet(WidgetSet).NSApp.setServicesMenu( NSMenu(servicesItem.Handle) );
+    NSApp.setServicesMenu( NSMenu(servicesItem.Handle) );
   end;
 end;
 
@@ -177,7 +200,7 @@ var
   sendTypes: NSArray;
   returnTypes: NSArray;
 begin
-  DCApp:= TDCCocoaApplication( TCocoaWidgetSet(WidgetSet).NSApp );
+  DCApp:= TDCCocoaApplication( NSApp );
 
   // MacOS Service menu incoming setup
   if not Assigned(NSServiceProvider) then
