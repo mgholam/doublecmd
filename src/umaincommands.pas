@@ -1964,6 +1964,7 @@ procedure TMainCommands.cm_View(const Params: array of string);
 var
   aFile: TFile;
   i, n: Integer;
+  IsFile: Boolean;
   AMode: Integer = 0;
   Param, AValue: String;
   sl: TStringList = nil;
@@ -1981,15 +1982,16 @@ begin
     SelectedFiles := ActiveFrame.CloneSelectedOrActiveFiles;
     ActiveFile := ActiveFrame.CloneActiveFile;
 
-    // Enter directories using View command.
-    if Assigned(ActiveFile) and
-       (ActiveFile.IsDirectory or ActiveFile.IsLinkToDirectory) then
+    if SelectedFiles.Count = 0 then
     begin
-      ActiveFrame.ExecuteCommand('cm_Open', []);
+      msgWarning(rsMsgNoFilesSelected);
       Exit;
     end;
 
-    if (SelectedFiles.Count = 1) and (Length(Params) > 0) then
+    aFile:= SelectedFiles[0];
+    IsFile:= not (aFile.IsDirectory or aFile.IsLinkToDirectory);
+
+    if (SelectedFiles.Count = 1) and (IsFile) and (Length(Params) > 0) then
     begin
       for Param in Params do
       begin
@@ -2015,26 +2017,19 @@ begin
           Free;
         end;
         sl := TStringList.Create;
-        sl.Add(SelectedFiles[0].FullPath);
+        sl.Add(aFile.FullPath);
         ShowViewer(sl, AMode);
         Exit;
       end;
     end;
 
-    if SelectedFiles.Count = 0 then
-    begin
-      msgWarning(rsMsgNoFilesSelected);
-      Exit;
-    end;
-
     // Default to using the file source directly.
     aFileSource := ActiveFrame.FileSource;
 
-    if PrepareData(ActiveFrame.FileSource, SelectedFiles, @OnCopyOutStateChanged) <> pdrSynchronous then
+    if PrepareData(aFileSource, SelectedFiles, @OnCopyOutStateChanged) <> pdrSynchronous then
       Exit;
 
     try
-      aFile := SelectedFiles[0];
       // Try to find 'view' command in internal associations
       if gExts.GetExtActionCmd(aFile, 'view', sCmd, sParams, sStartPath) then
       begin
@@ -2043,18 +2038,14 @@ begin
       end;
 
       sl := TStringList.Create;
-      for i := 0 to SelectedFiles.Count - 1 do
+      for I := 0 to SelectedFiles.Count - 1 do
       begin
-        aFile := SelectedFiles[i];
-        if not (aFile.IsDirectory or aFile.IsLinkToDirectory) then
-        begin
-          sl.Add(aFile.FullPath)
-        end;
+        sl.Add(SelectedFiles[I].FullPath);
       end; // for
 
       // If only one file was selected then add all files in panel to the list.
       // Works only for directly accessible files and only when using internal viewer.
-      if (sl.Count=1) and
+      if (sl.Count = 1) and (IsFile) and
          (not gExternalTools[etViewer].Enabled) and
          ([fspDirectAccess, fspLinksToLocalFiles] * ActiveFrame.FileSource.Properties <> []) then
         begin
@@ -2825,7 +2816,7 @@ end;
 
 procedure TMainCommands.cm_About(const Params: array of string);
 begin
-  ShowAboutBox;
+  ShowAboutBox(frmMain);
 end;
 
 procedure TMainCommands.cm_ShowSysFiles(const Params: array of string);
@@ -3454,7 +3445,7 @@ begin
 
         sLinkToCreate := sLinkToCreate + SelectedFiles[0].Name;
 
-        if ShowSymLinkForm(sExistingFile, sLinkToCreate, ActiveFrame.CurrentPath) then
+        if ShowSymLinkForm(frmMain, sExistingFile, sLinkToCreate, ActiveFrame.CurrentPath) then
         begin
           ActiveFrame.Reload;
           if NotActiveFrame.FileSource.IsClass(TFileSystemFileSource) then
@@ -3504,7 +3495,7 @@ begin
 
         sLinkToCreate := sLinkToCreate + SelectedFiles[0].Name;
 
-        if ShowHardLinkForm(sExistingFile, sLinkToCreate, ActiveFrame.CurrentPath) then
+        if ShowHardLinkForm(frmMain, sExistingFile, sLinkToCreate, ActiveFrame.CurrentPath) then
         begin
           ActiveFrame.Reload;
           if NotActiveFrame.FileSource.IsClass(TFileSystemFileSource) then
@@ -4084,7 +4075,7 @@ begin
 
       if aSelectedFiles.Count > 1 then
       begin
-        ShowLinkerFilesForm(FileSource, aSelectedFiles, NotActiveFrame.CurrentPath);
+        ShowLinkerFilesForm(frmMain, FileSource, aSelectedFiles, NotActiveFrame.CurrentPath);
       end
       else
       begin

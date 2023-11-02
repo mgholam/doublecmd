@@ -141,22 +141,26 @@ uses
     , qt5, qtwidgets, uDarkStyle
     {$ENDIF}
   {$ENDIF}
-  {$IFDEF UNIX}
+  {$IF DEFINED(DARWIN)}
+  , BaseUnix, Errors, fFileProperties
+  , uQuickLook, uOpenDocThumb, uMyDarwin
+  {$ELSEIF DEFINED(UNIX)}
   , BaseUnix, Errors, fFileProperties, uJpegThumb, uOpenDocThumb
-    {$IF DEFINED(DARWIN)}
-    , MacOSAll, uQuickLook, uMyDarwin
-    {$ELSEIF NOT DEFINED(HAIKU)}
+    {$IF NOT DEFINED(HAIKU)}
     , uDCReadRSVG, uMagickWand, uGio, uGioFileSource, uVfsModule, uVideoThumb
     , uDCReadWebP, uFolderThumb, uAudioThumb, uDefaultTerminal, uDCReadHEIF
     , uTrashFileSource, uFileManager, uFileSystemFileSource, fOpenWith
     {$ENDIF}
-    {$IF DEFINED(LCLQT) and not DEFINED(DARWIN)}
+    {$IF DEFINED(LINUX)}
+    , uFlatpak
+    {$ENDIF}
+    {$IF DEFINED(LCLQT)}
     , qt4, qtwidgets
     {$ENDIF}
-    {$IF DEFINED(LCLQT5) and not DEFINED(DARWIN)}
+    {$IF DEFINED(LCLQT5)}
     , qt5, qtwidgets
     {$ENDIF}
-    {$IF DEFINED(LCLQT6) and not DEFINED(DARWIN)}
+    {$IF DEFINED(LCLQT6)}
     , qt6, qtwidgets
     {$ENDIF}
     {$IF DEFINED(LCLGTK2)}
@@ -247,7 +251,11 @@ begin
   inherited CreateParams(Params);
   if FParentWindow <> 0 then
   begin
+    // It doesn't affect anything under GTK2 and raise
+    // a range check error (LCLGTK2 bug in the function CreateWidgetInfo)
+{$IFNDEF LCLGTK2}
     Params.Style := Params.Style or WS_POPUP;
+{$ENDIF}
     Params.WndParent := FParentWindow;
   end;
 end;
@@ -301,6 +309,9 @@ function TModalDialog.ShowModal: Integer;
   end;
 
 var
+{$IF DEFINED(LCLCOCOA)}
+  DisabledList: TList;
+{$ENDIF}
   SavedFocusState: TFocusState;
   ActiveWindow: HWnd;
 begin
@@ -338,7 +349,9 @@ begin
       ModalResult := 0;
 
       try
+{$IF NOT DEFINED(LCLCOCOA)}
         EnableWindow(FParentWindow, False);
+{$ENDIF}
         // If window already created then recreate it to force
         // call CreateParams with appropriate parent window
         if HandleAllocated then
@@ -350,6 +363,12 @@ begin
           SetWindowLongPtr(Handle, GWL_HWNDPARENT, FParentWindow);
 {$ENDIF}
         end;
+{$IF DEFINED(LCLCOCOA)}
+        if WidgetSet.GetLCLCapability(lcModalWindow) = LCL_CAPABILITY_NO then
+          DisabledList := Screen.DisableForms(Self)
+        else
+          DisabledList := nil;
+{$ENDIF}
         Show;
         try
           EnableWindow(Handle, True);
@@ -369,7 +388,11 @@ begin
           if ModalResult = 0 then
             ModalResult := mrCancel;
 
+{$IF DEFINED(LCLCOCOA)}
+          Screen.EnableForms(DisabledList);
+{$ELSE}
           EnableWindow(FParentWindow, True);
+{$ENDIF}
           // Needs to be called only in ShowModal
           Perform(CM_DEACTIVATE, 0, 0);
           Exclude(FFormState, fsModal);

@@ -790,12 +790,15 @@ type
     procedure LeftDriveBarExecuteDrive(ToolItem: TKASToolItem);
     procedure RightDriveBarExecuteDrive(ToolItem: TKASToolItem);
     procedure SetDragCursor(Shift: TShiftState);
+    {$IFDEF DARWIN}
+    procedure createDarwinAppMenu;
+    procedure aboutOnClick(Sender: TObject);
+    procedure optionsOnClick(Sender: TObject);
+    {$ENDIF}
 
   protected
     procedure CreateWnd; override;
-    {$IFNDEF LCLCOCOA}
     procedure DoFirstShow; override;
-    {$ENDIF}
     procedure DoAutoAdjustLayout(const AMode: TLayoutAdjustmentPolicy;
                             const AXProportion, AYProportion: Double); override;
 
@@ -1243,6 +1246,7 @@ begin
 {$IF DEFINED(DARWIN)}
   InitNSServiceProvider( @OnNSServiceOpenWithNewTab, @NSServiceMenuIsReady, @NSServiceMenuGetFilenames );
   InitNSThemeChangedObserver( @NSThemeChangedHandler );
+  createDarwinAppMenu;
 {$ENDIF}
 end;
 
@@ -1472,7 +1476,7 @@ begin
         TargetPath := IncludeTrailingPathDelimiter(TargetPath);
         if not Assigned(TargetFileSource) then
           TargetFileSource := TFileSystemFileSource.GetFileSource;
-        case GetDropEffectByKeyAndMouse(GetKeyShiftState, mbLeft) of
+        case GetDropEffectByKeyAndMouse(GetKeyShiftStateEx, mbLeft) of
           DropCopyEffect:
             Self.CopyFiles(ActiveFrame.FileSource, TargetFileSource, SourceFiles, TargetPath, gShowDialogOnDragDrop);
           DropMoveEffect:
@@ -2019,9 +2023,9 @@ begin
                 TargetFileName := TargetPath + ExtractFileName(SourceFileName);
 
                 if ((Operation = ddoSymLink) and
-                   ShowSymLinkForm(SourceFileName, TargetFileName, TargetPath))
+                   ShowSymLinkForm(Self, SourceFileName, TargetFileName, TargetPath))
                 or ((Operation = ddoHardLink) and
-                   ShowHardLinkForm(SourceFileName, TargetFileName, TargetPath))
+                   ShowHardLinkForm(Self, SourceFileName, TargetFileName, TargetPath))
                 then
                   TargetFileSource.Reload(TargetPath);
               end
@@ -2676,7 +2680,7 @@ begin
         begin
           TargetPath := ANotebook.View[ATabIndex].CurrentPath;
           TargetFileSource := ANotebook.View[ATabIndex].FileSource;
-          case GetDropEffectByKeyAndMouse(GetKeyShiftState, mbLeft) of
+          case GetDropEffectByKeyAndMouse(GetKeyShiftStateEx, mbLeft) of
             DropCopyEffect:
               Self.CopyFiles(ActiveFrame.FileSource, TargetFileSource, SourceFiles, TargetPath, gShowDialogOnDragDrop);
             DropMoveEffect:
@@ -3080,6 +3084,7 @@ begin
       AddCommand('cm_PackFiles');
       AddCommand('cm_ExtractFiles');
       AddSeparator;
+      AddCommand('cm_NetworkConnect');
       AddCommand('cm_Search');
       AddCommand('cm_MultiRename');
       AddCommand('cm_SyncDirs');
@@ -4013,7 +4018,6 @@ begin
   Application.MainForm.Tag:= Handle;
 end;
 
-{$IFNDEF LCLCOCOA}
 procedure TfrmMain.DoFirstShow;
 var
   ANode: TXmlNode;
@@ -4028,7 +4032,6 @@ begin
 
   lastWindowState := WindowState;
 end;
-{$ENDIF}
 
 procedure TfrmMain.WMMove(var Message: TLMMove);
 begin
@@ -4044,6 +4047,13 @@ end;
 
 procedure TfrmMain.WMSize(var message: TLMSize);
 begin
+  // https://github.com/doublecmd/doublecmd/issues/736
+  if (Message.Width > High(Int16)) or (Message.Height > High(Int16)) then
+  begin
+    DCDebug('TfrmMain.WMSize invalid size %u x %u', [Message.Width, Message.Height]);
+    Exit;
+  end;
+
   inherited WMSize(Message);
 
   if not (csDestroying in ComponentState) then
@@ -6079,9 +6089,21 @@ begin
 end;
 
 procedure TfrmMain.LoadTabs;
+var
+  AConfig: TXmlConfig;
 begin
-  LoadTabsXml(gConfig,'Tabs/OpenedTabs/Left', nbLeft);
-  LoadTabsXml(gConfig,'Tabs/OpenedTabs/Right', nbRight);
+  if gConfig.FindNode(gConfig.RootNode, 'Tabs/OpenedTabs') <> nil then
+    AConfig:= gConfig
+  else begin
+    AConfig:= TXmlConfig.Create(gpCfgDir + 'tabs.xml', True);
+  end;
+
+  try
+    LoadTabsXml(AConfig, 'Tabs/OpenedTabs/Left', nbLeft);
+    LoadTabsXml(AConfig, 'Tabs/OpenedTabs/Right', nbRight);
+  finally
+    if (AConfig <> gConfig) then AConfig.Free;
+  end;
 
   if not CommandLineParams.ActivePanelSpecified then
   begin
@@ -6255,7 +6277,7 @@ begin
     gConfig.SetValue(ANode, 'Width', FRestoredWidth);
     gConfig.SetValue(ANode, 'Height', FRestoredHeight);
     gConfig.SetValue(ANode, 'PixelsPerInch', Screen.PixelsPerInch);
-    gConfig.SetValue(ANode, 'Maximized', (WindowState = wsMaximized));
+    gConfig.SetValue(ANode, 'Maximized', (WindowState in [wsMaximized,wsFullScreen]));
     gConfig.SetValue(ANode, 'Splitter', FMainSplitterPos);
   end;
 end;
@@ -6297,6 +6319,8 @@ begin
 end;
 
 procedure TfrmMain.ConfigSaveSettings(bForce: Boolean);
+var
+  AConfig: TXmlConfig;
 begin
   try
     DebugLn('Saving configuration');
@@ -6307,8 +6331,15 @@ begin
     (* Save all tabs *)
     if gSaveFolderTabs or bForce then
     begin
-      SaveTabsXml(gConfig, 'Tabs/OpenedTabs/', nbLeft, gSaveDirHistory);
-      SaveTabsXml(gConfig, 'Tabs/OpenedTabs/', nbRight, gSaveDirHistory);
+      AConfig:= TXmlConfig.Create(gpCfgDir + 'tabs.xml');
+      try
+        SaveTabsXml(AConfig, 'Tabs/OpenedTabs/', nbLeft, gSaveDirHistory);
+        SaveTabsXml(AConfig, 'Tabs/OpenedTabs/', nbRight, gSaveDirHistory);
+        AConfig.Save;
+      finally
+        AConfig.Free;
+      end;
+      gConfig.DeleteNode(gConfig.RootNode, 'Tabs/OpenedTabs');
     end;
 
     if gSaveWindowState then SaveWindowState;
@@ -7095,6 +7126,45 @@ begin
   FormCloseQuery(Self, CanClose);
   Cancel := not CanClose;
 end;
+
+{$IFDEF DARWIN}
+procedure TfrmMain.createDarwinAppMenu;
+var
+  appMenu: TMenuItem;
+  aboutItem: TMenuItem;
+  sepItem: TMenuItem;
+  prefItem: TMenuItem;
+begin
+  appMenu:= TMenuItem.Create(mnuMain);
+  appMenu.Caption:= '';
+  mnuMain.Items.Insert(0, appMenu);
+
+  aboutItem:= TMenuItem.Create(mnuMain);
+  aboutItem.Caption:= 'About ' + Application.Title;
+  aboutItem.OnClick:= @aboutOnClick;
+  appMenu.Add(aboutItem);
+
+  sepItem := TMenuItem.Create(mnuMain);
+  sepItem.Caption := '-';
+  appMenu.Add(sepItem);
+
+  prefItem := TMenuItem.Create(mnuMain);
+  prefItem.Caption := 'Preferences...';
+  prefItem.OnClick := @optionsOnClick;
+  prefItem.Shortcut := ShortCut(VK_OEM_COMMA, [ssMeta]);
+  appMenu.Add(prefItem);
+end;
+
+procedure TfrmMain.aboutOnClick(Sender: TObject);
+begin
+  Commands.cm_About([]);
+end;
+
+procedure TfrmMain.optionsOnClick(Sender: TObject);
+begin
+  Commands.cm_Options([]);
+end;
+{$ENDIF}
 
 {$IF (DEFINED(LCLQT) or DEFINED(LCLQT5) or DEFINED(LCLQT6)) and not DEFINED(MSWINDOWS)}
 function TfrmMain.QObjectEventFilter(Sender: QObjectH; Event: QEventH): Boolean; cdecl;

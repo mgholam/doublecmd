@@ -47,7 +47,9 @@ type
     DE_LXDE     = 4,
     DE_MATE     = 5,
     DE_CINNAMON = 6,
-    DE_LXQT     = 7
+    DE_LXQT     = 7,
+    DE_FLY      = 8,
+    DE_FLATPAK  = 9
   );
 
 const
@@ -59,7 +61,9 @@ const
     'LXDE',
     'MATE',
     'Cinnamon',
-    'LXQt'
+    'LXQt',
+    'Fly',
+    'Flatpak'
   );
 
 {$IF DEFINED(LINUX)}
@@ -218,6 +222,10 @@ const
                                         'XDG_SESSION_DESKTOP',
                                         'DESKTOP_SESSION');
 begin
+  if fpGetEnv(PAnsiChar('FLATPAK_ID')) <> nil then
+  begin
+    Exit(DE_FLATPAK);
+  end;
   Result:= DE_UNKNOWN;
   for I:= Low(EnvVariable) to High(EnvVariable) do
   begin
@@ -240,6 +248,8 @@ begin
       Exit(DE_MATE);
     if Pos('cinnamon', DesktopSession) <> 0 then
       Exit(DE_CINNAMON);
+    if Pos('fly', DesktopSession) <> 0 then
+      Exit(DE_FLY);
   end;
   if GetEnvironmentVariable('KDE_FULL_SESSION') <> '' then
     Exit(DE_KDE);
@@ -247,8 +257,6 @@ begin
     Exit(DE_GNOME);
   if GetEnvironmentVariable('_LXSESSION_PID') <> '' then
     Exit(DE_LXDE);
-  if fpSystemStatus('pgrep xfce4-session > /dev/null') = 0 then
-    Exit(DE_XFCE);
 end;
 
 function FileIsLinkToFolder(const FileName: String; out LinkTarget: String): Boolean;

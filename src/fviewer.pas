@@ -61,7 +61,7 @@ uses
   Grids, ActnList, viewercontrol, GifAnim, fFindView, WLXPlugin, uWLXModule,
   uFileSource, fModView, Types, uThumbnails, uFormCommands, uOSForms,Clipbrd,
   uExifReader, KASStatusBar, SynEdit, uShowForm, uRegExpr, uRegExprU,
-  fEditSearch, uMasks, uSearchTemplate;
+  Messages, fEditSearch, uMasks, uSearchTemplate;
 
 type
 
@@ -321,6 +321,7 @@ type
     procedure miPaintClick(Sender:TObject);
     procedure miChangeEncodingClick(Sender:TObject);
     procedure SynEditStatusChange(Sender: TObject; Changes: TSynStatusChanges);
+    procedure SynEditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure SynEditMouseWheel(Sender: TObject; Shift: TShiftState;
          WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure ViewerControlMouseWheelDown(Sender: TObject; Shift: TShiftState;
@@ -398,6 +399,7 @@ type
     procedure SynEditCaret;
     procedure ExitPluginMode;
     procedure DeleteCurrentFile;
+    procedure EnablePrint(AEnabled: Boolean);
     procedure EnableActions(AEnabled: Boolean);
     procedure SavingProperties(Sender: TObject);
     procedure SetFileName(const AValue: String);
@@ -1388,6 +1390,14 @@ begin
   SplitterChangeBounds;
 end;
 
+procedure TfrmViewer.EnablePrint(AEnabled: Boolean);
+begin
+  actPrint.Enabled:= AEnabled;
+  actPrint.Visible:= AEnabled;
+  actPrintSetup.Enabled:= AEnabled;
+  actPrintSetup.Visible:= AEnabled;
+end;
+
 procedure TfrmViewer.EnableActions(AEnabled: Boolean);
 begin
   actSave.Enabled:= AEnabled;
@@ -1529,7 +1539,7 @@ begin
         ActivePlugin:= I;
         FWlxModule:= WlxModule;
         WlxModule.ResizeWindow(GetListerRect);
-        actPrint.Enabled:= WlxModule.CanPrint;
+        EnablePrint(WlxModule.CanPrint);
         // Set focus to plugin window
         if not bQuickView then WlxModule.SetFocus;
         Exit(True);
@@ -1550,7 +1560,7 @@ begin
   bPlugin:= False;
   FWlxModule:= nil;
   ActivePlugin:= -1;
-  actPrint.Enabled:= False;
+  EnablePrint(False);
 end;
 
 procedure TfrmViewer.ExitQuickView;
@@ -2395,6 +2405,23 @@ begin
   Status.Panels[sbpPosition].Text:= Format('%d:%d', [SynEdit.CaretX, SynEdit.CaretY]);
 end;
 
+procedure TfrmViewer.SynEditKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if (not gShowCaret) and (Key in [VK_UP, VK_DOWN, VK_PRIOR, VK_NEXT, VK_LEFT, VK_RIGHT]) then
+  begin
+    case Key of
+      VK_UP:    SynEdit.Perform(WM_VSCROLL, SB_LINEUP, 0);
+      VK_DOWN:  SynEdit.Perform(WM_VSCROLL, SB_LINEDOWN, 0);
+      VK_PRIOR: SynEdit.Perform(WM_VSCROLL, SB_PAGEUP, 0);
+      VK_NEXT:  SynEdit.Perform(WM_VSCROLL, SB_PAGEDOWN, 0);
+      VK_LEFT:  SynEdit.Perform(WM_HSCROLL, SB_LINELEFT, 0);
+      VK_RIGHT: SynEdit.Perform(WM_HSCROLL, SB_LINERIGHT, 0);
+    end;
+    Key:= 0;
+  end;
+end;
+
 procedure TfrmViewer.SynEditMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 var
@@ -2688,7 +2715,11 @@ begin
       MarkupInfo.Background:= clWindow;
       MarkupInfo.Foreground:= clGrayText;
     end;
+    SynEdit.Options:= gEditorSynEditOptions;
+    SynEdit.TabWidth := gEditorSynEditTabWidth;
+    SynEdit.RightEdge := gEditorSynEditRightEdge;
     FontOptionsToFont(gFonts[dcfViewer], SynEdit.Font);
+    SynEdit.OnKeyDown:= @SynEditKeyDown;
     SynEdit.OnMouseWheel:= @SynEditMouseWheel;
     SynEdit.OnStatusChange:= @SynEditStatusChange;
     SynEditCaret;
@@ -3714,11 +3745,14 @@ end;
 
 procedure TfrmViewer.cm_PrintSetup(const Params: array of string);
 begin
-  with TfrmPrintSetup.Create(Self) do
-  try
-    ShowModal;
-  finally
-    Free;
+  if bPlugin and actPrintSetup.Enabled then
+  begin
+    with TfrmPrintSetup.Create(Self) do
+    try
+      ShowModal;
+    finally
+      Free;
+    end;
   end;
 end;
 

@@ -200,7 +200,7 @@ uses
   , uGio, uClipboard, uXdg, uKde
     {$ENDIF}
     {$IF DEFINED(LINUX)}
-  , DCUnix, uMyLinux
+  , DCUnix, uMyLinux, uFlatpak
     {$ENDIF}
   {$ENDIF}
   ;
@@ -412,31 +412,31 @@ var
 begin
   Result:= False;
 
-  if FileIsUnixExecutable(URL) then
+  if GetPathType(URL) = ptAbsolute then
+    sCmdLine:= URL
+  else begin
+    sCmdLine:= IncludeTrailingPathDelimiter(mbGetCurrentDir);
+    sCmdLine:= GetAbsoluteFileName(sCmdLine, URL)
+  end;
+
+  if FileIsUnixExecutable(sCmdLine) then
   begin
-    if GetPathType(URL) = ptAbsolute then
-      sCmdLine:= URL
-    else begin
-      sCmdLine:= IncludeTrailingPathDelimiter(mbGetCurrentDir);
-      sCmdLine:= GetAbsoluteFileName(sCmdLine, URL)
-    end;
     Result:= ExecuteCommand(sCmdLine, [], mbGetCurrentDir);
   end
   else begin
+  {$IF DEFINED(LINUX)}
+  if (DesktopEnv = DE_FLATPAK) then
+    Result:= FlatpakOpen(sCmdLine, False)
+  else
+  {$ENDIF}
   {$IF NOT DEFINED(HAIKU)}
     if (DesktopEnv = DE_KDE) and (HasKdeOpen = True) then
-      Result:= KioOpen(URL) // Under KDE use "kioclient" to open files
+      Result:= KioOpen(sCmdLine) // Under KDE use "kioclient" to open files
     else if HasGio and (DesktopEnv <> DE_XFCE) then
-      Result:= GioOpen(URL) // Under GNOME, Unity and LXDE use "GIO" to open files
+      Result:= GioOpen(sCmdLine) // Under GNOME, Unity and LXDE use "GIO" to open files
     else
   {$ENDIF}
     begin
-      if GetPathType(URL) = ptAbsolute then
-        sCmdLine:= URL
-      else begin
-        sCmdLine:= IncludeTrailingPathDelimiter(mbGetCurrentDir);
-        sCmdLine:= GetAbsoluteFileName(sCmdLine, URL)
-      end;
       sCmdLine:= GetDefaultAppCmd(sCmdLine);
       if Length(sCmdLine) > 0 then begin
         Result:= ExecCmdFork(sCmdLine);

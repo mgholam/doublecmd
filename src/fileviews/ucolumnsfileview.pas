@@ -659,10 +659,17 @@ end;
 procedure TColumnsFileView.SetRowCount(Count: Integer);
 begin
   FUpdatingActiveFile := True;
+  // Remove a fake bottom padding for last row
+  if dgPanel.RowCount > dgPanel.FixedRows then
+  begin
+    dgPanel.RowHeights[dgPanel.RowCount - 1] := dgPanel.DefaultRowHeight;
+  end;
   dgPanel.RowCount := dgPanel.FixedRows + Count;
-  // to add fake bottom padding for last row
-  if Count>0 then
+  // Add a fake bottom padding for last row
+  if Count > 0 then
+  begin
     dgPanel.RowHeights[dgPanel.RowCount - 1] := dgPanel.DefaultRowHeight + CELL_PADDING;
+  end;
   FUpdatingActiveFile := False;
 end;
 
@@ -2050,9 +2057,12 @@ begin
               if not SameText(FileSystem, FS_GENERAL) then
               begin
                 //-
-                MI:=TMenuItem.Create(ColumnsView.pmColumnsMenu);
-                MI.Caption:='-';
-                ColumnsView.pmColumnsMenu.Items.Add(MI);
+                if ColumnsView.pmColumnsMenu.Items.Count > 0 then
+                begin
+                  MI:=TMenuItem.Create(ColumnsView.pmColumnsMenu);
+                  MI.Caption:='-';
+                  ColumnsView.pmColumnsMenu.Items.Add(MI);
+                end;
                 // General columns set
                 for I:= 0 to ColSet.Items.Count - 1 do
                 begin
@@ -2069,9 +2079,13 @@ begin
               end;
             end;
           //-
-          MI:=TMenuItem.Create(ColumnsView.pmColumnsMenu);
-          MI.Caption:='-';
-          ColumnsView.pmColumnsMenu.Items.Add(MI);
+          I:= ColumnsView.pmColumnsMenu.Items.Count - 1;
+          if (I >= 0) and (ColumnsView.pmColumnsMenu.Items[I].Caption <> '-') then
+          begin
+            MI:=TMenuItem.Create(ColumnsView.pmColumnsMenu);
+            MI.Caption:='-';
+            ColumnsView.pmColumnsMenu.Items.Add(MI);
+          end;
           //Configure custom columns
           MI:=TMenuItem.Create(ColumnsView.pmColumnsMenu);
           MI.Tag:=1001;

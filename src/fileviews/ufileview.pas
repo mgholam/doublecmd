@@ -241,6 +241,7 @@ type
     }
     procedure CreateDefault(AOwner: TWinControl); virtual;
 
+    procedure PushRenameEvent(AFile: TFile; const NewFileName: String);
     procedure AddWorker(const Worker: TFileViewWorker; SetEvents: Boolean = True);
     procedure BeginUpdate;
     procedure CalculateSpace(AFile: TDisplayFile);
@@ -1083,6 +1084,7 @@ begin
     AFile.Name := FileName;
     try
       FileSource.RetrieveProperties(AFile, FilePropertiesNeeded, GetVariantFileProperties);
+      if FFlatView and AFile.IsDirectory then raise EFileSourceException.Create(EmptyStr);
     except
       on EFileSourceException do
         begin
@@ -1147,7 +1149,7 @@ begin
       ADisplayFile.FSFile.Name := NewFileName;
       FHashedNames.Remove(OldFileKey);
       FHashedNames.Add(NewFileKey, ADisplayFile);
-      ADisplayFile.Busy:= False;
+      ADisplayFile.Busy:= [];
       ADisplayFile.IconID := -1;
       ADisplayFile.Selected := False;
       ADisplayFile.IconOverlayID := -1;
@@ -1299,7 +1301,7 @@ begin
           Exit;
         end;
     end;
-    ADisplayFile.Busy := False;
+    ADisplayFile.Busy := [];
     ADisplayFile.TextColor := clNone;
     ADisplayFile.IconOverlayID := -1;
     ADisplayFile.DisplayStrings.Clear;
@@ -1394,6 +1396,11 @@ begin
     else
       Result += StringReplace(GetCurrentPath, PathDelim, '/', [rfReplaceAll]);
   end;
+end;
+
+procedure TFileView.PushRenameEvent(AFile: TFile; const NewFileName: String);
+begin
+  Self.RenameFile(NewFileName, AFile.Name, AFile.Path, gNewFilesPosition, gUpdatedFilesPosition);
 end;
 
 procedure TFileView.AddWorker(const Worker: TFileViewWorker; SetEvents: Boolean = True);
@@ -1519,7 +1526,7 @@ var
   Index: Integer;
 begin
   for Index := 0 to FFiles.Count - 1 do
-    FFiles[Index].Busy:= False;
+    FFiles[Index].Busy:= [];
 end;
 
 procedure TFileView.DoOnFileListChanged;
@@ -2014,7 +2021,7 @@ begin
 
   DoFileUpdated(OrigDisplayFile);
 
-  OrigDisplayFile.Busy:= False;
+  OrigDisplayFile.Busy:= OrigDisplayFile.Busy - [bsProp];
 end;
 
 function TFileView.GetActiveFileName: String;
@@ -2872,6 +2879,8 @@ end;
 
 function TFileView.BeforeChangePath(NewFileSource: IFileSource;
   Reason: TChangePathReason; NewPath: String): Boolean;
+var
+  AForm: TCustomForm;
 begin
   if NewPath <> '' then
   begin
@@ -2881,7 +2890,12 @@ begin
 
     if Assigned(NewFileSource) and not NewFileSource.SetCurrentWorkingDirectory(NewPath) then
     begin
-      msgError(Format(rsMsgChDirFailed, [NewPath]));
+      AForm:= GetParentForm(Self);
+      if Assigned(AForm) and AForm.Visible then
+      begin
+        msgError(Format(rsMsgChDirFailed, [NewPath]));
+      end;
+      DCDebug(rsMsgChDirFailed, [NewPath]);
       Exit(False);
     end;
 
