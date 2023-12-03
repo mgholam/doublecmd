@@ -73,7 +73,7 @@ type
    procedure DoPanelsSplitterPerPos(SplitPos: Integer);
    procedure DoUpdateFileView(AFileView: TFileView; {%H-}UserData: Pointer);
    procedure DoCloseTab(Notebook: TFileViewNotebook; PageIndex: Integer);
-   procedure DoCopySelectedFileNamesToClipboard(FileView: TFileView; TypeOfCopy: TCopyFileNamesToClipboard);
+   procedure DoCopySelectedFileNamesToClipboard(FileView: TFileView; TypeOfCopy: TCopyFileNamesToClipboard; const Params: array of string);
    procedure DoNewTab(Notebook: TFileViewNotebook);
    procedure DoRenameTab(Page: TFileViewPage);
    procedure DoContextMenu(Panel: TFileView; X, Y: Integer; Background: Boolean; UserWishForContextMenu:TUserWishForContextMenu = uwcmComplete);
@@ -626,12 +626,13 @@ begin
   end;
 end;
 
-procedure TMainCommands.DoCopySelectedFileNamesToClipboard(FileView: TFileView; TypeOfCopy: TCopyFileNamesToClipboard);
+procedure TMainCommands.DoCopySelectedFileNamesToClipboard(FileView: TFileView; TypeOfCopy: TCopyFileNamesToClipboard; const Params : Array of string);
 var
   I: Integer;
   sl: TStringList = nil;
   SelectedFiles: TFiles = nil;
   PathToAdd, FileNameToAdd: String;
+  separator : String;
 begin
   SelectedFiles := FileView.CloneSelectedOrActiveFiles;
   if (SelectedFiles.Count = 0) then
@@ -666,8 +667,9 @@ begin
         case TypeOfCopy of
           cfntcPathAndFileNames, cfntcJustFileNames: FileNameToAdd:=SelectedFiles[I].Name;
         end;
-
-        sl.Add(PathToAdd + FileNameToAdd);
+        if ((GetParamValue(Params, 'separator', separator)) and (separator.length > 0)) then
+           sl.Add(ReplaceDirectorySeparator(PathToAdd + FileNameToAdd, separator[1]))
+        else sl.Add(PathToAdd + FileNameToAdd);
       end;
 
       Clipboard.Clear;   // prevent multiple formats in Clipboard (specially synedit)
@@ -1056,7 +1058,7 @@ end;
 
 procedure TMainCommands.cm_CopyFullNamesToClip(const Params: array of string);
 begin
-  DoCopySelectedFileNamesToClipboard(frmMain.ActiveFrame, cfntcPathAndFileNames);
+  DoCopySelectedFileNamesToClipboard(frmMain.ActiveFrame, cfntcPathAndFileNames, Params);
 end;
 
 procedure TMainCommands.cm_CopyFileDetailsToClip(const Params: array of string);
@@ -1066,7 +1068,7 @@ end;
 
 procedure TMainCommands.cm_CopyNamesToClip(const Params: array of string);
 begin
-  DoCopySelectedFileNamesToClipboard(frmMain.ActiveFrame, cfntcJustFileNames);
+  DoCopySelectedFileNamesToClipboard(frmMain.ActiveFrame, cfntcJustFileNames, Params);
 end;
 
 procedure TMainCommands.cm_FocusTreeView(const Params: array of string);
@@ -1412,9 +1414,9 @@ begin
       if Assigned(aFile) then
       try
         if aFile.IsNameValid then
-        begin
-          ShellExecute(aFile.FullPath);
-        end;
+          ShellExecute(aFile.FullPath)
+        else if aFile.Name = '..' then
+          ShellExecute(aFile.Path);
       finally
         FreeAndNil(aFile);
       end;
@@ -2026,6 +2028,24 @@ begin
     // Default to using the file source directly.
     aFileSource := ActiveFrame.FileSource;
 
+    if not (fspDirectAccess in aFileSource.Properties) and
+       not (fspLinksToLocalFiles in aFileSource.Properties) then
+    begin
+      for I := SelectedFiles.Count - 1 downto 0 do
+      begin
+        with SelectedFiles[I] do
+        begin
+          if IsDirectory or IsLinkToDirectory then
+            SelectedFiles.Delete(I);
+        end;
+      end;
+      if (SelectedFiles.Count = 0) then
+      begin
+        msgWarning(rsMsgNoFilesSelected);
+        Exit;
+      end;
+    end;
+
     if PrepareData(aFileSource, SelectedFiles, @OnCopyOutStateChanged) <> pdrSynchronous then
       Exit;
 
@@ -2621,6 +2641,7 @@ var
   sFileName: String;
   SelectedFiles: TFiles;
   HashAlgorithm: THashAlgorithm;
+  TextLineBreakStyle: TTextLineBreakStyle;
   QueueId: TOperationsManagerQueueIdentifier;
   Operation: TFileSourceCalcChecksumOperation;
   bSeparateFile, bOpenFileAfterJobCompleted: Boolean;
@@ -2661,7 +2682,7 @@ begin
       else
         sFileName:= ActiveFrame.CurrentPath + SelectedFiles[0].Name;
 
-      if ShowCalcCheckSum(sFileName, bSeparateFile, HashAlgorithm, bOpenFileAfterJobCompleted, QueueId) then
+      if ShowCalcCheckSum(sFileName, bSeparateFile, HashAlgorithm, bOpenFileAfterJobCompleted, TextLineBreakStyle, QueueId) then
       begin
         Operation := ActiveFrame.FileSource.CreateCalcChecksumOperation(
                        SelectedFiles, ActiveFrame.CurrentPath, sFileName) as TFileSourceCalcChecksumOperation;
@@ -2670,6 +2691,7 @@ begin
         begin
           Operation.Mode := checksum_calc;
           Operation.OneFile := not bSeparateFile;
+          Operation.TextLineBreakStyle:= TextLineBreakStyle;
           Operation.OpenFileAfterOperationCompleted := bOpenFileAfterJobCompleted;
           Operation.Algorithm := HashAlgorithm;
 
@@ -4596,13 +4618,13 @@ end;
 { TMainCommands.cm_CopyPathOfFilesToClip }
 procedure TMainCommands.cm_CopyPathOfFilesToClip(const Params: array of string);
 begin
-  DoCopySelectedFileNamesToClipboard(frmMain.ActiveFrame, cfntcJustPathWithSeparator);
+  DoCopySelectedFileNamesToClipboard(frmMain.ActiveFrame, cfntcJustPathWithSeparator, Params);
 end;
 
 { TMainCommands.cm_CopyPathNoSepOfFilesToClip }
 procedure TMainCommands.cm_CopyPathNoSepOfFilesToClip(const Params: array of string);
 begin
-  DoCopySelectedFileNamesToClipboard(frmMain.ActiveFrame, cfntcPathWithoutSeparator);
+  DoCopySelectedFileNamesToClipboard(frmMain.ActiveFrame, cfntcPathWithoutSeparator, Params);
 end;
 
 { TMainCommands.cm_DoAnyCmCommand }

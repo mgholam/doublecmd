@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Double Commander 1.1.0 alpha\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-11-15 11:15+0300\n"
-"PO-Revision-Date: 2023-07-24 15:22+0200\n"
+"PO-Revision-Date: 2023-11-25 08:32+0100\n"
 "Last-Translator: ㋡ <braass@mail.de>\n"
 "Language-Team: Deutsch <braass@mail.de>\n"
 "MIME-Version: 1.0\n"
@@ -335,9 +335,21 @@ msgstr "Prüfsummen-Datei öffnen, nachdem der Job beendet ist"
 msgid "C&reate separate checksum file for each file"
 msgstr "Einzelne Prüfsumme fü&r jede Datei erstellen"
 
+#: tfrmchecksumcalc.lblfileformat.caption
+msgid "File &format"
+msgstr ""
+
 #: tfrmchecksumcalc.lblsaveto.caption
 msgid "&Save checksum file(s) to:"
 msgstr "Prüf&summen-Datei(en) speichern unter:"
+
+#: tfrmchecksumcalc.rbunix.caption
+msgid "Unix"
+msgstr ""
+
+#: tfrmchecksumcalc.rbwindows.caption
+msgid "Windows"
+msgstr ""
 
 #: tfrmchecksumverify.btnclose.caption
 msgctxt "TFRMCHECKSUMVERIFY.BTNCLOSE.CAPTION"
@@ -5313,6 +5325,14 @@ msgstr "Automatischer Einzug"
 #: tfrmoptionseditor.chkautoindent.hint
 msgid "Allows to indent the caret, when new line is created with <Enter>, with the same amount of leading white space as the preceding line"
 msgstr "Ermöglicht das Einrücken des Cursors, wenn eine neue Zeile mit [Eingabe] erzeugt wird, mit demselben Maß an führendem Leerraum wie die vorige Zeile"
+
+#: tfrmoptionseditor.chkgroupundo.caption
+msgid "Group Undo"
+msgstr "Gruppe rückgängig machen"
+
+#: tfrmoptionseditor.chkgroupundo.hint
+msgid "All continuous changes of the same type will be processed in one call instead of undoing/redoing each one"
+msgstr "Alle Änderungen desselben Typs werden auf einmal verarbeitet, anstatt alle einzeln rückgängig zu machen, bzw. zu wiederholen"
 
 #: tfrmoptionseditor.chkrightedge.caption
 msgid "Right margin:"

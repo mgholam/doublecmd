@@ -341,9 +341,21 @@ msgstr "作業完了後にチェックサムファイルを開く"
 msgid "C&reate separate checksum file for each file"
 msgstr "ファイルごとに個別のチェックサム ファイルを作成(&r)"
 
+#: tfrmchecksumcalc.lblfileformat.caption
+msgid "File &format"
+msgstr ""
+
 #: tfrmchecksumcalc.lblsaveto.caption
 msgid "&Save checksum file(s) to:"
 msgstr "チェックサム ファイルを保存(&S)："
+
+#: tfrmchecksumcalc.rbunix.caption
+msgid "Unix"
+msgstr ""
+
+#: tfrmchecksumcalc.rbwindows.caption
+msgid "Windows"
+msgstr ""
 
 #: tfrmchecksumverify.btnclose.caption
 msgctxt "TFRMCHECKSUMVERIFY.BTNCLOSE.CAPTION"
@@ -5364,6 +5376,14 @@ msgstr "自動インデント"
 #: tfrmoptionseditor.chkautoindent.hint
 msgid "Allows to indent the caret, when new line is created with <Enter>, with the same amount of leading white space as the preceding line"
 msgstr "Enterで新しい行が作成されたとき,前の行と同じ行頭の空白文字数分だけキャレットをインデントする"
+
+#: tfrmoptionseditor.chkgroupundo.caption
+msgid "Group Undo"
+msgstr ""
+
+#: tfrmoptionseditor.chkgroupundo.hint
+msgid "All continuous changes of the same type will be processed in one call instead of undoing/redoing each one"
+msgstr ""
 
 #: tfrmoptionseditor.chkrightedge.caption
 msgid "Right margin:"

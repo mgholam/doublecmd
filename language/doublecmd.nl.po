@@ -333,9 +333,21 @@ msgstr "Open checksum-bestand nadat de taak voltooid is"
 msgid "C&reate separate checksum file for each file"
 msgstr "Maak aparte checksum aan voor elk bestand"
 
+#: tfrmchecksumcalc.lblfileformat.caption
+msgid "File &format"
+msgstr ""
+
 #: tfrmchecksumcalc.lblsaveto.caption
 msgid "&Save checksum file(s) to:"
 msgstr "Sla checksumbestand(en) op in:"
+
+#: tfrmchecksumcalc.rbunix.caption
+msgid "Unix"
+msgstr ""
+
+#: tfrmchecksumcalc.rbwindows.caption
+msgid "Windows"
+msgstr ""
 
 #: tfrmchecksumverify.btnclose.caption
 msgctxt "TFRMCHECKSUMVERIFY.BTNCLOSE.CAPTION"
@@ -5276,6 +5288,14 @@ msgstr "Automatisch inspringen"
 
 #: tfrmoptionseditor.chkautoindent.hint
 msgid "Allows to indent the caret, when new line is created with <Enter>, with the same amount of leading white space as the preceding line"
+msgstr ""
+
+#: tfrmoptionseditor.chkgroupundo.caption
+msgid "Group Undo"
+msgstr ""
+
+#: tfrmoptionseditor.chkgroupundo.hint
+msgid "All continuous changes of the same type will be processed in one call instead of undoing/redoing each one"
 msgstr ""
 
 #: tfrmoptionseditor.chkrightedge.caption
@@ -13812,7 +13832,7 @@ msgid "Complete filename (path+filename)"
 msgstr "Volledige bestandsnaam (pad+bestandsnaam)"
 
 #: ulng.rsvarhelpwith
-#, fuzzy
+#, fuzzy, badformat
 msgid "Help with \"%\" variables"
 msgstr "Hulp voor '%s' variabelen"
 

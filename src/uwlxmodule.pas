@@ -4,7 +4,7 @@
    WLX-API implementation (TC WLX-API v2.0).
 
    Copyright (C) 2008  Dmitry Kolomiets (B4rr4cuda@rambler.ru)
-   Copyright (C) 2009-2020 Alexander Koblov (alexx2000@mail.ru)
+   Copyright (C) 2009-2023 Alexander Koblov (alexx2000@mail.ru)
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -287,6 +287,7 @@ end;
 function TWlxModule.LoadModule: Boolean;
 begin
   // DCDebug('WLXM LoadModule entered');
+  if (FModuleHandle <> NilHandle) then Exit(True);
   FModuleHandle := mbLoadLibrary(mbExpandFileName(Self.FileName));
   Result := (FModuleHandle <> NilHandle);
   if FModuleHandle = NilHandle then Exit;
@@ -389,9 +390,13 @@ function TWlxModule.CallListLoadNext(ParentWin: HWND; FileToLoad: String; ShowFl
 begin
   WlxPrepareContainer(ParentWin);
 
-{$IF DEFINED(MSWINDOWS) and DEFINED(LCLQT5)}
+{$IF DEFINED(MSWINDOWS) and (DEFINED(LCLQT5) or DEFINED(DARKWIN))}
   if g_darkModeEnabled then
-    ShowFlags:= ShowFlags or lcp_darkmode or lcp_darkmodenative;
+  begin
+    ShowFlags:= ShowFlags or lcp_darkmode;
+    if g_darkModeSupported then
+      ShowFlags:= ShowFlags or lcp_darkmodenative;
+  end;
 {$ENDIF}
 
   if Assigned(ListLoadNextW) then
@@ -421,6 +426,10 @@ begin
 {$ENDIF}
   finally
     FPluginWindow := 0;
+{$IF DEFINED(MSWINDOWS)}
+    // Reset current directory
+    SetCurrentDirectoryW(PWideChar(CeUtf8ToUtf16(gpExePath)));
+{$ENDIF}
   end;
   //  DCDebug('Call ListCloseWindow success');
 end;
@@ -472,8 +481,8 @@ function TWlxModule.FileParamVSDetectStr(AFileName: String; bForce: Boolean): Bo
 begin
   if not Enabled then Exit(False);
   FParser.IsForce:= bForce;
-  DCDebug('DetectStr = ' + FParser.DetectStr);
-  DCDebug('AFileName = ' + AFileName);
+  // DCDebug('DetectStr = ' + FParser.DetectStr);
+  // DCDebug('AFileName = ' + AFileName);
   Result := FParser.TestFileResult(AFileName);
 end;
 

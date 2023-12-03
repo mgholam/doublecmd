@@ -341,9 +341,21 @@ msgstr "Otvoriť súbor s kontrolným súčtom po dokončení"
 msgid "C&reate separate checksum file for each file"
 msgstr "Vytvoriť samostatný kontrolný súčet pre každý súbor"
 
+#: tfrmchecksumcalc.lblfileformat.caption
+msgid "File &format"
+msgstr ""
+
 #: tfrmchecksumcalc.lblsaveto.caption
 msgid "&Save checksum file(s) to:"
 msgstr "&Uložiť súbor(y) s kontrolným súčtom do:"
+
+#: tfrmchecksumcalc.rbunix.caption
+msgid "Unix"
+msgstr ""
+
+#: tfrmchecksumcalc.rbwindows.caption
+msgid "Windows"
+msgstr ""
 
 #: tfrmchecksumverify.btnclose.caption
 msgctxt "TFRMCHECKSUMVERIFY.BTNCLOSE.CAPTION"
@@ -5364,6 +5376,14 @@ msgstr "Automatické odsadenie"
 #: tfrmoptionseditor.chkautoindent.hint
 msgid "Allows to indent the caret, when new line is created with <Enter>, with the same amount of leading white space as the preceding line"
 msgstr "Umožňuje odsadiť striešku, keď sa nový riadok vytvorí pomocou <Enter>, s rovnakým množstvom úvodnej bielej medzery ako v predchádzajúcom riadku"
+
+#: tfrmoptionseditor.chkgroupundo.caption
+msgid "Group Undo"
+msgstr ""
+
+#: tfrmoptionseditor.chkgroupundo.hint
+msgid "All continuous changes of the same type will be processed in one call instead of undoing/redoing each one"
+msgstr ""
 
 #: tfrmoptionseditor.chkrightedge.caption
 msgid "Right margin:"

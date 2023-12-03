@@ -340,9 +340,21 @@ msgstr "Az ellenőrzőösszeg-fájl megnyitása amikor kész"
 msgid "C&reate separate checksum file for each file"
 msgstr "&Külön MD5/SHA1 készítése fájlonként"
 
+#: tfrmchecksumcalc.lblfileformat.caption
+msgid "File &format"
+msgstr ""
+
 #: tfrmchecksumcalc.lblsaveto.caption
 msgid "&Save checksum file(s) to:"
 msgstr "&Ellenőrzőösszeg(ek) mentése ide:"
+
+#: tfrmchecksumcalc.rbunix.caption
+msgid "Unix"
+msgstr ""
+
+#: tfrmchecksumcalc.rbwindows.caption
+msgid "Windows"
+msgstr ""
 
 #: tfrmchecksumverify.btnclose.caption
 msgctxt "TFRMCHECKSUMVERIFY.BTNCLOSE.CAPTION"
@@ -5361,6 +5373,14 @@ msgstr "Automatikus behúzás"
 #: tfrmoptionseditor.chkautoindent.hint
 msgid "Allows to indent the caret, when new line is created with <Enter>, with the same amount of leading white space as the preceding line"
 msgstr "Behúzza a kurzort új sor <Enter> hozzáadása esetén , éppen akkora mértékben, amekkora az előző sorban szerepelt"
+
+#: tfrmoptionseditor.chkgroupundo.caption
+msgid "Group Undo"
+msgstr ""
+
+#: tfrmoptionseditor.chkgroupundo.hint
+msgid "All continuous changes of the same type will be processed in one call instead of undoing/redoing each one"
+msgstr ""
 
 #: tfrmoptionseditor.chkrightedge.caption
 msgid "Right margin:"
@@ -14279,3 +14299,4 @@ msgstr "Nem történt csere."
 #, object-pascal-format
 msgid "No setup named \"%s\""
 msgstr "Nincs \"%s\" nevű beállítás"
+
