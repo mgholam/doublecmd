@@ -826,6 +826,10 @@ begin
         Key := 0;
       end;
 
+    {$IFDEF DARWIN}
+    VK_LWIN,
+    VK_RWIN,
+    {$ENDIF}
     VK_MENU:  // Alt key
       if MainControl.Dragging then
       begin
@@ -1601,6 +1605,10 @@ begin
     SetFocus;
   end;
   inherited AfterChangePath;
+  if IsMouseSelecting then
+  begin
+    FMainControlMouseDown:= False;
+  end;
 end;
 
 {$IFDEF LCLGTK2}

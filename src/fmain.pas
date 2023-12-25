@@ -1606,6 +1606,11 @@ begin
             FreeAndNil(aFile);
           end;
         end;
+      if (Source is TKASToolButton) and (Toolbar <> TKASToolButton(Source).ToolBar) then
+      begin
+        Accept := False;
+        Exit;
+      end;
       if (NumberOfMoveButton <> (Sender as TSpeedButton).Tag) then
         begin
           Draging := True;
@@ -5576,6 +5581,7 @@ begin
 
     // Separate tree
     UpdateShellTreeView;
+    UpdateTreeView;
 
     // Operations panel and menu
     if (gPanelOfOp = False) then
@@ -7040,9 +7046,9 @@ begin
   if (EventType = dweDriveRemoved) and Assigned(ADrive) then
   begin
     if IsInPath(ADrive^.Path, ActiveFrame.CurrentPath, True, True) then
-      ActiveFrame.CurrentPath:= gpExePath
+      ActiveFrame.CurrentPath:= GetHomeDir
     else if IsInPath(ADrive^.Path, NotActiveFrame.CurrentPath, True, True) then
-      NotActiveFrame.CurrentPath:= gpExePath;
+      NotActiveFrame.CurrentPath:= GetHomeDir;
   end;
 
   UpdateSelectedDrives;

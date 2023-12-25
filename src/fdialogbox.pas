@@ -28,7 +28,7 @@ interface
 
 uses
   Classes, SysUtils, LResources, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  Types, Buttons, ExtCtrls, EditBtn, Extension, ComCtrls, DividerBevel;
+  Types, Buttons, ExtCtrls, EditBtn, Extension, ComCtrls, DividerBevel, SynEdit;
 
 type
 
@@ -49,6 +49,7 @@ type
     DialogEdit: TEdit;
     DialogMemo: TMemo;
     DialogImage: TImage;
+    DialogSynEdit: TSynEdit;
     DialogTabSheet: TTabSheet;
     DialogScrollBox: TScrollBox;
     DialogRadioGroup: TRadioGroup;
@@ -111,11 +112,11 @@ type
 
 function InputBox(Caption, Prompt: PAnsiChar; MaskInput: LongBool; Value: PAnsiChar; ValueMaxLen: Integer): LongBool; dcpcall;
 function MessageBox(Text, Caption: PAnsiChar; Flags: Longint): Integer; dcpcall;
-function MsgChoiceBox(Text, Caption: PAnsiChar; Buttons: PPAnsiChar): Integer; dcpcall;
+function MsgChoiceBox(Text, Caption: PAnsiChar; Buttons: PPAnsiChar; BtnDef, BtnEsc: Integer): Integer; dcpcall;
 function DialogBoxLFM(LFMData: Pointer; DataSize: LongWord; DlgProc: TDlgProc): LongBool; dcpcall;
 function DialogBoxLRS(LRSData: Pointer; DataSize: LongWord; DlgProc: TDlgProc): LongBool; dcpcall;
 function DialogBoxLFMFile(lfmFileName: PAnsiChar; DlgProc: TDlgProc): LongBool; dcpcall;
-function DialogBoxParam(Data: Pointer; DataSize: LongWord; DlgProc: TDlgProc; Flags: UInt32; UserData, Reserved: Pointer): LongBool; dcpcall;
+function DialogBoxParam(Data: Pointer; DataSize: LongWord; DlgProc: TDlgProc; Flags: UInt32; UserData, Reserved: Pointer): UIntPtr; dcpcall;
 function SendDlgMsg(pDlg: PtrUInt; DlgItemName: PAnsiChar; Msg, wParam, lParam: PtrInt): PtrInt; dcpcall;
 
 implementation
@@ -141,7 +142,7 @@ begin
   Result:= ShowMessageBox(Text, Caption, Flags);
 end;
 
-function MsgChoiceBox(Text, Caption: PAnsiChar; Buttons: PPAnsiChar): Integer; dcpcall;
+function MsgChoiceBox(Text, Caption: PAnsiChar; Buttons: PPAnsiChar; BtnDef, BtnEsc: Integer): Integer; dcpcall;
 var
   AButtons: TStringArray;
 begin
@@ -151,7 +152,7 @@ begin
     AddString(AButtons, Buttons^);
     Inc(Buttons);
   end;
-  Result:= uShowMsg.MsgChoiceBox(nil, Text, Caption, AButtons);
+  Result:= uShowMsg.MsgChoiceBox(nil, Text, Caption, AButtons, BtnDef, BtnEsc);
 end;
 
 function LFMToLRS(const LFMData: String): String;
@@ -227,12 +228,12 @@ begin
 end;
 
 function DialogBoxParam(Data: Pointer; DataSize: LongWord;
-  DlgProc: TDlgProc; Flags: UInt32; UserData, Reserved: Pointer): LongBool; dcpcall;
+  DlgProc: TDlgProc; Flags: UInt32; UserData, Reserved: Pointer): UIntPtr; dcpcall;
 var
   DataString: String;
 begin
-  if (Data = nil) then Exit(False);
-  if (DataSize = 0) then Exit(False);
+  if (Data = nil) then Exit(0);
+  if (DataSize = 0) then Exit(0);
   SetString(DataString, Data, DataSize);
 
   if (Flags and DB_LRS = 0) then
@@ -244,14 +245,14 @@ begin
     DataString:= LFMToLRS(mbReadFileToString(DataString));
   end;
 
-  Result:= DialogBox(DataString, DlgProc, UserData);
+  Result:= UIntPtr(DialogBox(DataString, DlgProc, UserData));
 end;
 
 function SendDlgMsg(pDlg: PtrUInt; DlgItemName: PAnsiChar; Msg, wParam, lParam: PtrInt): PtrInt; dcpcall;
 var
   Key: Word;
   AText: String;
-  Component: TComponent = nil;
+  Component: TComponent;
   lText: PAnsiChar absolute lParam;
   wText: PAnsiChar absolute wParam;
   pResult: Pointer absolute Result;
@@ -259,8 +260,12 @@ var
   Control: TControl absolute Component;
 begin
   // find component by name
-  Component:= DialogBox.FindComponent(DlgItemName);
-  if (Component = nil) then Exit(-1);
+  if (DlgItemName = nil) then
+    Component:= DialogBox
+  else begin
+    Component:= DialogBox.FindComponent(DlgItemName);
+    if (Component = nil) then Exit(-1);
+  end;
   // process message
   case Msg of
   DM_CLOSE:
@@ -333,7 +338,9 @@ begin
       else if Control is TListBox then
         Result:= TListBox(Control).Items.AddObject(AText, TObject(lText))
       else if Control is TMemo then
-        Result:= TMemo(Control).Lines.AddObject(AText, TObject(lText));
+        Result:= TMemo(Control).Lines.AddObject(AText, TObject(lText))
+      else if Control is TSynEdit then
+        Result:= TSynEdit(Control).Lines.AddObject(AText, TObject(lText));
     end;
   DM_LISTADDSTR:
     begin
@@ -343,7 +350,9 @@ begin
       else if Control is TListBox then
         Result:= TListBox(Control).Items.Add(AText)
       else if Control is TMemo then
-        Result:= TMemo(Control).Lines.Add(AText);
+        Result:= TMemo(Control).Lines.Add(AText)
+      else if Control is TSynEdit then
+        Result:= TSynEdit(Control).Lines.Add(AText);
     end;
   DM_LISTDELETE:
     begin
@@ -352,7 +361,9 @@ begin
       else if Control is TListBox then
         TListBox(Control).Items.Delete(wParam)
       else if Control is TMemo then
-        TMemo(Control).Lines.Delete(wParam);
+        TMemo(Control).Lines.Delete(wParam)
+      else if Control is TSynEdit then
+        TSynEdit(Control).Lines.Delete(wParam);
     end;
   DM_LISTINDEXOF:
     begin
@@ -362,7 +373,9 @@ begin
       else if Control is TListBox then
         Result:= TListBox(Control).Items.IndexOf(AText)
       else if Control is TMemo then
-        Result:= TMemo(Control).Lines.IndexOf(AText);
+        Result:= TMemo(Control).Lines.IndexOf(AText)
+      else if Control is TSynEdit then
+        Result:= TSynEdit(Control).Lines.IndexOf(AText);
     end;
   DM_LISTINSERT:
     begin
@@ -372,7 +385,9 @@ begin
       else if Control is TListBox then
         TListBox(Control).Items.Insert(wParam, AText)
       else if Control is TMemo then
-        TMemo(Control).Lines.Insert(wParam, AText);
+        TMemo(Control).Lines.Insert(wParam, AText)
+      else if Control is TSynEdit then
+        TSynEdit(Control).Lines.Insert(wParam, AText);
     end;
   DM_LISTGETCOUNT:
     begin
@@ -381,7 +396,9 @@ begin
       else if Control is TListBox then
         Result:= TListBox(Control).Items.Count
       else if Control is TMemo then
-        Result:= TMemo(Control).Lines.Count;
+        Result:= TMemo(Control).Lines.Count
+      else if Control is TSynEdit then
+        Result:= TSynEdit(Control).Lines.Count;
     end;
   DM_LISTGETDATA:
     begin
@@ -390,7 +407,9 @@ begin
       else if Control is TListBox then
         Result:= PtrInt(TListBox(Control).Items.Objects[wParam])
       else if Control is TMemo then
-        Result:= PtrInt(TMemo(Control).Lines.Objects[wParam]);
+        Result:= PtrInt(TMemo(Control).Lines.Objects[wParam])
+      else if Control is TSynEdit then
+        Result:= PtrInt(TSynEdit(Control).Lines.Objects[wParam]);
     end;
   DM_LISTGETITEM:
     begin
@@ -401,7 +420,9 @@ begin
         else if Control is TListBox then
           FText:= TListBox(Control).Items[wParam]
         else if Control is TMemo then
-          FText:= TMemo(Control).Lines[wParam];
+          FText:= TMemo(Control).Lines[wParam]
+        else if Control is TSynEdit then
+          FText:= TSynEdit(Control).Lines[wParam];
         pResult:= PAnsiChar(FText);
       end;
     end;
@@ -432,7 +453,9 @@ begin
       else if Control is TListBox then
         TListBox(Control).Items[wParam]:= AText
       else if Control is TMemo then
-        TMemo(Control).Lines[wParam]:= AText;
+        TMemo(Control).Lines[wParam]:= AText
+      else if Control is TSynEdit then
+        TSynEdit(Control).Lines[wParam]:= AText;
     end;
   DM_LISTCLEAR:
     begin
@@ -441,7 +464,9 @@ begin
       else if Control is TListBox then
         TListBox(Control).Clear
       else if Control is TMemo then
-        TMemo(Control).Clear;
+        TMemo(Control).Clear
+      else if Control is TSynEdit then
+        TSynEdit(Control).Clear;
     end;
   DM_GETTEXT:
     begin
@@ -505,7 +530,9 @@ begin
       else if Control is TListBox then
         TListBox(Control).Items.Objects[wParam]:= TObject(lText)
       else if Control is TMemo then
-        TMemo(Control).Lines.Objects[wParam]:= TObject(lText);
+        TMemo(Control).Lines.Objects[wParam]:= TObject(lText)
+      else if Control is TSynEdit then
+        TSynEdit(Control).Lines.Objects[wParam]:= TObject(lText);
     end;
   DM_SETDLGBOUNDS:
     begin

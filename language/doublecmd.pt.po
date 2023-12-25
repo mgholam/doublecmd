@@ -1098,14 +1098,6 @@ msgstr "Gr&avar como..."
 msgid "Save As"
 msgstr "Gravar como"
 
-#: tfrmeditor.actsaveall.caption
-msgid "Sa&ve All"
-msgstr "Gra&var tudo"
-
-#: tfrmeditor.actsaveall.hint
-msgid "Save All"
-msgstr "Gravar tudo"
-
 #: tfrmeditor.caption
 msgctxt "TFRMEDITOR.CAPTION"
 msgid "Editor"
@@ -9881,6 +9873,11 @@ msgctxt "TFRMVIEWER.MIVIEW.CAPTION"
 msgid "&View"
 msgstr "&Ver"
 
+#: tfrmviewer.mnuplugins.caption
+msgctxt "tfrmviewer.mnuplugins.caption"
+msgid "Plugins"
+msgstr "Extensões"
+
 #: tfrmviewoperations.btnstartpause.caption
 msgctxt "tfrmviewoperations.btnstartpause.caption"
 msgid "&Start"
@@ -11076,6 +11073,10 @@ msgstr "Insira o novo nome das colunas"
 
 #: ulng.rsmenumacosservices
 msgid "Services"
+msgstr ""
+
+#: ulng.rsmenumacosshare
+msgid "Share..."
 msgstr ""
 
 #: ulng.rsmnuactions

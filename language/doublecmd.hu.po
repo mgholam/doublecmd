@@ -1081,14 +1081,6 @@ msgstr "Men&tés másként..."
 msgid "Save As"
 msgstr "Mentés másként"
 
-#: tfrmeditor.actsaveall.caption
-msgid "Sa&ve All"
-msgstr "Ö&sszes mentése"
-
-#: tfrmeditor.actsaveall.hint
-msgid "Save All"
-msgstr "Összes mentése"
-
 #: tfrmeditor.caption
 msgctxt "TFRMEDITOR.CAPTION"
 msgid "Editor"
@@ -9868,6 +9860,11 @@ msgctxt "TFRMVIEWER.MIVIEW.CAPTION"
 msgid "&View"
 msgstr "&Nézőke"
 
+#: tfrmviewer.mnuplugins.caption
+msgctxt "tfrmviewer.mnuplugins.caption"
+msgid "Plugins"
+msgstr "Beépülők"
+
 #: tfrmviewoperations.btnstartpause.caption
 msgctxt "tfrmviewoperations.btnstartpause.caption"
 msgid "&Start"
@@ -11064,6 +11061,10 @@ msgstr "Add meg az egyedi oszlop nevét"
 #: ulng.rsmenumacosservices
 msgid "Services"
 msgstr "Szolgáltatások"
+
+#: ulng.rsmenumacosshare
+msgid "Share..."
+msgstr ""
 
 #: ulng.rsmnuactions
 msgctxt "ulng.rsmnuactions"

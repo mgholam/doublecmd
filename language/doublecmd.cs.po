@@ -1082,14 +1082,6 @@ msgstr "Uložit & jako..."
 msgid "Save As"
 msgstr "Uložit jako"
 
-#: tfrmeditor.actsaveall.caption
-msgid "Sa&ve All"
-msgstr "&Uložit vše"
-
-#: tfrmeditor.actsaveall.hint
-msgid "Save All"
-msgstr "Uložit vše"
-
 #: tfrmeditor.caption
 msgctxt "TFRMEDITOR.CAPTION"
 msgid "Editor"
@@ -9639,6 +9631,11 @@ msgctxt "TFRMVIEWER.MIVIEW.CAPTION"
 msgid "&View"
 msgstr "&Zobrazit"
 
+#: tfrmviewer.mnuplugins.caption
+msgctxt "tfrmviewer.mnuplugins.caption"
+msgid "Plugins"
+msgstr "Doplňky"
+
 #: tfrmviewoperations.btnstartpause.caption
 msgctxt "tfrmviewoperations.btnstartpause.caption"
 msgid "&Start"
@@ -10828,6 +10825,10 @@ msgstr "Zadejte nový název vlastních sloupců"
 
 #: ulng.rsmenumacosservices
 msgid "Services"
+msgstr ""
+
+#: ulng.rsmenumacosshare
+msgid "Share..."
 msgstr ""
 
 #: ulng.rsmnuactions

@@ -1094,14 +1094,6 @@ msgstr "Зберегти &як.."
 msgid "Save As"
 msgstr "Зберегти як"
 
-#: tfrmeditor.actsaveall.caption
-msgid "Sa&ve All"
-msgstr "&Зберегти все"
-
-#: tfrmeditor.actsaveall.hint
-msgid "Save All"
-msgstr "Зберегти все"
-
 #: tfrmeditor.caption
 msgctxt "tfrmeditor.caption"
 msgid "Editor"
@@ -9945,6 +9937,11 @@ msgctxt "TFRMVIEWER.MIVIEW.CAPTION"
 msgid "&View"
 msgstr "&Перегляд"
 
+#: tfrmviewer.mnuplugins.caption
+msgctxt "tfrmviewer.mnuplugins.caption"
+msgid "Plugins"
+msgstr "Плагіни"
+
 #: tfrmviewoperations.btnstartpause.caption
 msgctxt "tfrmviewoperations.btnstartpause.caption"
 msgid "&Start"
@@ -11154,6 +11151,10 @@ msgstr "Введіть нове ім’я набору колонок"
 
 #: ulng.rsmenumacosservices
 msgid "Services"
+msgstr ""
+
+#: ulng.rsmenumacosshare
+msgid "Share..."
 msgstr ""
 
 #: ulng.rsmnuactions

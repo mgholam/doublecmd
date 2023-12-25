@@ -1065,14 +1065,6 @@ msgstr ""
 msgid "Save As"
 msgstr ""
 
-#: tfrmeditor.actsaveall.caption
-msgid "Sa&ve All"
-msgstr ""
-
-#: tfrmeditor.actsaveall.hint
-msgid "Save All"
-msgstr ""
-
 #: tfrmeditor.caption
 msgctxt "tfrmeditor.caption"
 msgid "Editor"
@@ -9598,6 +9590,11 @@ msgctxt "TFRMVIEWER.MIVIEW.CAPTION"
 msgid "&View"
 msgstr ""
 
+#: tfrmviewer.mnuplugins.caption
+msgctxt "tfrmviewer.mnuplugins.caption"
+msgid "Plugins"
+msgstr ""
+
 #: tfrmviewoperations.btnstartpause.caption
 msgctxt "tfrmviewoperations.btnstartpause.caption"
 msgid "&Start"
@@ -10772,6 +10769,10 @@ msgstr ""
 
 #: ulng.rsmenumacosservices
 msgid "Services"
+msgstr ""
+
+#: ulng.rsmenumacosshare
+msgid "Share..."
 msgstr ""
 
 #: ulng.rsmnuactions

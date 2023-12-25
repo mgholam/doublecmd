@@ -1080,14 +1080,6 @@ msgstr "Opslaan &als..."
 msgid "Save As"
 msgstr "Opslaan als"
 
-#: tfrmeditor.actsaveall.caption
-msgid "Sa&ve All"
-msgstr "Sla alles op"
-
-#: tfrmeditor.actsaveall.hint
-msgid "Save All"
-msgstr "Sla alles op"
-
 #: tfrmeditor.caption
 msgctxt "tfrmeditor.caption"
 msgid "Editor"
@@ -9640,6 +9632,11 @@ msgctxt "TFRMVIEWER.MIVIEW.CAPTION"
 msgid "&View"
 msgstr "&Tonen"
 
+#: tfrmviewer.mnuplugins.caption
+msgctxt "tfrmviewer.mnuplugins.caption"
+msgid "Plugins"
+msgstr "Invoegtoepassing"
+
 #: tfrmviewoperations.btnstartpause.caption
 msgctxt "tfrmviewoperations.btnstartpause.caption"
 msgid "&Start"
@@ -10825,6 +10822,10 @@ msgstr "Geef nieuwe aangepaste kolommennaam"
 
 #: ulng.rsmenumacosservices
 msgid "Services"
+msgstr ""
+
+#: ulng.rsmenumacosshare
+msgid "Share..."
 msgstr ""
 
 #: ulng.rsmnuactions

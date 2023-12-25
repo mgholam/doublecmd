@@ -1171,14 +1171,6 @@ msgstr "Farklı &Kaydet..."
 msgid "Save As"
 msgstr "Farklı Kaydet..."
 
-#: tfrmeditor.actsaveall.caption
-msgid "Sa&ve All"
-msgstr "&Tümünü Kaydet"
-
-#: tfrmeditor.actsaveall.hint
-msgid "Save All"
-msgstr ""
-
 #: tfrmeditor.caption
 msgctxt "TFRMEDITOR.CAPTION"
 msgid "Editor"
@@ -10256,6 +10248,11 @@ msgctxt "TFRMVIEWER.MIVIEW.CAPTION"
 msgid "&View"
 msgstr "&Göster"
 
+#: tfrmviewer.mnuplugins.caption
+msgctxt "tfrmviewer.mnuplugins.caption"
+msgid "Plugins"
+msgstr "Eklentiler"
+
 #: tfrmviewoperations.btnstartpause.caption
 #, fuzzy
 #| msgid "Start"
@@ -11466,6 +11463,10 @@ msgstr ""
 
 #: ulng.rsmenumacosservices
 msgid "Services"
+msgstr ""
+
+#: ulng.rsmenumacosshare
+msgid "Share..."
 msgstr ""
 
 #: ulng.rsmnuactions

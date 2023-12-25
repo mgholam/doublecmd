@@ -1098,14 +1098,6 @@ msgstr "&Lagr som..."
 msgid "Save As"
 msgstr "Lagr som"
 
-#: tfrmeditor.actsaveall.caption
-msgid "Sa&ve All"
-msgstr "&Lagr alle"
-
-#: tfrmeditor.actsaveall.hint
-msgid "Save All"
-msgstr "Lagr alle"
-
 #: tfrmeditor.caption
 msgctxt "tfrmeditor.caption"
 msgid "Editor"
@@ -10109,6 +10101,11 @@ msgctxt "TFRMVIEWER.MIVIEW.CAPTION"
 msgid "&View"
 msgstr "&Visning"
 
+#: tfrmviewer.mnuplugins.caption
+msgctxt "tfrmviewer.mnuplugins.caption"
+msgid "Plugins"
+msgstr "Pluginar"
+
 #: tfrmviewoperations.btnstartpause.caption
 msgctxt "tfrmviewoperations.btnstartpause.caption"
 msgid "&Start"
@@ -11314,6 +11311,10 @@ msgstr "Tast inn nytt brukarvalt kolonnenamn"
 
 #: ulng.rsmenumacosservices
 msgid "Services"
+msgstr ""
+
+#: ulng.rsmenumacosshare
+msgid "Share..."
 msgstr ""
 
 #: ulng.rsmnuactions
