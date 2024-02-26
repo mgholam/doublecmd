@@ -2814,6 +2814,14 @@ msgstr "Menú"
 msgid "Show &Hidden/System Files"
 msgstr "Mostrar archivos oc&ultos/sistema"
 
+#: tfrmmain.actshowtabslist.caption
+msgid "Show Tabs List"
+msgstr ""
+
+#: tfrmmain.actshowtabslist.hint
+msgid "Show list of all open tabs"
+msgstr ""
+
 #: tfrmmain.actsortbyattr.caption
 msgid "Sort by &Attributes"
 msgstr "Ordenar por &atributos"
@@ -12527,6 +12535,10 @@ msgstr ""
 msgctxt "ulng.rsopenwithgraphics"
 msgid "Graphics"
 msgstr "Gráficos"
+
+#: ulng.rsopenwithmacosfilter
+msgid "Applications (*.app)|*.app|All files (*)|*"
+msgstr ""
 
 #: ulng.rsopenwithmultimedia
 msgid "Multimedia"

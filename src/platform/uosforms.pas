@@ -3,7 +3,7 @@
     -------------------------------------------------------------------------
     This unit contains platform depended functions.
 
-    Copyright (C) 2006-2023 Alexander Koblov (alexx2000@mail.ru)
+    Copyright (C) 2006-2024 Alexander Koblov (alexx2000@mail.ru)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -38,8 +38,8 @@ type
   protected
     procedure DoClose(var CloseAction: TCloseAction); override;
   {$ENDIF}
-  protected
-    procedure WMSize(var Message: TLMSize); message LM_Size;
+  public
+    constructor CreateNew(AOwner: TComponent; Num: Integer = 0); override;
   end;
 
   { TModalDialog }
@@ -136,7 +136,7 @@ uses
   , uDCReadRSVG, uFileSourceUtil, uGdiPlusJPEG, uListGetPreviewBitmap
   , Dialogs, Clipbrd, JwaDbt, uThumbnailProvider, uShellFolder
   , uRecycleBinFileSource, uWslFileSource, uDCReadHEIF, uDCReadWIC
-  , uShellFileSource
+  , uShellFileSource, uPixMapManager
     {$IF DEFINED(DARKWIN)}
     , uDarkStyle
     {$ELSEIF DEFINED(LCLQT5)}
@@ -223,15 +223,13 @@ end;
 
 {$ENDIF}
 
-procedure TAloneForm.WMSize(var Message: TLMSize);
+constructor TAloneForm.CreateNew(AOwner: TComponent; Num: Integer);
 begin
+  inherited CreateNew(AOwner, Num);
+  // https://github.com/doublecmd/doublecmd/issues/769
   // https://github.com/doublecmd/doublecmd/issues/1358
-  if (Message.Width > High(Int16)) or (Message.Height > High(Int16)) then
-  begin
-    DCDebug(ClassName + '.WMSize invalid size %u x %u', [Message.Width, Message.Height]);
-    Exit;
-  end;
-  inherited WMSize(Message);
+  Constraints.MaxWidth:= High(Int16);
+  Constraints.MaxHeight:= High(Int16);
 end;
 
 { TModalDialog }
@@ -427,6 +425,9 @@ var
 
 {$IFDEF MSWINDOWS}
 
+const
+  WM_USER_ASSOCCHANGED = WM_USER + 201;
+
 var
   OldWProc: WNDPROC;
 
@@ -442,6 +443,12 @@ begin
   begin
     Screen.UpdateMonitors; // Refresh monitor list
     DCDebug('WM_DEVICECHANGE:DBT_DEVNODES_CHANGED');
+  end;
+
+  if (uiMsg = WM_USER_ASSOCCHANGED) then
+  begin
+    PixMapManager.ClearSystemCache;
+    DCDebug('WM_USER_ASSOCCHANGED');
   end;
 
   Result := CallWindowProc(OldWProc, hWnd, uiMsg, wParam, lParam);
@@ -599,9 +606,13 @@ end;
 
 procedure MainFormCreate(MainForm : TCustomForm);
 {$IFDEF MSWINDOWS}
+const
+  SHCNRF_ShellLevel = $0002;
 var
+  Handle: HWND;
   Handler: TMethod;
   MenuItem: TMenuItem;
+  AEntries: TSHChangeNotifyEntry;
 begin
 {$IF DEFINED(LCLWIN32)}
   Handler.Code:= @ActivateHandler;
@@ -644,10 +655,17 @@ begin
       StaticTitle:= StaticTitle + ' - Administrator';
   end;
 
+  Handle:= GetWindowHandle(Application.MainForm);
   // Add main window message handler
   {$PUSH}{$HINTS OFF}
-  OldWProc := WNDPROC(SetWindowLongPtr(GetWindowHandle(Application.MainForm), GWL_WNDPROC, LONG_PTR(@MyWndProc)));
+  OldWProc := WNDPROC(SetWindowLongPtr(Handle, GWL_WNDPROC, LONG_PTR(@MyWndProc)));
   {$POP}
+
+  if Succeeded(SHGetFolderLocation(Handle, CSIDL_DRIVES, 0, 0, AEntries.pidl)) then
+  begin
+    AEntries.fRecursive:= False;
+    SHChangeNotifyRegister(Handle, SHCNRF_ShellLevel, SHCNE_ASSOCCHANGED, WM_USER_ASSOCCHANGED, 1, @AEntries);
+  end;
 
   with frmMain do
   begin
@@ -1040,7 +1058,7 @@ end;
 {$IF DEFINED(UNIX)}
 procedure handle_sigterm(signal: longint); cdecl;
 begin
-  WriteLn('SIGTERM');
+  DCDebug('SIGTERM');
   frmMain.Close;
 end;
 

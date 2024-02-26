@@ -173,7 +173,7 @@ type
 
 const
   { Default hotkey list version number }
-  hkVersion = 61;
+  hkVersion = 62;
   // 54 - In "Viewer" context, added the "W" for "cm_WrapText", "4" for "cm_ShowAsDec", "8" for "cm_ShowOffice".
   // 53 - In "Main" context, change shortcut "Alt+`" to "Alt+0" for the "cm_ActivateTabByIndex".
   // 52 - In "Main" context, add shortcut "Ctrl+Shift+B" for "cm_FlatViewSel".
@@ -321,9 +321,12 @@ var
   gUpdatedFilesPosition: TUpdatedFilesPosition;
   gLynxLike:Boolean;
   gFirstTextSearch: Boolean;
+
+  { File views page }
   gExtraLineSpan: Integer;
   gFolderPrefix,
   gFolderPostfix: String;
+  gRenameConfirmMouse: Boolean;
 
   { Mouse }
   gMouseSelectionEnabled: Boolean;
@@ -1106,6 +1109,7 @@ begin
       AddIfNotExists(['Ctrl+PgDn'],[],'cm_OpenArchive');
       AddIfNotExists(['Ctrl+PgUp'],[],'cm_ChangeDirToParent');
       AddIfNotExists(['Ctrl+Alt+Enter'],[],'cm_ShellExecute');
+      AddIfNotExists(['Ctrl+Shift+A'],[],'cm_ShowTabsList');
       AddIfNotExists(['Ctrl+Shift+B'],[],'cm_FlatViewSel');
       AddIfNotExists(['Ctrl+Shift+C'],[],'cm_CopyFullNamesToClip');
       AddIfNotExists(['Ctrl+Shift+D'],[],'cm_ConfigDirHotList');
@@ -1730,6 +1734,7 @@ begin
   gExtraLineSpan := 2;
   gFolderPrefix := '[';
   gFolderPostfix := ']';
+  gRenameConfirmMouse := False;
   { Brief view page }
   gBriefViewFixedCount := 2;
   gBriefViewFixedWidth := 100;
@@ -2038,7 +2043,7 @@ begin
   { Icons page }
   gShowIcons := sim_all_and_exe;
   gShowIconsNew := gShowIcons;
-  gIconOverlays := False;
+  gIconOverlays := {$IFDEF UNIX}True{$ELSE}False{$ENDIF};
   gIconsSize := 32;
   gIconsSizeNew := gIconsSize;
   gDiskIconsSize := 16;
@@ -2225,7 +2230,6 @@ begin
   gFirstTextSearch := True;
   gErrorFile := gpCfgDir + ExtractOnlyFileName(Application.ExeName) + '.err';
   DefaultDateTimeFormat := FormatSettings.ShortDateFormat + ' hh:nn:ss';
-  FormatSettings.DecimalSeparator:='.';
   DefaultDateTimeFormatSync := 'yyyy.mm.dd hh:nn:ss';
 end;
 
@@ -2495,10 +2499,16 @@ procedure LoadXmlConfig;
       end;
   end;
   procedure GetDCFont(Node: TXmlNode; var FontOptions: TDCFontOptions);
+  var
+    FontQuality: Integer;
   begin
     if Assigned(Node) then
-      gConfig.GetFont(Node, '', FontOptions.Name, FontOptions.Size, Integer(FontOptions.Style), Integer(FontOptions.Quality),
-                                FontOptions.Name, FontOptions.Size, Integer(FontOptions.Style), Integer(FontOptions.Quality));
+    begin
+      FontQuality:= Integer(FontOptions.Quality);
+      gConfig.GetFont(Node, '', FontOptions.Name, FontOptions.Size, Integer(FontOptions.Style), FontQuality,
+                                FontOptions.Name, FontOptions.Size, Integer(FontOptions.Style), FontQuality);
+      FontOptions.Quality:= TFontQuality(FontQuality);
+    end;
   end;
   procedure LoadOption(Node: TXmlNode; var Options: TDrivesListButtonOptions; Option: TDrivesListButtonOption; AName: String);
   var
@@ -2865,6 +2875,7 @@ begin
       gExtraLineSpan := GetValue(Node, 'ExtraLineSpan', gExtraLineSpan);
       gFolderPrefix := GetValue(Node, 'FolderPrefix', gFolderPrefix);
       gFolderPostfix := GetValue(Node, 'FolderPostfix', gFolderPostfix);
+      gRenameConfirmMouse := GetValue(Node, 'RenameConfirmMouse', gRenameConfirmMouse);
     end;
 
     { Keys page }
@@ -3531,6 +3542,7 @@ begin
     SetValue(Node, 'ExtraLineSpan', gExtraLineSpan);
     SetValue(Node, 'FolderPrefix', gFolderPrefix);
     SetValue(Node, 'FolderPostfix', gFolderPostfix);
+    SetValue(Node, 'RenameConfirmMouse', gRenameConfirmMouse);
 
     { Keys page }
     Node := FindNode(Root, 'Keyboard', True);

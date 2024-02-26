@@ -2797,6 +2797,14 @@ msgstr "Menu"
 msgid "Show &Hidden/System Files"
 msgstr "Toon verborgen-/systeembestanden"
 
+#: tfrmmain.actshowtabslist.caption
+msgid "Show Tabs List"
+msgstr ""
+
+#: tfrmmain.actshowtabslist.hint
+msgid "Show list of all open tabs"
+msgstr ""
+
 #: tfrmmain.actsortbyattr.caption
 msgid "Sort by &Attributes"
 msgstr "Rangschik op attributen"
@@ -12415,6 +12423,10 @@ msgctxt "ulng.rsopenwithgraphics"
 msgid "Graphics"
 msgstr "Afbeeldingen"
 
+#: ulng.rsopenwithmacosfilter
+msgid "Applications (*.app)|*.app|All files (*)|*"
+msgstr ""
+
 #: ulng.rsopenwithmultimedia
 msgid "Multimedia"
 msgstr "Multimedia"
@@ -13833,9 +13845,9 @@ msgid "Complete filename (path+filename)"
 msgstr "Volledige bestandsnaam (pad+bestandsnaam)"
 
 #: ulng.rsvarhelpwith
-#, fuzzy, badformat
+#, fuzzy
 msgid "Help with \"%\" variables"
-msgstr "Hulp voor '%s' variabelen"
+msgstr "Hulp voor '%' variabelen"
 
 #: ulng.rsvarinputparam
 msgid "Will request request user to enter a parameter with a default suggested value"

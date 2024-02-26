@@ -260,6 +260,12 @@ begin
   lua_pushstring(L, CreateRelativePath(FileName, BaseDir));
 end;
 
+function luaGetTempName(L : Plua_State) : Integer; cdecl;
+begin
+  Result:= 1;
+  lua_pushstring(L, GetTempName(GetTempFolderDeletableAtTheEnd));
+end;
+
 function utf8_next(L: Plua_State): Integer; cdecl;
 var
   S: String;
@@ -305,7 +311,7 @@ begin
   Result:= 1;
   Search:= lua_tostring(L, 1);
   Source:= lua_tostring(L, 2);
-  if lua_isinteger(L, 3) then begin
+  if lua_isnumber(L, 3) then begin
     Offset:= lua_tointeger(L, 3)
   end;
   lua_pushinteger(L, UTF8Pos(Search, Source, Offset));
@@ -359,6 +365,15 @@ begin
   FromEnc:= lua_tostring(L, 2);
   ToEnc:= lua_tostring(L, 3);
   lua_pushstring(L, ConvertEncoding(S, FromEnc, ToEnc));
+end;
+
+function luaDetectEncoding(L : Plua_State) : Integer; cdecl;
+var
+  S: String;
+begin
+  Result:= 1;
+  S:= lua_tostring(L, 1);
+  lua_pushstring(L, DetectEncoding(S));
 end;
 
 function char_prepare(L : Plua_State; out Index: Integer): UnicodeString;
@@ -543,7 +558,11 @@ begin
     AValue:= lua_tostring(L, 4);
   end;
   if ShowInputListBox(ACaption, APrompt, AStringList, AValue, AIndex) then
-    lua_pushstring(L, AValue)
+  begin
+    Result:= 2;
+    lua_pushstring(L, AValue);
+    lua_pushinteger(L, AIndex + 1);
+  end
   else begin
     lua_pushnil(L);
   end;
@@ -646,6 +665,8 @@ begin
     luaP_register(L, 'MatchesMask', @luaMatchesMask);
     luaP_register(L, 'MatchesMaskList', @luaMatchesMaskList);
 
+    luaP_register(L, 'GetTempName', @luaGetTempName);
+
     luaC_register(L, 'PathDelim', PathDelim);
   lua_setglobal(L, 'SysUtils');
 
@@ -657,6 +678,7 @@ begin
     luaP_register(L, 'UpperCase', @luaUpperCase);
     luaP_register(L, 'LowerCase', @luaLowerCase);
     luaP_register(L, 'ConvertEncoding', @luaConvertEncoding);
+    luaP_register(L, 'DetectEncoding', @luaDetectEncoding);
   lua_setglobal(L, 'LazUtf8');
 
   lua_newtable(L);

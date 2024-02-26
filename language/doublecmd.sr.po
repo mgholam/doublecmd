@@ -2838,6 +2838,14 @@ msgctxt "TFRMMAIN.ACTSHOWSYSFILES.CAPTION"
 msgid "Show &Hidden/System Files"
 msgstr "Приказуј &скривене и системске датотеке"
 
+#: tfrmmain.actshowtabslist.caption
+msgid "Show Tabs List"
+msgstr ""
+
+#: tfrmmain.actshowtabslist.hint
+msgid "Show list of all open tabs"
+msgstr ""
+
 #: tfrmmain.actsortbyattr.caption
 msgid "Sort by &Attributes"
 msgstr "Поређај по &својствима"
@@ -12618,6 +12626,10 @@ msgstr "Игре"
 msgctxt "ulng.rsopenwithgraphics"
 msgid "Graphics"
 msgstr "Цртежи"
+
+#: ulng.rsopenwithmacosfilter
+msgid "Applications (*.app)|*.app|All files (*)|*"
+msgstr ""
 
 #: ulng.rsopenwithmultimedia
 msgid "Multimedia"

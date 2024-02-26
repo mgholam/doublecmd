@@ -3076,6 +3076,14 @@ msgctxt "TFRMMAIN.ACTSHOWSYSFILES.CAPTION"
 msgid "Show &Hidden/System Files"
 msgstr "Mostra Ocults/sistema"
 
+#: tfrmmain.actshowtabslist.caption
+msgid "Show Tabs List"
+msgstr ""
+
+#: tfrmmain.actshowtabslist.hint
+msgid "Show list of all open tabs"
+msgstr ""
+
 #: tfrmmain.actsortbyattr.caption
 #, fuzzy
 #| msgid "Sort by attrib"
@@ -13343,6 +13351,10 @@ msgstr ""
 msgctxt "ulng.rsopenwithgraphics"
 msgid "Graphics"
 msgstr "Gràfics"
+
+#: ulng.rsopenwithmacosfilter
+msgid "Applications (*.app)|*.app|All files (*)|*"
+msgstr ""
 
 #: ulng.rsopenwithmultimedia
 msgid "Multimedia"

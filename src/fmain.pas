@@ -68,6 +68,7 @@ type
 
   TfrmMain = class(TAloneForm, IFormCommands)
     actAddPlugin: TAction;
+    actShowTabsList: TAction;
     actSaveFileDetailsToFile: TAction;
     actLoadList: TAction;
     actExtractFiles: TAction;
@@ -794,6 +795,7 @@ type
     procedure createDarwinAppMenu;
     procedure aboutOnClick(Sender: TObject);
     procedure optionsOnClick(Sender: TObject);
+    procedure GlobalMacOSKeyDownHandler(Sender: TObject; var Key: Word; Shift: TShiftState);
     {$ENDIF}
 
   protected
@@ -1123,6 +1125,8 @@ begin
   // See details at http://doublecmd.sourceforge.net/mantisbt/view.php?id=712
   Application.MainForm.OnClose := @frmMainClose;
   Application.MainForm.OnCloseQuery := @FormCloseQuery;
+  // support closing windows with Command+W
+  Application.AddOnKeyDownBeforeHandler( @GlobalMacOSKeyDownHandler );
   {$ENDIF}
 
   ConvertToolbarBarConfig(gpCfgDir + 'default.bar');
@@ -5384,8 +5388,16 @@ procedure TfrmMain.UpdateWindowView;
 
     if FInitializedView then
     begin
-      for I := 0 to NoteBook.PageCount - 1 do  //  change on all tabs
+      // Update all tabs
+      for I := 0 to NoteBook.PageCount - 1 do
+      begin
         NoteBook.View[I].UpdateView;
+      end;
+      // Update active tab
+      if Assigned(NoteBook.ActiveView) then
+      begin
+        NoteBook.ActiveView.ApplySettings;
+      end;
     end;
   end;
 
@@ -7107,11 +7119,22 @@ begin
 end;
 
 procedure TfrmMain.AppThemeChange(Sender: TObject);
+
+  procedure UpdateNoteBook(NoteBook: TFileViewNotebook);
+  var
+    Index: Integer;
+  begin
+    for Index := 0 to NoteBook.PageCount - 1 do
+    begin
+      NoteBook.View[Index].UpdateColor;
+    end;
+  end;
+
 var
   Index: Integer;
 begin
-  FrameLeft.UpdateColor;
-  FrameRight.UpdateColor;
+  UpdateNoteBook(LeftTabs);
+  UpdateNoteBook(RightTabs);
 
   ColSet.UpdateStyle;
   gColorExt.UpdateStyle;
@@ -7169,6 +7192,25 @@ end;
 procedure TfrmMain.optionsOnClick(Sender: TObject);
 begin
   Commands.cm_Options([]);
+end;
+
+procedure TfrmMain.GlobalMacOSKeyDownHandler(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+var
+  topForm: TCustomForm;
+begin
+  if (Key=VK_W) and (Shift=[ssMeta]) then
+  begin
+    if Sender is TControl then
+    begin
+      topForm:= GetParentForm( TControl(Sender), true );
+      if topForm<>self then
+      begin
+        topForm.Close;
+        Key:= 0;
+      end;
+    end;
+  end;
 end;
 {$ENDIF}
 

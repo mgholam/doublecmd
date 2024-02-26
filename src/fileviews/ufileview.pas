@@ -243,6 +243,8 @@ type
 
     procedure PushRenameEvent(AFile: TFile; const NewFileName: String);
     procedure AddWorker(const Worker: TFileViewWorker; SetEvents: Boolean = True);
+    procedure DoFileChanged(ADisplayFile: TDisplayFile; APropertiesChanged: TFilePropertiesTypes); virtual;
+    procedure DoFileRenamed(ADisplayFile: TDisplayFile); virtual;
     procedure BeginUpdate;
     procedure CalculateSpace(AFile: TDisplayFile);
     procedure CalculateSpace(var AFileList: TFVWorkerFileList);
@@ -448,7 +450,7 @@ type
     procedure SaveConfiguration(AConfig: TXmlConfig; ANode: TXmlNode; ASaveHistory:boolean); virtual;
 
     procedure UpdateView;
-
+    procedure ApplySettings;
     procedure UpdateColor; virtual; abstract;
 
     {en
@@ -1157,6 +1159,8 @@ begin
       ADisplayFile.DisplayStrings.Clear;
       ResortFile(ADisplayFile, FAllDisplayFiles);
 
+      DoFileRenamed(ADisplayFile);
+
       ANotifications := [fvnFileSourceFileListUpdated];
       case ApplyFilter(ADisplayFile, NewFilesPosition) of
         fvaprInserted, fvaprRemoved:
@@ -1287,6 +1291,7 @@ begin
       try
         FileSource.RetrieveProperties(AFile, FilePropertiesNeeded, GetVariantFileProperties);
         propertiesChanged:= AFile.Compare(OldFile);
+        if propertiesChanged = [] then Exit;
       finally
         FreeAndNil(OldFile);
       end;
@@ -1301,10 +1306,12 @@ begin
           Exit;
         end;
     end;
-    ADisplayFile.Busy := [];
     ADisplayFile.TextColor := clNone;
     ADisplayFile.IconOverlayID := -1;
     ADisplayFile.DisplayStrings.Clear;
+    ADisplayFile.Busy := ADisplayFile.Busy - [bsProp];
+
+    DoFileChanged(ADisplayFile, propertiesChanged);
 
     ANotifications := [fvnFileSourceFileListUpdated];
     case ApplyFilter(ADisplayFile, NewFilesPosition) of
@@ -1412,6 +1419,17 @@ begin
     Worker.OnStarting := @WorkerStarting;
     Worker.OnFinished := @WorkerFinished;
   end;
+end;
+
+procedure TFileView.DoFileChanged(ADisplayFile: TDisplayFile;
+  APropertiesChanged: TFilePropertiesTypes);
+begin
+  // Empty
+end;
+
+procedure TFileView.DoFileRenamed(ADisplayFile: TDisplayFile);
+begin
+  // Empty
 end;
 
 procedure TFileView.BeginUpdate;
@@ -2877,6 +2895,20 @@ begin
   UpdateTitle;
 end;
 
+procedure TFileView.ApplySettings;
+var
+  Index: Integer;
+begin
+  SortAllDisplayFiles;
+  ReDisplayFileList;
+
+  for Index := 0 to FFiles.Count - 1 do
+  begin
+    FFiles[Index].TextColor := clNone;
+  end;
+  Notify([fvnVisibleFilePropertiesChanged]);
+end;
+
 function TFileView.BeforeChangePath(NewFileSource: IFileSource;
   Reason: TChangePathReason; NewPath: String): Boolean;
 var
@@ -3191,7 +3223,6 @@ begin
       else if fvnDisplayFileListChanged in FNotifications then
       begin
         FNotifications := FNotifications - [fvnDisplayFileListChanged];
-        ReleaseBusy;
         DisplayFileListChanged;
         StartRecentlyUpdatedTimerIfNeeded;
       end

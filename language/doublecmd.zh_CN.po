@@ -2782,6 +2782,14 @@ msgstr "菜单"
 msgid "Show &Hidden/System Files"
 msgstr "显示隐藏/系统文件(&H)"
 
+#: tfrmmain.actshowtabslist.caption
+msgid "Show Tabs List"
+msgstr ""
+
+#: tfrmmain.actshowtabslist.hint
+msgid "Show list of all open tabs"
+msgstr ""
+
 #: tfrmmain.actsortbyattr.caption
 msgid "Sort by &Attributes"
 msgstr "按属性排序(&A)"
@@ -12375,6 +12383,10 @@ msgstr "游戏"
 msgctxt "ulng.rsopenwithgraphics"
 msgid "Graphics"
 msgstr "图形"
+
+#: ulng.rsopenwithmacosfilter
+msgid "Applications (*.app)|*.app|All files (*)|*"
+msgstr "应用程序 (*.app)|*.app|所有文件 (*)|*"
 
 #: ulng.rsopenwithmultimedia
 msgid "Multimedia"

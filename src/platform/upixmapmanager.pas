@@ -1,15 +1,10 @@
 {
-   File name: uPixMapManager.pas
-   Date:      2004/04/xx
-   Author:    Radek Cervinka  <radek.cervinka@centrum.cz>
+   Double Commander
+   -------------------------------------------------------------------------
+   Fast pixmap memory manager and loader
 
-   Fast pixmap memory manager a loader
-
-   Copyright (C) 2004
-   
-   contributors:
-   
-   Copyright (C) 2006-2021 Alexander Koblov (alexx2000@mail.ru)
+   Copyright (C) 2004 Radek Cervinka (radek.cervinka@centrum.cz)
+   Copyright (C) 2006-2023 Alexander Koblov (alexx2000@mail.ru)
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -43,8 +38,8 @@ interface
 
 uses
   Classes, SysUtils, Graphics, syncobjs, uFileSorting, DCStringHashListUtf8,
-  uFile, uIconTheme, uDrive, uDisplayFile, uGlobs, uDCReadPSD, uOSUtils,
-  uVectorImage
+  uFile, uIconTheme, uDrive, uDisplayFile, uGlobs, uDCReadPSD, uOSUtils, FPImage,
+  LCLVersion, uVectorImage
   {$IF DEFINED(MSWINDOWS)}
   , ShlObj
   {$ELSEIF DEFINED(MSWINDOWS) and DEFINED(LCLQT5)}
@@ -104,9 +99,7 @@ type
 
     FDriveIconList : array[0..2] of TDriveIconList;
     FiDirIconID : PtrInt;
-    FiDirLinkIconID : PtrInt;
     FiDirLinkBrokenIconID : PtrInt;
-    FiLinkIconID : PtrInt;
     FiLinkBrokenIconID : PtrInt;
     FiEmblemLinkID: PtrInt;
     FiEmblemUnreadableID: PtrInt;
@@ -123,6 +116,7 @@ type
     FiEmblemPinned: PtrInt;
     FiEmblemOnline: PtrInt;
     FiEmblemOffline: PtrInt;
+    FiShortcutIconID: PtrInt;
     FOneDrivePath: String;
     {$ELSEIF DEFINED(DARWIN)}
     FUseSystemTheme: Boolean;
@@ -152,6 +146,9 @@ type
 
     procedure CreateIconTheme;
     procedure DestroyIconTheme;
+
+    function AddSpecial(ALow, AHigh: PtrInt): PtrInt;
+
     {en
        Same as LoadBitmap but displays a warning if pixmap file doesn't exist.
     }
@@ -202,9 +199,11 @@ type
        @returns(@true if AIconName points to an icon resource, @false otherwise.)
     }
     function GetIconResourceIndex(const IconPath: String; out IconFile: String; out IconIndex: PtrInt): Boolean;
+    function GetSystemFileIcon(const FileName: String; dwFileAttributes: DWORD = 0): PtrInt;
     function GetSystemFolderIcon: PtrInt;
     function GetSystemArchiveIcon: PtrInt;
-    function GetSystemExecutableIcon: PtrInt;
+    function GetSystemShortcutIcon: PtrInt; inline;
+    function GetSystemExecutableIcon: PtrInt; inline;
   {$ENDIF}
   {$IF DEFINED(UNIX) AND NOT (DEFINED(DARWIN) OR DEFINED(HAIKU))}
     {en
@@ -334,6 +333,9 @@ type
        For example default folder icon for folder, default executable icon for *.exe, etc.
     }
     function GetDefaultIcon(AFile: TFile): PtrInt;
+{$IF DEFINED(MSWINDOWS)}
+    procedure ClearSystemCache;
+{$ENDIF}
   end;
 
 var
@@ -355,13 +357,13 @@ implementation
 uses
   GraphType, LCLIntf, LCLType, LCLProc, Forms, uGlobsPaths, WcxPlugin,
   DCStrUtils, uDCUtils, uFileSystemFileSource, uReSample, uDebug,
-  DCOSUtils, DCClassesUtf8, LazUTF8, uGraphics, uHash, uSysFolders
+  IntfGraphics, DCOSUtils, DCClassesUtf8, LazUTF8, uGraphics, uHash, uSysFolders
   {$IFDEF LCLGTK2}
     , uPixMapGtk, gdk2pixbuf, gdk2, glib2
   {$ENDIF}
   {$IFDEF MSWINDOWS}
     , ActiveX, CommCtrl, ShellAPI, Windows, DCFileAttributes, uBitmap, uGdiPlus,
-      IntfGraphics, DCConvertEncoding, uShlObjAdditional, uShellFolder,
+      DCConvertEncoding, uShlObjAdditional, uShellFolder,
       uShellFileSourceUtil
   {$ELSE}
     , StrUtils, Types, DCBasicTypes
@@ -400,7 +402,8 @@ end;
 function StretchBitmap(var bmBitmap : Graphics.TBitmap; iIconSize : Integer;
                        clBackColor : TColor; bFreeAtEnd : Boolean = False) : Graphics.TBitmap;
 begin
-  if (iIconSize <> bmBitmap.Height) or (iIconSize <> bmBitmap.Width) then
+  if (bmBitmap.Height > 0) and (bmBitmap.Width > 0) and
+     ((iIconSize <> bmBitmap.Height) or (iIconSize <> bmBitmap.Width)) then
   begin
     Result := Graphics.TBitMap.Create;
     try
@@ -742,6 +745,54 @@ begin
   {$ENDIF}
 {$ENDIF}
   FreeAndNil(FDCIconTheme);
+end;
+
+function TPixMapManager.AddSpecial(ALow, AHigh: PtrInt): PtrInt;
+var
+  X, Y: Integer;
+  AIcon: TBitmap;
+  ABitmap: TBitmap;
+  Source, Target: TLazIntfImage;
+begin
+  AIcon:= GetBitmap(ALow);
+
+  Target:= TLazIntfImage.Create(AIcon.Width, AIcon.Height, [riqfRGB, riqfAlpha]);
+  try
+{$if lcl_fullversion < 2020000}
+    Target.CreateData;
+{$endif}
+    Target.FillPixels(colTransparent);
+
+    Source:= TLazIntfImage.Create(AIcon.RawImage, False);
+    try
+      Target.CopyPixels(Source);
+    finally
+      Source.Free;
+    end;
+
+    ABitmap:= GetBitmap(AHigh);
+    try
+      Source:= TLazIntfImage.Create(ABitmap.RawImage, False);
+      try
+        X:= (AIcon.Width - ABitmap.Width);
+        Y:= (AIcon.Height - ABitmap.Height);
+        BitmapMerge(Target, Source, X, Y);
+      finally
+        Source.Free;
+      end;
+    finally
+      ABitmap.Free;
+    end;
+{$IF DEFINED(LCLGTK2)}
+    Result := FPixmapList.Add(ImageToPixBuf(Target));
+    AIcon.Free;
+{$ELSE}
+    BitmapAssign(AIcon, Target);
+    Result := FPixmapList.Add(AIcon);
+{$ENDIF}
+  finally
+    Target.Free;
+  end;
 end;
 
 {$IF DEFINED(UNIX) AND NOT (DEFINED(DARWIN) OR DEFINED(HAIKU))}
@@ -1432,6 +1483,24 @@ begin
     end;
 end;
 
+function TPixMapManager.GetSystemFileIcon(const FileName: String; dwFileAttributes: DWORD): PtrInt;
+var
+  FileInfo: TSHFileInfo;
+begin
+  if (SHGetFileInfo(PAnsiChar(FileName),    // Ansi version is enough.
+                    FILE_ATTRIBUTE_NORMAL or dwFileAttributes,
+                    FileInfo,
+                    SizeOf(FileInfo),
+                    SHGFI_SYSICONINDEX or SHGFI_USEFILEATTRIBUTES) = 0) then
+    Result := -1
+  else begin
+    Result := FileInfo.iIcon + SystemIconIndexStart;
+{$IF DEFINED(LCLQT5)}
+    Result := CheckAddSystemIcon(Result);
+{$ENDIF}
+  end;
+end;
+
 function TPixMapManager.GetSystemFolderIcon: PtrInt;
 var
   FileInfo: TSHFileInfo;
@@ -1464,22 +1533,14 @@ begin
   end;
 end;
 
-function TPixMapManager.GetSystemExecutableIcon: PtrInt;
-var
-  FileInfo: TSHFileInfo;
+function TPixMapManager.GetSystemShortcutIcon: PtrInt;
 begin
-  if (SHGetFileInfo(PAnsiChar('a.exe'),    // Ansi version is enough.
-                    FILE_ATTRIBUTE_NORMAL,
-                    FileInfo,
-                    SizeOf(FileInfo),
-                    SHGFI_SYSICONINDEX or SHGFI_USEFILEATTRIBUTES) = 0) then
-    Result := -1
-  else begin
-    Result := FileInfo.iIcon + SystemIconIndexStart;
-{$IF DEFINED(LCLQT5)}
-    Result := CheckAddSystemIcon(Result);
-{$ENDIF}
-  end;
+  Result:= GetSystemFileIcon('a.url');
+end;
+
+function TPixMapManager.GetSystemExecutableIcon: PtrInt;
+begin
+  Result:= GetSystemFileIcon('a.exe');
 end;
 
 {$ENDIF}
@@ -1654,6 +1715,11 @@ begin
     FiEmblemOffline:= CheckAddThemePixmap('emblem-cloud-offline', I);
     GetKnownFolderPath(FOLDERID_SkyDrive, FOneDrivePath);
   end;
+  FiShortcutIconID := -1;
+  if gShowIcons > sim_standart then
+    FiShortcutIconID := GetSystemShortcutIcon;
+  if FiShortcutIconID = -1 then
+    FiShortcutIconID := CheckAddThemePixmap('text-html');
   {$ENDIF}
   {$IF DEFINED(MSWINDOWS) or DEFINED(DARWIN)}
   FiDirIconID := -1;
@@ -1661,12 +1727,10 @@ begin
     FiDirIconID := GetSystemFolderIcon;
   if FiDirIconID = -1 then
   {$ENDIF}
-  FiDirIconID:=CheckAddThemePixmap('folder');
-  FiDirLinkIconID:=CheckAddThemePixmap('folder-link');
-  FiDirLinkBrokenIconID:=CheckAddThemePixmap('folder-link-broken');
-  FiLinkIconID:=CheckAddThemePixmap('link');
-  FiLinkBrokenIconID:=CheckAddThemePixmap('link-broken');
-  FiUpDirIconID:=CheckAddThemePixmap('go-up');
+  FiDirIconID:= CheckAddThemePixmap('folder');
+  FiDirLinkBrokenIconID:= AddSpecial(FiDirIconID, FiEmblemUnreadableID);
+  FiLinkBrokenIconID:= AddSpecial(FiDefaultIconID, FiEmblemUnreadableID);
+  FiUpDirIconID:= CheckAddThemePixmap('go-up');
   {$IFDEF MSWINDOWS}
   FiArcIconID := -1;
   if (gShowIcons > sim_standart) and (not (cimArchive in gCustomIcons)) then
@@ -2019,16 +2083,10 @@ begin
       Exit;
     end;
 
-    if IsLinkToDirectory then
+    if IsLinkToDirectory and GetIconWithLink then
     begin
-      if GetIconWithLink then
-      begin
-        if (LinkProperty = nil) or LinkProperty.IsValid then
-          Result := FiDirLinkIconID
-        else
-          Result := FiDirLinkBrokenIconID;
-        Exit;
-      end;
+      if Assigned(LinkProperty) and not LinkProperty.IsValid then
+        Exit(FiDirLinkBrokenIconID);
     end;
 
     if (DirectAccess = False) then
@@ -2111,9 +2169,7 @@ begin
     begin
       if IsLink and GetIconWithLink then
       begin
-        if (LinkProperty = nil) or LinkProperty.IsValid then
-          Exit(FiLinkIconID)
-        else
+        if Assigned(LinkProperty) and not LinkProperty.IsValid then
           Exit(FiLinkBrokenIconID);
       end;
 
@@ -2143,14 +2199,32 @@ begin
       Ext := UTF8LowerCase(Extension);
 
       {$IF DEFINED(MSWINDOWS)}
+      if (IconsMode > sim_standart) and (Win32MajorVersion >= 10) then
+      begin
+        if (AFile.Attributes and FILE_ATTRIBUTE_ENCRYPTED <> 0) then
+        begin
+          if (IconsMode = sim_all) or
+             ((Ext <> 'exe') and (Ext <> 'ico') and
+              (Ext <> 'ani') and (Ext <> 'cur')) then
+          begin
+            if (IconsMode = sim_all) and
+               ((Ext = 'ico') or (Ext = 'ani') or (Ext = 'cur')) then
+              Result:= GetSystemFileIcon('aaa', AFile.Attributes)
+            else begin
+              Result:= GetSystemFileIcon(AFile.Name, AFile.Attributes);
+            end;
+            if Result > -1 then Exit;
+          end;
+        end;
+      end;
       if IconsMode <> sim_all_and_exe then
         begin
           if Ext = 'exe' then
             Exit(FiExeIconID)
           else if Ext = 'lnk' then
-            Exit(FiLinkIconID)
+            Exit(FiDefaultIconID)
           else if Ext = 'url' then
-            Exit(FiLinkIconID)
+            Exit(FiShortcutIconID)
         end;
       {$ELSEIF DEFINED(UNIX) AND NOT (DEFINED(DARWIN) OR DEFINED(HAIKU))}
       if IconsMode = sim_all_and_exe then
@@ -2275,6 +2349,27 @@ begin
 end;
 
 {$IF DEFINED(MSWINDOWS)}
+procedure TPixMapManager.ClearSystemCache;
+var
+  I: Integer;
+  IData: IntPtr;
+  AData: Pointer absolute IData;
+begin
+  FPixmapsLock.Acquire;
+  try
+    for I:= FExtList.Count - 1 downto 0 do
+    begin
+      AData:= FExtList.List[I]^.Data;
+      if (IData >= SystemIconIndexStart) and (IData <> FiArcIconID) then
+      begin
+        FExtList.Remove(I);
+      end;
+    end;
+  finally
+    FPixmapsLock.Release;
+  end;
+end;
+
 function TPixMapManager.GetIconOverlayByFile(AFile: TFile; DirectAccess: Boolean): PtrInt;
 begin
   if not DirectAccess then Exit(-1);
