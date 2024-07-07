@@ -335,6 +335,7 @@ type
    procedure cm_NetworkConnect(const Params: array of string);
    procedure cm_NetworkDisconnect(const Params: array of string);
    procedure cm_CopyNetNamesToClip(const Params: array of string);
+   procedure cm_MapNetworkDrive(const Params: array of string);
    procedure cm_HorizontalFilePanels(const Params: array of string);
    procedure cm_OperationsViewer(const Params: array of string);
    procedure cm_CompareDirectories(const Params: array of string);
@@ -748,6 +749,7 @@ var
   aFile: TFile = nil;
   aFiles: TFiles = nil;
   sPath, sName: String;
+  OperationsTypes: TFileSourceOperationTypes;
 begin
   with frmMain do
   begin
@@ -765,6 +767,9 @@ begin
             FreeAndNil(aFiles);
           end;
         end;
+        OperationsTypes:= Panel.FileSource.GetOperationsTypes;
+        mnuContextDelete.Visible:= fsoDelete in OperationsTypes;
+        mnuContextRenameOnly.Visible:= fsoSetFileProperty in OperationsTypes;
         AMenu.PopUp(X, Y);
       end;
       Exit;
@@ -2017,22 +2022,35 @@ var
   aFile: TFile;
   i, n: Integer;
   IsFile: Boolean;
+  sCmd: String = '';
   AMode: Integer = 0;
+  sParams: String = '';
   Param, AValue: String;
   sl: TStringList = nil;
-  ActiveFile: TFile = nil;
   AllFiles: TFiles = nil;
-  SelectedFiles: TFiles = nil;
+  sStartPath: String = '';
+  ActiveFile: TFile = nil;
   aFileSource: IFileSource;
-  sCmd: string = '';
-  sParams: string = '';
-  sStartPath: string = '';
+  ACursor: Boolean = False;
+  SelectedFiles: TFiles = nil;
   LinksResolveNeeded: Boolean;
 begin
   with frmMain do
   try
-    SelectedFiles := ActiveFrame.CloneSelectedOrActiveFiles;
     ActiveFile := ActiveFrame.CloneActiveFile;
+
+    if (Length(Params) > 0) then
+    begin
+      if GetParamValue(Params, 'cursor', AValue) then
+        GetBoolValue(AValue, ACursor);
+    end;
+
+    if not ACursor then
+      SelectedFiles := ActiveFrame.CloneSelectedOrActiveFiles
+    else begin
+      SelectedFiles:= TFiles.Create(ActiveFrame.CurrentPath);
+      if ActiveFile.IsNameValid then SelectedFiles.Add(ActiveFile.Clone);
+    end;
 
     if SelectedFiles.Count = 0 then
     begin
@@ -2116,7 +2134,7 @@ begin
       // If only one file was selected then add all files in panel to the list.
       // Works only for directly accessible files and only when using internal viewer.
       if (sl.Count = 1) and (IsFile) and
-         (not gExternalTools[etViewer].Enabled) and
+         (not ACursor) and (not gExternalTools[etViewer].Enabled) and
          ([fspDirectAccess, fspLinksToLocalFiles] * ActiveFrame.FileSource.Properties <> []) then
         begin
           AllFiles := ActiveFrame.CloneFiles;
@@ -2333,16 +2351,34 @@ end;
 
 procedure TMainCommands.cm_Edit(const Params: array of string);
 var
-  i: Integer;
+  I: Integer;
   aFile: TFile;
+  sCmd: String = '';
+  sParams: String = '';
+  Param, AValue: String;
+  sStartPath: String = '';
+  ACursor: Boolean = False;
   SelectedFiles: TFiles = nil;
-  sCmd: string = '';
-  sParams: string = '';
-  sStartPath: string = '';
 begin
   with frmMain do
   try
-    SelectedFiles := ActiveFrame.CloneSelectedOrActiveFiles;
+    if (Length(Params) > 0) then
+    begin
+      if GetParamValue(Params, 'cursor', AValue) then
+        GetBoolValue(AValue, ACursor);
+    end;
+
+    if not ACursor then
+      SelectedFiles := ActiveFrame.CloneSelectedOrActiveFiles
+    else begin
+      SelectedFiles:= TFiles.Create(ActiveFrame.CurrentPath);
+      aFile:= ActiveFrame.CloneActiveFile;
+      if aFile.IsNameValid then
+        SelectedFiles.Add(aFile)
+      else begin
+        aFile.Free;
+      end;
+    end;
 
     for I := SelectedFiles.Count - 1 downto 0 do
     begin
@@ -2379,8 +2415,7 @@ begin
     end;
 
   finally
-    if Assigned(SelectedFiles) then
-      FreeAndNil(SelectedFiles);
+    FreeAndNil(SelectedFiles);
   end;
 end;
 
@@ -4529,6 +4564,11 @@ begin
   CopyNetNamesToClip;
 end;
 
+procedure TMainCommands.cm_MapNetworkDrive(const Params: array of string);
+begin
+  MapNetworkDrive;
+end;
+
 procedure TMainCommands.cm_HorizontalFilePanels(const Params: array of string);
 var
   sParamValue:string;
@@ -5425,7 +5465,7 @@ begin
   //3. If user provided no parameter, let's launch the file requester to have user point a file.
   if Length(Params) = 0 then
   begin
-    dmComData.OpenDialog.Filter:= ParseLineToFileFilter([rsFilterPluginFiles, '*.dsx;*.wcx;*.wdx;*.wfx;*.wlx;*.dsx64;*.wcx64;*.wdx64;*.wfx64;*.wlx64', rsFilterAnyFiles, '*.*']);
+    dmComData.OpenDialog.Filter:= ParseLineToFileFilter([rsFilterPluginFiles, '*.dsx;*.wcx;*.wdx;*.wfx;*.wlx;*.dsx64;*.wcx64;*.wdx64;*.wfx64;*.wlx64', rsFilterAnyFiles, AllFilesMask]);
     dmComData.OpenDialog.InitialDir := frmMain.ActiveNotebook.ActivePage.FileView.CurrentPath;
     if dmComData.OpenDialog.Execute then
       sPluginFilename := dmComData.OpenDialog.FileName;

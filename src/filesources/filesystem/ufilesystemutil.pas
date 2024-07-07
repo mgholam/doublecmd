@@ -74,6 +74,7 @@ type
     FReserveSpace,
     FCheckFreeSpace: Boolean;
     FSkipAllBigFiles: Boolean;
+    FSkipAllCopyItSelf: Boolean;
 {$IF DEFINED(UNIX)}
     FSkipAllSpecialFiles: Boolean;
 {$ENDIF}
@@ -282,6 +283,7 @@ end;
 function FileExistsMessage(const TargetName, SourceName: String;
                            SourceSize: Int64; SourceTime: TDateTime): String;
 var
+  ASize: String;
   TargetInfo: TFileAttributeData;
 begin
   Result:= rsMsgFileExistsOverwrite + LineEnding + WrapTextSimple(TargetName, 100) + LineEnding;
@@ -290,8 +292,13 @@ begin
     Result:= Result + Format(rsMsgFileExistsFileInfo, [IntToStrTS(TargetInfo.Size),
                              DateTimeToStr(FileTimeToDateTime(TargetInfo.LastWriteTime))]) + LineEnding;
   end;
+  if (SourceSize < 0) then
+    ASize:= '?'
+  else begin
+    ASize:= IntToStrTS(SourceSize);
+  end;
   Result:= Result + LineEnding + rsMsgFileExistsWithFile + LineEnding + WrapTextSimple(SourceName, 100) + LineEnding +
-           Format(rsMsgFileExistsFileInfo, [IntToStrTS(SourceSize), DateTimeToStr(SourceTime)]);
+           Format(rsMsgFileExistsFileInfo, [ASize, DateTimeToStr(SourceTime)]);
 end;
 
 function FileCopyProgress(TotalBytes, DoneBytes: Int64; UserData: Pointer): LongBool;
@@ -953,7 +960,7 @@ procedure TFileSystemOperationHelper.CopyProperties(SourceFile: TFile;
 var
   Msg: String = '';
   ACopyTime: Boolean;
-  CreationTime, LastAccessTime: TFileTime;
+  CreationTime, LastAccessTime: TFileTimeEx;
   CopyAttrResult: TCopyAttributesOptions = [];
   ACopyAttributesOptions: TCopyAttributesOptions;
 begin
@@ -971,18 +978,18 @@ begin
       if not (caoCopyTimeEx in CopyAttributesOptionEx) then
       begin
         if fpCreationTime in SourceFile.AssignedProperties then
-          CreationTime:= DateTimeToFileTime(SourceFile.CreationTime)
+          CreationTime:= DateTimeToFileTimeEx(SourceFile.CreationTime)
         else begin
-          CreationTime:= 0;
+          CreationTime:= TFileTimeExNull;
         end;
-        LastAccessTime:= DateTimeToFileTime(SourceFile.LastAccessTime);
+        LastAccessTime:= DateTimeToFileTimeEx(SourceFile.LastAccessTime);
       end
       else begin
-        CreationTime:= 0;
-        LastAccessTime:= 0;
+        CreationTime:= TFileTimeExNull;
+        LastAccessTime:= TFileTimeExNull;
       end;
       // Copy time from properties because move operation change time of original folder
-      if not FileSetTimeUAC(TargetFileName, DateTimeToFileTime(SourceFile.ModificationTime),
+      if not FileSetTimeUAC(TargetFileName, DateTimeToFileTimeEx(SourceFile.ModificationTime),
                                             CreationTime, LastAccessTime) then
         CopyAttrResult += [caoCopyTime];
     except
@@ -1102,9 +1109,15 @@ begin
     begin
       if (FMode = fsohmCopy) and FAutoRenameItSelf then
         TargetName := GetNextCopyName(TargetName, aFile.IsDirectory or aFile.IsLinkToDirectory)
-      else
-        case AskQuestion(Format(rsMsgCanNotCopyMoveItSelf, [TargetName]), '',
-                         [fsourAbort, fsourSkip], fsourAbort, fsourSkip) of
+      else begin
+        if FSkipAllCopyItSelf then
+          AskResult:= fsourSkip
+        else begin
+          AskResult:= AskQuestion(Format(rsMsgCanNotCopyMoveItSelf, [TargetName]), '',
+                                  [fsourAbort, fsourSkip, fsourSkipAll], fsourAbort, fsourSkip);
+          FSkipAllCopyItSelf:= (AskResult = fsourSkipAll);
+        end;
+        case AskResult of
           fsourAbort:
             AbortOperation();
         else
@@ -1116,6 +1129,7 @@ begin
               Continue;
             end;
         end;
+      end;
     end;
 
     // Check MAX_PATH
@@ -1127,6 +1141,7 @@ begin
         AskResult := AskQuestion(Format(rsMsgFilePathOverMaxPath,
                          [UTF8Length(TargetName), MAX_PATH - 1, LineEnding + WrapTextSimple(TargetName, 100) + LineEnding]), '',
                          [fsourIgnore, fsourSkip, fsourAbort, fsourIgnoreAll, fsourSkipAll], fsourIgnore, fsourSkip);
+        if AskResult = fsourSkipAll then FMaxPathOption := fsourSkip;
       end;
       case AskResult of
         fsourAbort: AbortOperation();
@@ -1134,7 +1149,6 @@ begin
         fsourSkipAll:
           begin
             Result := False;
-            FMaxPathOption := fsourSkip;
             SkipStatistics(CurrentSubNode);
             AppProcessMessages;
             CheckOperationState;

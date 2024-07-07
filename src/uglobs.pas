@@ -173,7 +173,7 @@ type
 
 const
   { Default hotkey list version number }
-  hkVersion = 62;
+  hkVersion = 64;
   // 54 - In "Viewer" context, added the "W" for "cm_WrapText", "4" for "cm_ShowAsDec", "8" for "cm_ShowOffice".
   // 53 - In "Main" context, change shortcut "Alt+`" to "Alt+0" for the "cm_ActivateTabByIndex".
   // 52 - In "Main" context, add shortcut "Ctrl+Shift+B" for "cm_FlatViewSel".
@@ -269,6 +269,7 @@ var
   gDriveBar1,
   gDriveBar2,
   gDriveBarFlat,
+  gDriveBarSyncWidth,
   gDrivesListButton,
   gDirectoryTabs,
   gCurDir,
@@ -545,6 +546,7 @@ var
   gInplaceRename,
   gInplaceRenameButton,
   gDblClickToParent,
+  gDblClickEditPath,
   gGoToRoot: Boolean;
   gShowCurDirTitleBar: Boolean;
   gActiveRight: Boolean;
@@ -614,6 +616,7 @@ var
   gImagePaintWidth,
   gColCount,
   gViewerMode,
+  gMaxCodeSize,
   gMaxTextWidth,
   gTabSpaces : Integer;
   gImagePaintColor,
@@ -652,6 +655,7 @@ var
   gSyncDirsShowFilterCopyRight,
   gSyncDirsShowFilterEqual,
   gSyncDirsShowFilterNotEqual,
+  gSyncDirsShowFilterUnknown,
   gSyncDirsShowFilterCopyLeft,
   gSyncDirsShowFilterDuplicates,
   gSyncDirsShowFilterSingles: Boolean;
@@ -741,9 +745,6 @@ uses
    {$IF DEFINED(MSWINDOWS)}
     , ShlObj
    {$ENDIF}
-   {$IF DEFINED(DARWIN)}
-    , uMyDarwin
-   {$ENDIF}
    {$if lcl_fullversion >= 2010000}
    , SynEditMiscClasses
    {$endif}
@@ -761,6 +762,7 @@ var
   // loaded from configuration file
   gPreviousVersion: String = '';
   FInitList: array of TProcedure;
+  CustomDecimalSeparator: String = #$EF#$BF#$BD;
 
 function LoadConfigCheckErrors(LoadConfigProc: TLoadConfigProc;
                                ConfigFileName: String;
@@ -1049,11 +1051,20 @@ begin
           Remove(HMHotKey);
         end;
       end;
+      if HotMan.Version < 63 then
+      begin
+        HMHotKey:= FindByCommand('cm_View');
+        if Assigned(HMHotKey) and HMHotKey.SameShortcuts(['F3']) then
+        begin
+          Remove(HMHotKey);
+        end;
+      end;
 
       AddIfNotExists(['F1'],[],'cm_HelpIndex');
       AddIfNotExists(['F2','','',
                       'Shift+F6','',''],'cm_RenameOnly');
-      AddIfNotExists(['F3'],[],'cm_View');
+      AddIfNotExists(['F3','','',
+                      'Shift+F3','','cursor=1',''], 'cm_View');
       AddIfNotExists(['F4'],[],'cm_Edit');
       AddIfNotExists(['F5'],[],'cm_Copy');
       AddIfNotExists(['F6'],[],'cm_Rename');
@@ -1174,6 +1185,8 @@ begin
         if Assigned(HMHotKey) and HMHotKey.SameShortcuts(['Ctrl+Z']) then
           Remove(HMHotKey);
       end;
+
+      AddIfNotExists(VK_K, [ssModifier], 'cm_MapNetworkDrive');
     end;
 
   HMControl := HMForm.Controls.FindOrCreate('Files Panel');
@@ -1558,7 +1571,7 @@ begin
     CopyFile(gpExePath + 'default' + PathDelim + 'pixmaps.txt', gpCfgDir + 'pixmaps.txt');
   end;
   // multiarc configuration file
-  if not mbFileExists(gpCfgDir + sMULTIARC_FILENAME) then
+  if (mbFileSize(gpCfgDir + sMULTIARC_FILENAME) = 0) then
   begin
     CopyFile(gpExePath + 'default' + PathDelim + sMULTIARC_FILENAME, gpCfgDir + sMULTIARC_FILENAME);
   end;
@@ -1862,6 +1875,7 @@ begin
   gDriveBar2 := True;
   gDriveBarFlat := True;
   gDrivesListButton := True;
+  gDriveBarSyncWidth := False;
   gDirectoryTabs := True;
   gCurDir := True;
   gTabHeader := True;
@@ -2014,6 +2028,7 @@ begin
   gInplaceRename := False;
   gInplaceRenameButton := True;
   gDblClickToParent := False;
+  gDblClickEditPath := False;
   gHotDirAddTargetOrNot := False;
   gHotDirFullExpandOrNot:=False;
   gShowPathInPopup:=FALSE;
@@ -2079,6 +2094,7 @@ begin
   gImagePaintWidth := 5;
   gColCount := 1;
   gTabSpaces := 8;
+  gMaxCodeSize := 128;
   gMaxTextWidth := 1024;
   gImagePaintColor := clRed;
   gTextPosition:= 0;
@@ -2117,6 +2133,7 @@ begin
   gSyncDirsShowFilterCopyRight := True;
   gSyncDirsShowFilterEqual := True;
   gSyncDirsShowFilterNotEqual := True;
+  gSyncDirsShowFilterUnknown := True;
   gSyncDirsShowFilterCopyLeft := True;
   gSyncDirsShowFilterDuplicates := True;
   gSyncDirsShowFilterSingles := True;
@@ -2523,6 +2540,7 @@ procedure LoadXmlConfig;
     end;
   end;
 var
+  DecimalSeparator: String;
   Root, Node, SubNode: TXmlNode;
   LoadedConfigVersion, iIndexContextMode: Integer;
   oldQuickSearch: Boolean = True;
@@ -2592,62 +2610,12 @@ begin
       gShowCurDirTitleBar := GetValue(Node, 'ShowCurDirTitleBar', gShowCurDirTitleBar);
       gActiveRight := GetValue(Node, 'ActiveRight', gActiveRight);
 
-      //Trick to split initial legacy command for terminal
-      //  Initial name in config was "RunInTerminal".
-      //  If it is still present in config, it means we're running from an older version.
-      //  So if it's different than our setting, let's split it to get actual "cmd" and "params".
-      //  New version uses "RunInTerminalCloseCmd" from now on.
-      //  ALSO, in the case of Windows, installation default was "cmd.exe /K ..." which means Run-and-stayopen
-      //        in the case of Unix, installation default was "xterm -e sh -c ..." which means Run-and-close
-      //  So because of these two different behavior, transition is done slightly differently.
-      {$IF DEFINED(MSWINDOWS)}
-      gRunInTermStayOpenCmd := GetValue(Node, 'RunInTerminal', gRunInTermStayOpenCmd);
-      if gRunInTermStayOpenCmd<>RunInTermCloseCmd then
-      begin
-        SplitCmdLineToCmdParams(gRunInTermStayOpenCmd, gRunInTermStayOpenCmd, gRunInTermStayOpenParams);
-        if gRunInTermStayOpenParams<>'' then gRunInTermStayOpenParams:=gRunInTermStayOpenParams+' {command}' else gRunInTermStayOpenParams:='{command}';
-      end
-      else
-      begin
-        gRunInTermStayOpenCmd := GetValue(Node, 'RunInTerminalStayOpenCmd', RunInTermStayOpenCmd);
-        gRunInTermStayOpenParams := GetValue(Node, 'RunInTerminalStayOpenParams', RunInTermStayOpenParams);
-      end;
+      gRunTermCmd := GetValue(Node, 'JustRunTerminal', RunTermCmd);
+      gRunTermParams := GetValue(Node, 'JustRunTermParams', RunTermParams);
       gRunInTermCloseCmd := GetValue(Node, 'RunInTerminalCloseCmd', RunInTermCloseCmd);
       gRunInTermCloseParams := GetValue(Node, 'RunInTerminalCloseParams', RunInTermCloseParams);
-      {$ELSE}
-      gRunInTermCloseCmd := GetValue(Node, 'RunInTerminal', gRunInTermCloseCmd);
-      if gRunInTermCloseCmd<>RunInTermCloseCmd then
-      begin
-        SplitCmdLineToCmdParams(gRunInTermCloseCmd, gRunInTermCloseCmd, gRunInTermCloseParams);
-        if gRunInTermCloseParams<>'' then gRunInTermCloseParams:=gRunInTermCloseParams+' {command}' else gRunInTermStayOpenParams:='{command}';
-      end
-      else
-      begin
-        gRunInTermCloseCmd := GetValue(Node, 'RunInTerminalCloseCmd', RunInTermCloseCmd);
-        gRunInTermCloseParams := GetValue(Node, 'RunInTerminalCloseParams', RunInTermCloseParams);
-      end;
       gRunInTermStayOpenCmd := GetValue(Node, 'RunInTerminalStayOpenCmd', RunInTermStayOpenCmd);
       gRunInTermStayOpenParams := GetValue(Node, 'RunInTerminalStayOpenParams', RunInTermStayOpenParams);
-      {$ENDIF}
-
-      // Let's try to be backward comptible and re-load possible old values for terminal launch command
-      gRunTermCmd := GetValue(Node, 'JustRunTerminal', '');
-      if gRunTermCmd <> '' then begin
-        gRunTermParams := GetValue(Node, 'JustRunTermParams', RunTermParams);
-      end else begin
-        gRunTermCmd := GetValue(Node, 'RunTerminal', '' );
-        if gRunTermCmd <> '' then begin
-          SplitCmdLineToCmdParams(gRunTermCmd, gRunTermCmd, gRunTermParams);
-        end else begin
-          {$IF DEFINED(DARWIN)}
-          gRunTermCmd:= getMacOSDefaultTerminal;
-          if gRunTermCmd = '' then gRunTermCmd := RunTermCmd;
-          {$ELSE}
-          gRunTermCmd := RunTermCmd;
-          {$ENDIF}
-          gRunTermParams := RunTermParams;
-        end;
-      end;
 
       gOnlyOneAppInstance := GetValue(Node, 'OnlyOneAppInstance', gOnlyOneAppInstance);
       gLynxLike := GetValue(Node, 'LynxLike', gLynxLike);
@@ -3054,6 +3022,7 @@ begin
       gInplaceRename := GetValue(Node, 'InplaceRename', gInplaceRename);
       gInplaceRenameButton := GetValue(Node, 'InplaceRenameButton', gInplaceRenameButton);
       gDblClickToParent := GetValue(Node, 'DblClickToParent', gDblClickToParent);
+      gDblClickEditPath := GetValue(Node, 'DoubleClickEditPath', gDblClickEditPath);
       gHotDirAddTargetOrNot:=GetValue(Node, 'HotDirAddTargetOrNot', gHotDirAddTargetOrNot);
       gHotDirFullExpandOrNot:=GetValue(Node, 'HotDirFullExpandOrNot', gHotDirFullExpandOrNot);
       gShowPathInPopup:=GetValue(Node, 'ShowPathInPopup', gShowPathInPopup);
@@ -3066,6 +3035,13 @@ begin
 {$IF DEFINED(UNIX) AND NOT (DEFINED(DARWIN) OR DEFINED(HAIKU))}
       gSystemItemProperties := GetValue(Node, 'SystemItemProperties', gSystemItemProperties);
 {$ENDIF}
+      DecimalSeparator:= GetValue(Node, 'DecimalSeparator', FormatSettings.DecimalSeparator);
+      if (Length(DecimalSeparator) > 0) and (Ord(DecimalSeparator[1]) < $80) and
+         (DecimalSeparator[1] <> FormatSettings.DecimalSeparator) then
+      begin
+        CustomDecimalSeparator:= DecimalSeparator;
+        FormatSettings.DecimalSeparator:= CustomDecimalSeparator[1];
+      end;
     end;
 
     { Thumbnails }
@@ -3153,6 +3129,7 @@ begin
       gColCount    := GetValue(Node, 'NumberOfColumns', gColCount);
       gTabSpaces := GetValue(Node, 'TabSpaces', gTabSpaces);
       gMaxTextWidth := GetValue(Node, 'MaxTextWidth', gMaxTextWidth);
+      gMaxCodeSize := GetValue(Node, 'MaxCodeSize', gMaxCodeSize);
       gViewerMode  := GetValue(Node, 'ViewerMode'  , gViewerMode);
       gPrintMargins := GetValue(Node, 'PrintMargins'  , gPrintMargins);
       gShowCaret := GetValue(Node, 'ShowCaret'  , gShowCaret);
@@ -3206,6 +3183,7 @@ begin
       gSyncDirsShowFilterCopyRight := GetValue(Node, 'FilterCopyRight', gSyncDirsShowFilterCopyRight);
       gSyncDirsShowFilterEqual := GetValue(Node, 'FilterEqual', gSyncDirsShowFilterEqual);
       gSyncDirsShowFilterNotEqual := GetValue(Node, 'FilterNotEqual', gSyncDirsShowFilterNotEqual);
+      gSyncDirsShowFilterUnknown := GetValue(Node, 'FilterUnknown', gSyncDirsShowFilterUnknown);
       gSyncDirsShowFilterCopyLeft := GetValue(Node, 'FilterCopyLeft', gSyncDirsShowFilterCopyLeft);
       gSyncDirsShowFilterDuplicates := GetValue(Node, 'FilterDuplicates', gSyncDirsShowFilterDuplicates);
       gSyncDirsShowFilterSingles := GetValue(Node, 'FilterSingles', gSyncDirsShowFilterSingles);
@@ -3666,6 +3644,7 @@ begin
     SetValue(Node, 'InplaceRename', gInplaceRename);
     SetValue(Node, 'InplaceRenameButton', gInplaceRenameButton);
     SetValue(Node, 'DblClickToParent', gDblClickToParent);
+    SetValue(Node, 'DoubleClickEditPath', gDblClickEditPath);
     SetValue(Node, 'HotDirAddTargetOrNot',gHotDirAddTargetOrNot);
     SetValue(Node, 'HotDirFullExpandOrNot', gHotDirFullExpandOrNot);
     SetValue(Node, 'ShowPathInPopup', gShowPathInPopup);
@@ -3678,6 +3657,7 @@ begin
 {$IF DEFINED(UNIX) AND NOT (DEFINED(DARWIN) OR DEFINED(HAIKU))}
     SetValue(Node, 'SystemItemProperties', gSystemItemProperties);
 {$ENDIF}
+    SetValue(Node, 'DecimalSeparator', CustomDecimalSeparator);
 
     { Thumbnails }
     Node := FindNode(Root, 'Thumbnails', True);
@@ -3740,6 +3720,7 @@ begin
     SetValue(Node, 'PaintWidth', gImagePaintWidth);
     SetValue(Node, 'NumberOfColumns', gColCount);
     SetValue(Node, 'TabSpaces', gTabSpaces);
+    SetValue(Node, 'MaxCodeSize', gMaxCodeSize);
     SetValue(Node, 'MaxTextWidth', gMaxTextWidth);
     SetValue(Node, 'ViewerMode' , gViewerMode);
     SetValue(Node, 'PrintMargins', gPrintMargins);
@@ -3782,6 +3763,7 @@ begin
     SetValue(Node, 'FilterCopyRight', gSyncDirsShowFilterCopyRight);
     SetValue(Node, 'FilterEqual', gSyncDirsShowFilterEqual);
     SetValue(Node, 'FilterNotEqual', gSyncDirsShowFilterNotEqual);
+    SetValue(Node, 'FilterUnknown', gSyncDirsShowFilterUnknown);
     SetValue(Node, 'FilterCopyLeft', gSyncDirsShowFilterCopyLeft);
     SetValue(Node, 'FilterDuplicates', gSyncDirsShowFilterDuplicates);
     SetValue(Node, 'FilterSingles', gSyncDirsShowFilterSingles);

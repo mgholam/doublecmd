@@ -3,7 +3,7 @@
     -------------------------------------------------------------------------
     This unit contains platform dependent functions dealing with operating system.
 
-    Copyright (C) 2006-2023 Alexander Koblov (alexx2000@mail.ru)
+    Copyright (C) 2006-2024 Alexander Koblov (alexx2000@mail.ru)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -873,6 +873,16 @@ begin
   if Result <> feInvalidHandle then
   begin
     FileCloseOnExec(Result);
+{$IF DEFINED(DARWIN)}
+    if (Mode and (fmOpenSync or fmOpenDirect) <> 0) then
+    begin
+      if (FpFcntl(Result, F_NOCACHE, 1) = -1) then
+      begin
+        FileClose(Result);
+        Exit(feInvalidHandle);
+      end;
+    end;
+{$ENDIF}
     Result:= FileLock(Result, Mode and $FF);
   end;
 end;
@@ -904,6 +914,16 @@ begin
   if Result <> feInvalidHandle then
   begin
     FileCloseOnExec(Result);
+{$IF DEFINED(DARWIN)}
+    if (Mode and (fmOpenSync or fmOpenDirect) <> 0) then
+    begin
+      if (FpFcntl(Result, F_NOCACHE, 1) = -1) then
+      begin
+        FileClose(Result);
+        Exit(feInvalidHandle);
+      end;
+    end;
+{$ENDIF}
     Result:= FileLock(Result, Mode and $FF);
   end;
 end;
@@ -1291,8 +1311,10 @@ begin
       // (On Linux rename() returns success but doesn't do anything
       // if renaming a file to its hard link.)
       // We cannot use st_nlink for directories because it means "number of
-      // subdirectories"; hard links to directories are not supported on Linux
-      // or Windows anyway (on MacOSX they are). Therefore we always treat
+      // subdirectories" ("number of all entries" under macOS) in that directory,
+      // plus its special entries '.' and '..';
+      // hard links to directories are not supported on Linux
+      // or Windows anyway (on macOS they are). Therefore we always treat
       // directories as if they were a single link and rename them using temporary name.
 
       if (NewFileStat.st_nlink = 1) or BaseUnix.fpS_ISDIR(NewFileStat.st_mode) then
@@ -1306,14 +1328,7 @@ begin
             // We have renamed the old file but the new file name still exists,
             // so this wasn't a single file on a case-insensitive filesystem
             // accessible by two names that differ by case.
-
             FpRename(UTF8ToSys(tmpFileName), UTF8ToSys(OldName));  // Restore old file.
-{$IFDEF DARWIN}
-            // If it's a directory with multiple hard links then simply unlink the source.
-            if BaseUnix.fpS_ISDIR(NewFileStat.st_mode) and (NewFileStat.st_nlink > 1) then
-              Result := (fpUnLink(UTF8ToSys(OldName)) = 0)
-            else
-{$ENDIF}
             Result := False;
           end
           else if FpRename(UTF8ToSys(tmpFileName), UTF8ToSys(NewName)) = 0 then
@@ -1440,9 +1455,16 @@ function FileAllocate(Handle: System.THandle; Size: Int64): Boolean;
 var
   Ret: cint;
   Sta: TStat;
+  StaFS: TStatFS;
 begin
   if (Size > 0) then
   begin
+    repeat
+      Ret:= fpfStatFS(Handle, @StaFS);
+    until (Ret <> -1) or (fpgeterrno <> ESysEINTR);
+    // FAT32 does not support a fast allocation
+    if (StaFS.fstype = MSDOS_SUPER_MAGIC) then
+      Exit(False);
     repeat
       Ret:= fpFStat(Handle, Sta);
     until (Ret <> -1) or (fpgeterrno <> ESysEINTR);
@@ -1452,7 +1474,7 @@ begin
       Sta.st_size:= (Size + Sta.st_blksize - 1) and not (Sta.st_blksize - 1);
       repeat
         Ret:= fpFAllocate(Handle, 0, 0, Sta.st_size);
-      until (Ret <> -1) or (fpgeterrno <> ESysEINTR) or (fpgeterrno <> ESysEAGAIN);
+      until (Ret <> -1) or (fpgeterrno <> ESysEINTR);
     end;
   end;
   Result:= FileTruncate(Handle, Size);
