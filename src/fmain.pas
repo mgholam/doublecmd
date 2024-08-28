@@ -56,7 +56,7 @@ uses
   {$ELSEIF DEFINED(LCLGTK2)}
   , Glib2, Gtk2
   {$ELSEIF DEFINED(DARWIN)}
-  , CocoaMenus
+  , CocoaConfig
   , uMyDarwin
   {$ENDIF}
   , Types, LMessages;
@@ -769,7 +769,6 @@ type
     function  FindMatchingDrive(Address, Path: String): Integer;
     procedure UpdateDriveToolbarSelection(DriveToolbar: TKAStoolBar; FileView: TFileView);
     procedure UpdateDriveButtonSelection(DriveButton: TSpeedButton; FileView: TFileView);
-    procedure UpdateSelectedDrive(ANoteBook: TFileViewNotebook);
 {$IF DEFINED(MSWINDOWS)}
     procedure OnDriveIconLoaded(Data: PtrInt);
 {$ENDIF}
@@ -824,10 +823,11 @@ type
     procedure HotDirSelected(Sender:TObject);
     procedure HotDirActualSwitchToDir(Index:longint);
     procedure HistorySelected(Sender:TObject);
+    procedure HistorySomeSelected(Sender:TObject);
     procedure ViewHistorySelected(Sender:TObject);
     procedure ViewHistoryPrevSelected(Sender:TObject);
     procedure ViewHistoryNextSelected(Sender:TObject);
-    procedure CreatePopUpDirHistory;
+    procedure CreatePopUpDirHistory(UseTreeViewMenu: Boolean; FromPathIndex: Integer);
     procedure ShowFileViewHistory(const Params: array of string);
     procedure ShowFileViewHistory(const Params: array of string; FromFileSourceIndex, FromPathIndex, ToFileSourceIndex, ToPathIndex: Integer);
     procedure miHotAddOrConfigClick(Sender: TObject);
@@ -871,6 +871,7 @@ type
     procedure UpdateGUIFunctionKeys;
     procedure UpdateMainTitleBar;
     procedure CreateDiskPanel(dskPanel : TKASToolBar);
+    procedure UpdateSelectedDrive(ANoteBook: TFileViewNotebook);
     procedure SetPanelDrive(aPanel: TFilePanelSelect; Drive: PDrive; ActivateIfNeeded: Boolean);
     function CreateFileView(sType: String; Page: TFileViewPage; AConfig: TXmlConfig; ANode: TXmlNode): TFileView;
     procedure AssignEvents(AFileView: TFileView);
@@ -954,7 +955,7 @@ uses
   Laz2_XMLRead, DCOSUtils, DCStrUtils, fOptions, fOptionsFrame, fOptionsToolbar, uClassesEx,
   uHotDir, uFileSorting, DCBasicTypes, foptionsDirectoryHotlist, uConnectionManager,
   fOptionsToolbarBase, fOptionsToolbarMiddle, fEditor, uColumns, StrUtils, uSysFolders,
-  uColumnsFileView, dmHigh
+  uColumnsFileView, dmHigh, uFileSourceOperationMisc
 {$IFDEF MSWINDOWS}
   , uShellFileSource, uNetworkThread
 {$ENDIF}
@@ -2952,8 +2953,8 @@ constructor TfrmMain.Create(TheOwner: TComponent);
 {$IF DEFINED(DARWIN)}
   procedure setMacOSAppMenu();
   begin
-    macOS_AppMenuIntf.aboutItem:= mnuHelpAbout;
-    macOS_AppMenuIntf.preferencesItem:= mnuConfigOptions;
+    CocoaConfigMenu.appMenu.aboutItem:= mnuHelpAbout;
+    CocoaConfigMenu.appMenu.preferencesItem:= mnuConfigOptions;
   end;
 
   procedure setMacOSDockMenu();
@@ -2966,7 +2967,7 @@ constructor TfrmMain.Create(TheOwner: TComponent);
     newItem.Caption:= rsMnuNewWindow;
     newItem.OnClick:= @OpenNewWindow;
     dockMenu.Add(newItem);
-    macOS_DockMenuIntf.customMenus:= dockMenu;
+    CocoaConfigMenu.dockMenu.customMenus:= dockMenu;
   end;
 {$ENDIF}
 begin
@@ -3186,19 +3187,44 @@ begin
   with Sender as TComponent do Commands.cm_WorkWithDirectoryHotlist(['action='+HOTLISTMAGICWORDS[tag], 'source='+QuoteStr(ActiveFrame.CurrentLocation), 'target='+QuoteStr(NotActiveFrame.CurrentLocation), 'index=0']);
 end;
 
-procedure TfrmMain.CreatePopUpDirHistory;
+procedure TfrmMain.CreatePopUpDirHistory(UseTreeViewMenu: Boolean;
+  FromPathIndex: Integer);
 var
-  I: Integer;
+  I, Finish: Integer;
   MenuItem: TMenuItem;
 begin
   pmDirHistory.Items.Clear;
 
-  for I:= 0 to Min(gDirHistoryCount, glsDirHistory.Count - 1) do
+  if UseTreeViewMenu then
+    Finish:= glsDirHistory.Count - 1
+  else begin
+    Finish:= Min(FromPathIndex + gDirHistoryCount, glsDirHistory.Count - 1);
+  end;
+
+  if (not UseTreeViewMenu) and (FromPathIndex > 0) then
+  begin
+    MenuItem := TMenuItem.Create(pmDirHistory);
+    MenuItem.Caption := '...';
+    MenuItem.OnClick := @HistorySomeSelected;
+    MenuItem.Tag := Max(0, FromPathIndex - gDirHistoryCount - 1);
+    pmDirHistory.Items.Add(MenuItem);
+  end;
+
+  for I:= FromPathIndex to Finish do
   begin
     MenuItem:= TMenuItem.Create(pmDirHistory);
     MenuItem.Caption:= glsDirHistory[I].Replace('&','&&');
     MenuItem.Hint:= glsDirHistory[I];
     MenuItem.OnClick:= @HistorySelected;
+    pmDirHistory.Items.Add(MenuItem);
+  end;
+
+  if (not UseTreeViewMenu) and (Finish < glsDirHistory.Count - 1) then
+  begin
+    MenuItem := TMenuItem.Create(pmDirHistory);
+    MenuItem.Caption := '...';
+    MenuItem.OnClick := @HistorySomeSelected;
+    MenuItem.Tag := Finish + 1;
     pmDirHistory.Items.Add(MenuItem);
   end;
 end;
@@ -3537,6 +3563,18 @@ begin
   aPath := (Sender as TMenuItem).Hint;
   aPath := mbExpandFileName(aPath);
   ChooseFileSource(ActiveFrame, aPath);
+end;
+
+procedure TfrmMain.HistorySomeSelected(Sender: TObject);
+var
+  P: TPoint;
+begin
+  if Sender is TMenuItem then
+  begin
+    P:= ActiveFrame.ClientToScreen(Classes.Point(0, 0));
+    CreatePopUpDirHistory(False, TMenuItem(Sender).Tag);
+    pmDirHistory.Popup(P.X, P.Y);
+  end;
 end;
 
 procedure TfrmMain.ViewHistorySelected(Sender: TObject);
@@ -6982,6 +7020,7 @@ begin
       mnuAllOperStart.Visible:= False;
       mnuAllOperStop.Visible:= False;
     end;
+    PlaySound(Item);
   end
   else if Event = omevOperationAdded then
   begin
