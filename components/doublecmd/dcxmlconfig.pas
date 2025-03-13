@@ -119,7 +119,7 @@ type
     // ------------------------------------------------------------------------
 
     procedure GetFont(const aNode: TXmlNode; Path: TXmlPath;
-                      out Name: String; out Size: Integer; out Style, Quality: Integer;
+                      var Name: String; var Size: Integer; var Style, Quality: Integer;
                       const DefName: String; const DefSize: Integer; const DefStyle, DefQuality: Integer);
 
     procedure SetFont(const aNode: TXmlNode; Path: TXmlPath;
@@ -152,6 +152,9 @@ implementation
 
 uses
   LazLogger, DCBasicTypes, DCOSUtils, DCClassesUtf8, URIParser;
+
+const
+  XML_READER_FLAGS = [xrfAllowSpecialCharsInAttributeValue];
 
 const
   BoolStrings: array[Boolean] of DOMString = ('False', 'True');
@@ -527,7 +530,7 @@ begin
   try
     if FileStream.Size = 0 then
       raise EXmlConfigEmpty.Create('');
-    ReadXMLFile(TmpDoc, FileStream, FilenameToURI(AFilename), []);
+    ReadXMLFile(TmpDoc, FileStream, FilenameToURI(AFilename), XML_READER_FLAGS);
     if TmpDoc.DocumentElement.NodeName <> ApplicationName then
       raise EXMLReadError.Create('Root element is not <' + ApplicationName + '>.');
     FDoc.Free;
@@ -543,7 +546,7 @@ var
 begin
   if AStream.Size = 0 then
     raise EXmlConfigEmpty.Create('');
-  ReadXMLFile(TmpDoc, AStream, []);
+  ReadXMLFile(TmpDoc, AStream, XML_READER_FLAGS);
   FDoc.Free;
   FDoc := TmpDoc;
 end;
@@ -788,8 +791,8 @@ begin
   end;
 end;
 
-procedure TXmlConfig.GetFont(const aNode: TXmlNode; Path: TXmlPath; out
-  Name: String; out Size: Integer; out Style, Quality: Integer;
+procedure TXmlConfig.GetFont(const aNode: TXmlNode; Path: TXmlPath; var
+  Name: String; var Size: Integer; var Style, Quality: Integer;
   const DefName: String; const DefSize: Integer; const DefStyle,
   DefQuality: Integer);
 begin

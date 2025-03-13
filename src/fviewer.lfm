@@ -1242,7 +1242,6 @@ object frmViewer: TfrmViewer
       ScrollBars = ssAutoVertical
       TabOrder = 1
       TitleStyle = tsNative
-      OnDrawCell = DrawPreviewDrawCell
       OnSelection = DrawPreviewSelection
       OnTopleftChanged = DrawPreviewTopleftChanged
       ColWidths = (
@@ -1822,5 +1821,12 @@ object frmViewer: TfrmViewer
   object pmStatusBar: TPopupMenu
     Left = 80
     Top = 211
+  end
+  object tmUpdateFolderSize: TTimer
+    Enabled = False
+    Interval = 500
+    OnTimer = tmUpdateFolderSizeTimer
+    Left = 196
+    Top = 232
   end
 end

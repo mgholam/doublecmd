@@ -154,7 +154,7 @@ uses
     , uDCReadRSVG, uMagickWand, uGio, uGioFileSource, uVfsModule, uVideoThumb
     , uDCReadWebP, uFolderThumb, uAudioThumb, uDefaultTerminal, uDCReadHEIF
     , uTrashFileSource, uFileManager, uFileSystemFileSource, fOpenWith
-    , uFileSourceUtil
+    , uFileSourceUtil, uNetworkFileSource
     {$ENDIF}
     {$IF DEFINED(LINUX)}
     , uFlatpak
@@ -692,6 +692,8 @@ begin
   begin
     if TGioFileSource.IsSupportedPath('trash://') then
       RegisterVirtualFileSource(rsVfsRecycleBin, TTrashFileSource, True);
+    if TGioFileSource.IsSupportedPath('network://') then
+      RegisterVirtualFileSource(rsVfsNetwork, TNetworkFileSource, True);
     RegisterVirtualFileSource('GVfs', TGioFileSource, False);
   end;
   {$ENDIF}
@@ -737,7 +739,7 @@ end;
 
 procedure ShowContextMenu(Parent: TWinControl; var Files : TFiles; X, Y : Integer;
                           Background: Boolean; CloseEvent: TNotifyEvent; UserWishForContextMenu:TUserWishForContextMenu = uwcmComplete);
-{$IFDEF MSWINDOWS}
+{$IF DEFINED(MSWINDOWS)}
 begin
   if Assigned(Files) and (Files.Count = 0) then
   begin
@@ -756,6 +758,41 @@ begin
     FreeAndNil(ShellContextMenu);
   end;
 end;
+{$ELSEIF DEFINED(DARWIN)}
+  function getFilePaths( contextFiles: TFiles ): TStringArray;
+  var
+    i: Integer;
+    count: Integer;
+  begin
+    count:= contextFiles.Count;
+    SetLength( Result, count );
+    for i:=0 to count-1 do begin
+      Result[i]:= contextFiles[i].FullPath;
+    end;
+  end;
+
+var
+  contextFiles: TFiles;
+begin
+  if Files.Count = 0 then
+  begin
+    FreeAndNil(Files);
+    Exit;
+  end;
+
+  try
+    // Create new context menu
+    contextFiles:= Files;
+    ShellContextMenu:= TShellContextMenu.Create(nil, Files, Background, UserWishForContextMenu);
+    ShellContextMenu.OnClose := CloseEvent;
+    frmMain.ActiveFrame.FileSource.QueryContextMenu(contextFiles, TPopupMenu(ShellContextMenu));
+    // Show context menu
+    MacosServiceMenuHelper.PopUp( ShellContextMenu, rsMacOSMenuServices, getFilepaths(contextFiles) );
+  finally
+    // Free created menu
+    FreeAndNil(ShellContextMenu);
+  end;
+end;
 {$ELSE}
 begin
   if Files.Count = 0 then
@@ -769,12 +806,7 @@ begin
   // Create new context menu
   ShellContextMenu:= TShellContextMenu.Create(nil, Files, Background, UserWishForContextMenu);
   ShellContextMenu.OnClose := CloseEvent;
-  // Show context menu
-  {$IF DEFINED(DARWIN)}
-  MacosServiceMenuHelper.PopUp( ShellContextMenu, rsMacOSMenuServices );
-  {$ELSE}
   ShellContextMenu.PopUp(X, Y);
-  {$ENDIF}
 end;
 {$ENDIF}
 

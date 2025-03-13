@@ -23,10 +23,6 @@ uses
   cwstring,
   clocale,
   {$ENDIF}
-  {$IFDEF darwin}
-  uAppleMagnifiedModeFix,
-  uMyDarwin,
-  {$ENDIF}
   uElevation,
   {$IFDEF LINUX}
   uAppImage,
@@ -41,15 +37,20 @@ uses
   {$ENDIF}
   {$ENDIF}
   uSystem,
+  Interfaces,
   uMoveConfig,
   uEarlyConfig,
   DCConvertEncoding,
   {$IF DEFINED(LCLWIN32) and DEFINED(DARKWIN)}
   uWin32WidgetSetDark,
   {$ENDIF}
-  Interfaces,
   {$IFDEF LCLGTK2}
   uGtk2FixCursorPos,
+  {$ENDIF}
+  {$IFDEF darwin}
+  uAppleMagnifiedModeFix,
+  uMyDarwin,
+  uiCloudDriverConfig,
   {$ENDIF}
   {$IFDEF LCLWIN32}
   uDClass,
@@ -91,6 +92,12 @@ uses
   {$ENDIF}
   {$IFDEF UNIX}
   , uMyUnix
+  {$ENDIF}
+  {$IFDEF LclCocoa}
+{$if NOT defined(DisableCocoaModernForm)}
+  ,uCocoaModernFormConfig
+{$endif}
+  ,CocoaConfig
   {$ENDIF}
   ;
 
@@ -141,6 +148,7 @@ begin
 
 {$IF DEFINED(DARWIN)}
   GetMacFormatSettings(DefaultFormatSettings);
+  CocoaConfigGlobal.useIcon:= True;
   Application.Icon:= nil;
 {$ENDIF}
 
@@ -219,6 +227,10 @@ begin
 
       InitPasswordStore;
       LoadPixMapManager;
+{$IF DEFINED(DARWIN)}
+      initCocoaModernFormConfig;
+      iCloudDriverConfigUtil.load;
+{$ENDIF}
       Application.CreateForm(TfrmMain, frmMain); // main form
       Application.CreateForm(TdmComData, dmComData); // common data
       Application.CreateForm(TdmHelpManager, dmHelpMgr); // help manager

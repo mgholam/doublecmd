@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Double Commander 1.1.14\n"
+"Project-Id-Version: Double Commander 1.1.22g\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-11-15 11:15+0300\n"
-"PO-Revision-Date: 2024-05-18 20:38+0200\n"
+"PO-Revision-Date: 2025-01-18 15:45+0100\n"
 "Last-Translator: Jozef Gaal <preklady@mayday.sk>\n"
 "Language-Team: Jozef Gaál <preklady@mayday.sk>\n"
 "Language: sk\n"
@@ -332,6 +332,10 @@ msgstr "Otvoriť súbor s kontrolným súčtom po dokončení"
 #: tfrmchecksumcalc.cbseparatefile.caption
 msgid "C&reate separate checksum file for each file"
 msgstr "Vytvoriť samostatný kontrolný súčet pre každý súbor"
+
+#: tfrmchecksumcalc.cbseparatefolder.caption
+msgid "Create separate checksum file for each &directory"
+msgstr "Vytvoriť samostatný kontrolný súčet pre &priečinok"
 
 #: tfrmchecksumcalc.lblfileformat.caption
 msgid "File &format"
@@ -995,6 +999,10 @@ msgstr "Vybrať &Všetko"
 msgctxt "tfrmeditor.acteditselectall.hint"
 msgid "Select All"
 msgstr "Vybrať všetko"
+
+#: tfrmeditor.actedittimedate.caption
+msgid "Time/Date"
+msgstr ""
 
 #: tfrmeditor.acteditundo.caption
 msgctxt "TFRMEDITOR.ACTEDITUNDO.CAPTION"
@@ -1724,26 +1732,6 @@ msgstr "Zadajte mená súborov, ktoré by mali byť vynechané z vyhľadávania,
 #: tfrmfinddlg.cmbfindfilemask.hint
 msgid "Enter files names separated with \";\""
 msgstr "Zadajte mená súborov oddelené \";\""
-
-#: tfrmfinddlg.frmcontentplugins.headercontrol.sections[0].text
-msgctxt "tfrmfinddlg.frmcontentplugins.headercontrol.sections[0].text"
-msgid "Plugin"
-msgstr "Zásuvný modul"
-
-#: tfrmfinddlg.frmcontentplugins.headercontrol.sections[1].text
-msgctxt "tfrmfinddlg.frmcontentplugins.headercontrol.sections[1].text"
-msgid "Field"
-msgstr "Pole"
-
-#: tfrmfinddlg.frmcontentplugins.headercontrol.sections[2].text
-msgctxt "tfrmfinddlg.frmcontentplugins.headercontrol.sections[2].text"
-msgid "Operator"
-msgstr "Operátor"
-
-#: tfrmfinddlg.frmcontentplugins.headercontrol.sections[3].text
-msgctxt "tfrmfinddlg.frmcontentplugins.headercontrol.sections[3].text"
-msgid "Value"
-msgstr "Hodnota"
 
 #: tfrmfinddlg.gbdirectories.caption
 msgctxt "tfrmfinddlg.gbdirectories.caption"
@@ -3142,11 +3130,11 @@ msgstr "&Príkazy"
 
 #: tfrmmain.mnuconfig.caption
 msgid "C&onfiguration"
-msgstr "&Konfigurácia"
+msgstr "Kon&figurácia"
 
 #: tfrmmain.mnufavoritetabs.caption
-msgid "Favorites"
-msgstr "Obľúbené"
+msgid "F&avorites"
+msgstr "O&bľúbené"
 
 #: tfrmmain.mnufiles.caption
 msgid "&Files"
@@ -3163,8 +3151,8 @@ msgstr "&Označiť"
 
 #: tfrmmain.mnunetwork.caption
 msgctxt "tfrmmain.mnunetwork.caption"
-msgid "Network"
-msgstr "Sieť"
+msgid "&Network"
+msgstr "S&ieť"
 
 #: tfrmmain.mnushow.caption
 msgid "&Show"
@@ -3933,6 +3921,10 @@ msgstr "Ukázať výstup konzoly"
 #: tfrmoptionsarchivers.chkfilenameonlylist.caption
 msgid "Use archive name without extension as list"
 msgstr "Použiť názov archívu bez prípony ako zoznam"
+
+#: tfrmoptionsarchivers.chkhide.caption
+msgid "Show as normal files"
+msgstr "Zobraziť ako normálne súbory"
 
 #: tfrmoptionsarchivers.ckbarchiverunixfileattributes.caption
 msgid "Uni&x file attributes"
@@ -5369,11 +5361,6 @@ msgstr "Pozadie"
 msgid "Reset"
 msgstr "Obnoviť"
 
-#: tfrmoptionseditorcolors.btnsavemask.hint
-msgctxt "TFRMOPTIONSEDITORCOLORS.BTNSAVEMASK.HINT"
-msgid "Save"
-msgstr "Uložiť"
-
 #: tfrmoptionseditorcolors.bvlattributesection.caption
 msgid "Element Attributes"
 msgstr "Atribúty prvku"
@@ -6354,11 +6341,6 @@ msgctxt "TFRMOPTIONSFILETYPESCOLORS.BTNADDCATEGORY.CAPTION"
 msgid "A&dd"
 msgstr "Pri&dať"
 
-#: tfrmoptionsfiletypescolors.btnapplycategory.caption
-msgctxt "TFRMOPTIONSFILETYPESCOLORS.BTNAPPLYCATEGORY.CAPTION"
-msgid "A&pply"
-msgstr "&Použiť"
-
 #: tfrmoptionsfiletypescolors.btndeletecategory.caption
 msgctxt "TFRMOPTIONSFILETYPESCOLORS.BTNDELETECATEGORY.CAPTION"
 msgid "D&elete"
@@ -6519,6 +6501,16 @@ msgstr "Parametre"
 #: tfrmoptionshotkeys.stghotkeys.columns[2].title.caption
 msgid "Controls"
 msgstr "Ovládanie"
+
+#: tfrmoptionsicloud.appslistview.columns[0].caption
+msgctxt "tfrmoptionsicloud.appslistview.columns[0].caption"
+msgid "Applications"
+msgstr ""
+
+#: tfrmoptionsicloud.appslistview.columns[1].caption
+msgctxt "tfrmoptionsicloud.appslistview.columns[1].caption"
+msgid "Count of Contents"
+msgstr ""
 
 #: tfrmoptionsicons.cbiconsexclude.caption
 msgctxt "TFRMOPTIONSICONS.CBICONSEXCLUDE.CAPTION"
@@ -7147,8 +7139,10 @@ msgid "File name"
 msgstr "Názov súboru"
 
 #: tfrmoptionspluginswfx.lblplugindescription.caption
+#, fuzzy
+#| msgid "Fi&le system plugins allow access to disks inaccessible by operating system or to external devices like Palm/PocketPC."
 msgctxt "tfrmoptionspluginswfx.lblplugindescription.caption"
-msgid "Fi&le system plugins allow access to disks inaccessible by operating system or to external devices like Palm/PocketPC."
+msgid "Fi&le system plugins allow access to disks inaccessible by operating system or to external devices like smartphones."
 msgstr "Zásuvné moduly súborových systémov umožnia prístup k bežne nedostupným médiám ako sú napr. externé zariadenia (Palm/PocketPC)."
 
 #: tfrmoptionspluginswfx.stgplugins.columns[0].title.caption
@@ -7846,6 +7840,10 @@ msgctxt "tfrmoptionstoolbarbase.MISUBTOOLBARPRIORCURRENT.CAPTION"
 msgid "just prior current selection"
 msgstr "hneď pred aktuálny výber"
 
+#: tfrmoptionstoolbarbase.rblinebreak.caption
+msgid "Line break"
+msgstr "Zalomenie riadku"
+
 #: tfrmoptionstoolbarbase.rbseparator.caption
 msgid "Separator"
 msgstr "Oddeľovač"
@@ -8166,7 +8164,7 @@ msgstr "&Počet stĺpcov v prehliadači kníh"
 #: tfrmpackdlg.btnconfig.caption
 msgctxt "tfrmpackdlg.btnconfig.caption"
 msgid "Con&figure"
-msgstr "Konfigurovať"
+msgstr "Kon&figurovať"
 
 #: tfrmpackdlg.caption
 msgid "Pack files"
@@ -8365,23 +8363,23 @@ msgstr "Menej pravidiel"
 msgid "Use &content plugins, combine with:"
 msgstr "Použiť obsahové moduly v kombinácii s:"
 
-#: tfrmsearchplugin.headercontrol.sections[0].text
-msgctxt "TFRMSEARCHPLUGIN.HEADERCONTROL.SECTIONS[0].TEXT"
-msgid "Plugin"
-msgstr "Zásuvný modul"
-
-#: tfrmsearchplugin.headercontrol.sections[1].text
-msgctxt "tfrmsearchplugin.headercontrol.sections[1].text"
+#: tfrmsearchplugin.lblfield.caption
+msgctxt "tfrmsearchplugin.lblfield.caption"
 msgid "Field"
 msgstr "Pole"
 
-#: tfrmsearchplugin.headercontrol.sections[2].text
-msgctxt "tfrmsearchplugin.headercontrol.sections[2].text"
+#: tfrmsearchplugin.lbloperator.caption
+msgctxt "tfrmsearchplugin.lbloperator.caption"
 msgid "Operator"
 msgstr "Operátor"
 
-#: tfrmsearchplugin.headercontrol.sections[3].text
-msgctxt "tfrmsearchplugin.headercontrol.sections[3].text"
+#: tfrmsearchplugin.lblplugin.caption
+msgctxt "tfrmsearchplugin.lblplugin.caption"
+msgid "Plugin"
+msgstr "Zásuvný modul"
+
+#: tfrmsearchplugin.lblvalue.caption
+msgctxt "tfrmsearchplugin.lblvalue.caption"
 msgid "Value"
 msgstr "Hodnota"
 
@@ -9748,7 +9746,7 @@ msgstr "Počiatočná cesta:"
 #: twcxarchivecopyoperationoptionsui.btnconfig.caption
 msgctxt "twcxarchivecopyoperationoptionsui.btnconfig.caption"
 msgid "Con&figure"
-msgstr "Konfigurovať"
+msgstr "Kon&figurovať"
 
 #: twcxarchivecopyoperationoptionsui.cbencrypt.caption
 msgctxt "twcxarchivecopyoperationoptionsui.cbencrypt.caption"
@@ -10295,6 +10293,22 @@ msgctxt "ulng.rseditgotolinetitle"
 msgid "Goto Line"
 msgstr "Prejsť na riadok"
 
+#: ulng.rsedithintcursorpos
+msgid "Cursor Position"
+msgstr ""
+
+#: ulng.rsedithintinsertmode
+msgid "Insert Mode"
+msgstr ""
+
+#: ulng.rsedithintmodified
+msgid "Modified"
+msgstr ""
+
+#: ulng.rsedithintselectionmode
+msgid "Selection Mode"
+msgstr ""
+
 #: ulng.rseditnewfile
 msgid "new.txt"
 msgstr "nový.txt"
@@ -10312,8 +10326,9 @@ msgid "&Backward"
 msgstr "&Vzad"
 
 #: ulng.rseditsearchcaption
+msgctxt "ulng.rseditsearchcaption"
 msgid "Search"
-msgstr "Hľadanie"
+msgstr "Hľadať"
 
 #: ulng.rseditsearchfrw
 msgid "&Forward"
@@ -10323,6 +10338,26 @@ msgstr "V&pred"
 msgctxt "ulng.rseditsearchreplace"
 msgid "Replace"
 msgstr "Nahradiť"
+
+#: ulng.rseditstatinsertmodeins
+msgid "INS"
+msgstr ""
+
+#: ulng.rseditstatinsertmodeovr
+msgid "OVR"
+msgstr ""
+
+#: ulng.rseditstatselmodecol
+msgid "COL"
+msgstr ""
+
+#: ulng.rseditstatselmodeline
+msgid "LINE"
+msgstr ""
+
+#: ulng.rseditstatselmodenorm
+msgid "NORM"
+msgstr ""
 
 #: ulng.rseditwithexternaleditor
 msgid "with external editor"
@@ -10738,6 +10773,14 @@ msgstr "Žiadna skratka pomocou \"ENTER\""
 msgid "By command name;By shortcut key (grouped);By shortcut key (one per row)"
 msgstr "Podľa názvu príkazu;Podľa kláv. skratky (zoskupené);Podľa kláv. skratky (po riadkoch)"
 
+#: ulng.rsiclouddrivercopyseedfileconfirmdlgmessage
+msgid "It is recommended to download the files first. Otherwise, what is copied is not the content of the files, but the corresponding placeholder files, which will result in hidden files with the .iCloud extension."
+msgstr ""
+
+#: ulng.rsiclouddrivercopyseedfileconfirmdlgtitle
+msgid "The operation may contain files that were not downloaded, continue anyway?"
+msgstr ""
+
 #: ulng.rsimporttoolbarproblem
 msgid "Cannot find reference to default bar file"
 msgstr "Nie je možné nájsť odkaz na predvolený bar súbor"
@@ -10767,6 +10810,11 @@ msgstr "B"
 msgid "List of \"Find files\" windows"
 msgstr "Zoznam okien \"Nájsť súbory\""
 
+#: ulng.rsmacosassignfindertagstomultiitems
+#, object-pascal-format
+msgid "Assign tags to %d items"
+msgstr ""
+
 #: ulng.rsmarkminus
 msgid "Unselect mask"
 msgstr "Maska zrušenia výberu"
@@ -10795,9 +10843,222 @@ msgstr "Konfigurovať vlastné stĺpce"
 msgid "Enter new custom columns name"
 msgstr "Zadajte názov nového vlastného stĺpca"
 
+#: ulng.rsmenumacosaddfindertag
+#, object-pascal-format
+msgid "Add \"%s\""
+msgstr "Pridať \"%s\""
+
+#: ulng.rsmenumacoseditfindertags
+msgctxt "ulng.rsmenumacoseditfindertags"
+msgid "Edit Finder Tags..."
+msgstr "Upraviť Finder štítky..."
+
+#: ulng.rsmenumacosgrantpermissiontosupportfindertags
+msgid "Grant \"Full Disk Access\" permission to support Finder Tags..."
+msgstr "Udeliť oprávnenie „Plný prístup k disku“ na podporu štítkov aplikácie Finder..."
+
+#: ulng.rsmenumacosremovefindertag
+#, object-pascal-format
+msgid "Remove \"%s\""
+msgstr "Odstrániť \"%s\""
+
 #: ulng.rsmenumacosshare
 msgid "Share..."
 msgstr "Zbaliť sem..."
+
+#: ulng.rsmfstbiairdroptips
+msgctxt "ulng.rsmfstbiairdroptips"
+msgid "AirDrop"
+msgstr "AirDrop"
+
+#: ulng.rsmfstbiairdroptitle
+msgctxt "ulng.rsmfstbiairdroptitle"
+msgid "AirDrop"
+msgstr "AirDrop"
+
+#: ulng.rsmfstbicommandmenudirectoryhotlist
+msgctxt "ulng.rsmfstbicommandmenudirectoryhotlist"
+msgid "Directory Hotlist"
+msgstr "Rýchle priečinky"
+
+#: ulng.rsmfstbicommandmenufavoritetabs
+msgctxt "ulng.rsmfstbicommandmenufavoritetabs"
+msgid "Favorite Tabs"
+msgstr "Obľúbené karty"
+
+#: ulng.rsmfstbicommandmenuquicklook
+msgid "macOS QuickLook"
+msgstr "macOS Rýchly náhľad"
+
+#: ulng.rsmfstbicommandtitle
+msgctxt "ulng.rsmfstbicommandtitle"
+msgid "Command"
+msgstr "Príkaz"
+
+#: ulng.rsmfstbicomparetips
+msgid "Compare by Contents..."
+msgstr "Porovnať podľa obsahu..."
+
+#: ulng.rsmfstbicomparetitle
+msgctxt "ulng.rsmfstbicomparetitle"
+msgid "Compare"
+msgstr "Porovnať"
+
+#: ulng.rsmfstbieditfindertagtips
+msgctxt "ulng.rsmfstbieditfindertagtips"
+msgid "Edit Finder Tags..."
+msgstr "Upraviť Finder štítky..."
+
+#: ulng.rsmfstbieditfindertagtitle
+msgid "EditTag"
+msgstr "Upraviť štítok"
+
+#: ulng.rsmfstbiedittips
+msgid "Edit..."
+msgstr "Upraviť..."
+
+#: ulng.rsmfstbiedittitle
+msgctxt "ulng.rsmfstbiedittitle"
+msgid "Edit"
+msgstr "Upraviť"
+
+#: ulng.rsmfstbifinderrevealtips
+msgid "Reveal in Finder"
+msgstr "Zobraziť vo vyhľadávači"
+
+#: ulng.rsmfstbifinderrevealtitle
+msgid "Finder"
+msgstr "Vyhľadávač"
+
+#: ulng.rsmfstbigotips
+msgctxt "ulng.rsmfstbigotips"
+msgid "Go"
+msgstr "Prejsť"
+
+#: ulng.rsmfstbigotitle
+msgctxt "ulng.rsmfstbigotitle"
+msgid "Go"
+msgstr "Prejsť"
+
+#: ulng.rsmfstbihorzsplittips
+msgid "Toggle Horizontal Split Mode"
+msgstr "Prepnúť režim s horizontálnymi panelmi"
+
+#: ulng.rsmfstbihorzsplittitle
+msgid "HorzSplit"
+msgstr "Horizontálne rozdelenie"
+
+#: ulng.rsmfstbiiclouddrivertips
+msgctxt "ulng.rsmfstbiiclouddrivertips"
+msgid "iCloud Driver"
+msgstr ""
+
+#: ulng.rsmfstbiiclouddrivertitle
+msgctxt "ulng.rsmfstbiiclouddrivertitle"
+msgid "iCloud Driver"
+msgstr ""
+
+#: ulng.rsmfstbiprivilegetips
+msgid "As a file manager, Double Command requires full disk access permissions. Clicking this button will pop up the macOS system settings page. Please add \"Double Commander.app\" to the \"Full Disk Access\" list to complete the authorization."
+msgstr "Double Commander ako správca súborov vyžaduje plné oprávnenie na prístup k disku. Kliknutím na toto tlačidlo sa zobrazí stránka systémových nastavení MacOS. Do zoznamu „Plný prístup na disk“ prosím pridajte „Double Commander.app“, aby ste dokončili autorizáciu."
+
+#: ulng.rsmfstbiprivilegetitle
+msgid "Privilege"
+msgstr "Privilégiá"
+
+#: ulng.rsmfstbiquicklooktips
+msgid "macOS Quick Look Panel"
+msgstr "Panel rýchleho náhľadu macOS"
+
+#: ulng.rsmfstbiquicklooktitle
+msgid "QuickLook"
+msgstr "Rýchly náhľad"
+
+#: ulng.rsmfstbirefreshtips
+msgid "Refresh File List"
+msgstr "Obnoviť zoznam súborov"
+
+#: ulng.rsmfstbirefreshtitle
+msgid "Refresh"
+msgstr "Obnoviť"
+
+#: ulng.rsmfstbisearchcombinedtags
+msgid "Search for combined tags..."
+msgstr "Vyhľadať kombinované štítky..."
+
+#: ulng.rsmfstbisearchtips
+msgid "Search Files..."
+msgstr "Hľadať súbory..."
+
+#: ulng.rsmfstbisearchtitle
+msgctxt "ulng.rsmfstbisearchtitle"
+msgid "Search"
+msgstr "Hľadať"
+
+#: ulng.rsmfstbisharetitle
+msgid "Share"
+msgstr "Zdieľať"
+
+#: ulng.rsmfstbishowbrieftitle
+msgid "as Brief"
+msgstr "ako jednoduché"
+
+#: ulng.rsmfstbishowfulltitle
+msgid "as Full"
+msgstr "ako plné"
+
+#: ulng.rsmfstbishowinfotips
+msgid "Show Info in Finder"
+msgstr "Zobraziť info vo vyhľadávači"
+
+#: ulng.rsmfstbishowinfotitle
+msgid "ShowInfo"
+msgstr "Zobraziť info"
+
+#: ulng.rsmfstbishowmodetips
+msgid "Show as Brief, Full or Thumbnails"
+msgstr "Zobraziť ako jednoduché, plné alebo náhľady"
+
+#: ulng.rsmfstbishowmodetitle
+msgid "ShowMode"
+msgstr "Zobraziť"
+
+#: ulng.rsmfstbishowthumbnailstitle
+msgid "as Thumbnails"
+msgstr "ako náhľady"
+
+#: ulng.rsmfstbiswappanelstips
+msgid "Swap Panels"
+msgstr "Zameniť panely"
+
+#: ulng.rsmfstbiswappanelstitle
+msgid "SwapPanels"
+msgstr "Zameniť panely"
+
+#: ulng.rsmfstbisynctips
+msgid "Synchronize Dirs..."
+msgstr "Synchronizovať priečinky..."
+
+#: ulng.rsmfstbisynctitle
+msgid "Sync"
+msgstr "Synchronizovať"
+
+#: ulng.rsmfstbiterminaltips
+msgid "Open in Terminal"
+msgstr "Otvoriť v termináli"
+
+#: ulng.rsmfstbiterminaltitle
+msgctxt "ulng.rsmfstbiterminaltitle"
+msgid "Terminal"
+msgstr "Terminál"
+
+#: ulng.rsmfstbitreeviewtips
+msgid "Show Tree View Panel"
+msgstr "Zobraziť panel stromového zobrazenia"
+
+#: ulng.rsmfstbitreeviewtitle
+msgid "TreeView"
+msgstr "Ponuka stromového zobrazenia"
 
 #: ulng.rsmnuactions
 msgctxt "ulng.rsmnuactions"
@@ -10833,6 +11094,14 @@ msgstr "Vysunúť"
 msgid "Extract here..."
 msgstr "Rozbaliť sem..."
 
+#: ulng.rsmnuiclouddriverdownloadnow
+msgid "Download Now"
+msgstr ""
+
+#: ulng.rsmnuiclouddriverremovedownload
+msgid "Remove Download"
+msgstr ""
+
 #: ulng.rsmnumount
 msgid "Mount"
 msgstr "Pripojiť"
@@ -10844,7 +11113,7 @@ msgstr "Nový"
 
 #: ulng.rsmnunewwindow
 msgid "New Window"
-msgstr ""
+msgstr "Nové okno"
 
 #: ulng.rsmnunomedia
 msgid "No media available"
@@ -10886,6 +11155,19 @@ msgstr "Odpojiť"
 msgctxt "ulng.rsmnuview"
 msgid "View"
 msgstr "Zobraziť"
+
+#: ulng.rsmountedfilesourcecopymultifilestowcxdlgmessage
+msgid ""
+"Some virtual filesystem contain specific directory structures. When copying from it to a compressed archive, only one directory can be selected at a time, unless the actual locations of the selected directories are all located under the same parent directory.\n"
+"\n"
+"For example, for iCloud Drive, when copying directory from the root to a compressed archive, maybe only one directory should be selected.\n"
+"\n"
+"It is recommended that you follow your usual practice and try to select only one directory when you receive this prompt."
+msgstr ""
+
+#: ulng.rsmountedfilesourcecopymultifilestowcxdlgtitle
+msgid "The operation is not supported"
+msgstr ""
 
 #: ulng.rsmsgaccount
 msgid "Account:"
@@ -12997,6 +13279,7 @@ msgid "Drives list button"
 msgstr "Tlačidlo zoznamu diskov"
 
 #: ulng.rsoptionseditorfavoritetabs
+msgctxt "ulng.rsoptionseditorfavoritetabs"
 msgid "Favorite Tabs"
 msgstr "Obľúbené karty"
 
@@ -13115,6 +13398,26 @@ msgstr ""
 msgctxt "ulng.rsoptionseditorplugins"
 msgid "Plugins"
 msgstr "Zásuvné moduly"
+
+#: ulng.rsoptionseditorpluginsdsx
+msgid "Search plugins"
+msgstr ""
+
+#: ulng.rsoptionseditorpluginswcx
+msgid "Packer plugins"
+msgstr ""
+
+#: ulng.rsoptionseditorpluginswdx
+msgid "Content plugins"
+msgstr ""
+
+#: ulng.rsoptionseditorpluginswfx
+msgid "File system plugins"
+msgstr ""
+
+#: ulng.rsoptionseditorpluginswlx
+msgid "Viewer plugins"
+msgstr ""
 
 #: ulng.rsoptionseditorquicksearch
 msgid "Quick search/filter"

@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Double Commander 1.1.0 alpha\n"
-"POT-Creation-Date: 2023-12-31 21:15+0300\n"
-"PO-Revision-Date: 2024-01-05 00:03+0300\n"
+"Project-Id-Version: Double Commander 1.2.0 alpha\n"
+"POT-Creation-Date: 2025-03-04 21:47+0300\n"
+"PO-Revision-Date: 2025-03-06 23:30+0300\n"
 "Last-Translator: Alexander Koblov <alexx2000@mail.ru>\n"
 "Language-Team: \n"
 "Language: ru\n"
@@ -338,6 +338,10 @@ msgstr "Открыть файл контрольной суммы после р�
 #: tfrmchecksumcalc.cbseparatefile.caption
 msgid "C&reate separate checksum file for each file"
 msgstr "Д&ля каждого файла создать отдельный файл контрольной суммы"
+
+#: tfrmchecksumcalc.cbseparatefolder.caption
+msgid "Create separate checksum file for each &directory"
+msgstr "Для каждого &каталога создать отдельный файл контрольной суммы"
 
 #: tfrmchecksumcalc.lblfileformat.caption
 msgid "File &format"
@@ -1007,6 +1011,10 @@ msgctxt "tfrmeditor.acteditselectall.hint"
 msgid "Select All"
 msgstr "Выделить всё"
 
+#: tfrmeditor.actedittimedate.caption
+msgid "Time/Date"
+msgstr "Время и дата"
+
 #: tfrmeditor.acteditundo.caption
 msgctxt "TFRMEDITOR.ACTEDITUNDO.CAPTION"
 msgid "Undo"
@@ -1148,7 +1156,7 @@ msgstr "Искать от &курсора"
 #: tfrmeditsearchreplace.cbsearchregexp.caption
 msgctxt "TFRMEDITSEARCHREPLACE.CBSEARCHREGEXP.CAPTION"
 msgid "&Regular expressions"
-msgstr "&Регулярные выражения"
+msgstr "&Регулярное выражение"
 
 #: tfrmeditsearchreplace.cbsearchselectedonly.caption
 msgctxt "TFRMEDITSEARCHREPLACE.CBSEARCHSELECTEDONLY.CAPTION"
@@ -1753,26 +1761,6 @@ msgstr "Перечислите через \";\" имена файлов, кот�
 msgid "Enter files names separated with \";\""
 msgstr "Введите имя файла или несколько имён, разделяя символом \";\""
 
-#: tfrmfinddlg.frmcontentplugins.headercontrol.sections[0].text
-msgctxt "tfrmfinddlg.frmcontentplugins.headercontrol.sections[0].text"
-msgid "Plugin"
-msgstr "Плагин"
-
-#: tfrmfinddlg.frmcontentplugins.headercontrol.sections[1].text
-msgctxt "tfrmfinddlg.frmcontentplugins.headercontrol.sections[1].text"
-msgid "Field"
-msgstr "Поле"
-
-#: tfrmfinddlg.frmcontentplugins.headercontrol.sections[2].text
-msgctxt "tfrmfinddlg.frmcontentplugins.headercontrol.sections[2].text"
-msgid "Operator"
-msgstr "Оператор"
-
-#: tfrmfinddlg.frmcontentplugins.headercontrol.sections[3].text
-msgctxt "tfrmfinddlg.frmcontentplugins.headercontrol.sections[3].text"
-msgid "Value"
-msgstr "Значение"
-
 #: tfrmfinddlg.gbdirectories.caption
 msgctxt "tfrmfinddlg.gbdirectories.caption"
 msgid "Directories"
@@ -1911,7 +1899,7 @@ msgstr "С учётом &регистра"
 #: tfrmfindview.cbregexp.caption
 msgctxt "tfrmfindview.cbregexp.caption"
 msgid "&Regular expressions"
-msgstr "&Регулярные выражения"
+msgstr "&Регулярное выражение"
 
 #: tfrmfindview.chkhex.caption
 msgctxt "tfrmfindview.chkhex.caption"
@@ -3199,8 +3187,8 @@ msgid "C&onfiguration"
 msgstr "&Настройки"
 
 #: tfrmmain.mnufavoritetabs.caption
-msgid "Favorites"
-msgstr "Избранное"
+msgid "F&avorites"
+msgstr "&Избранное"
 
 #: tfrmmain.mnufiles.caption
 msgid "&Files"
@@ -3217,8 +3205,8 @@ msgstr "&Выделение"
 
 #: tfrmmain.mnunetwork.caption
 msgctxt "TFRMMAIN.MNUNETWORK.CAPTION"
-msgid "Network"
-msgstr "Сеть"
+msgid "&Network"
+msgstr "&Сеть"
 
 #: tfrmmain.mnushow.caption
 msgid "&Show"
@@ -3708,7 +3696,7 @@ msgstr "Заменять только первое вхождение"
 #: tfrmmultirename.cbregexp.caption
 msgctxt "TFRMMULTIRENAME.CBREGEXP.CAPTION"
 msgid "Regular e&xpressions"
-msgstr "&Регулярные выражения"
+msgstr "&Регулярное выражение"
 
 #: tfrmmultirename.cbusesubs.caption
 msgid "&Use substitution"
@@ -3996,6 +3984,10 @@ msgstr "Показывать консольны&й вывод"
 #: tfrmoptionsarchivers.chkfilenameonlylist.caption
 msgid "Use archive name without extension as list"
 msgstr "Использовать имя архива без расширения как список"
+
+#: tfrmoptionsarchivers.chkhide.caption
+msgid "Show as normal files"
+msgstr "Показывать как нормальные файлы"
 
 #: tfrmoptionsarchivers.ckbarchiverunixfileattributes.caption
 msgid "Uni&x file attributes"
@@ -5468,11 +5460,6 @@ msgstr "Фо&н"
 msgid "Reset"
 msgstr "Сбросить"
 
-#: tfrmoptionseditorcolors.btnsavemask.hint
-msgctxt "tfrmoptionseditorcolors.btnsavemask.hint"
-msgid "Save"
-msgstr "Сохранить"
-
 #: tfrmoptionseditorcolors.bvlattributesection.caption
 msgid "Element Attributes"
 msgstr "Атрибуты элементов"
@@ -6496,11 +6483,6 @@ msgctxt "TFRMOPTIONSFILETYPESCOLORS.BTNADDCATEGORY.CAPTION"
 msgid "A&dd"
 msgstr "&Добавить"
 
-#: tfrmoptionsfiletypescolors.btnapplycategory.caption
-msgctxt "TFRMOPTIONSFILETYPESCOLORS.BTNAPPLYCATEGORY.CAPTION"
-msgid "A&pply"
-msgstr "П&рименить"
-
 #: tfrmoptionsfiletypescolors.btndeletecategory.caption
 msgctxt "TFRMOPTIONSFILETYPESCOLORS.BTNDELETECATEGORY.CAPTION"
 msgid "D&elete"
@@ -6668,6 +6650,16 @@ msgstr "Параметры"
 #: tfrmoptionshotkeys.stghotkeys.columns[2].title.caption
 msgid "Controls"
 msgstr "Элементы интерфейса"
+
+#: tfrmoptionsicloud.appslistview.columns[0].caption
+msgctxt "tfrmoptionsicloud.appslistview.columns[0].caption"
+msgid "Applications"
+msgstr "Приложения"
+
+#: tfrmoptionsicloud.appslistview.columns[1].caption
+msgctxt "tfrmoptionsicloud.appslistview.columns[1].caption"
+msgid "Count of Contents"
+msgstr "Количество содержимого"
 
 #: tfrmoptionsicons.cbiconsexclude.caption
 msgctxt "TFRMOPTIONSICONS.CBICONSEXCLUDE.CAPTION"
@@ -7341,8 +7333,8 @@ msgstr "Имя файла"
 
 #: tfrmoptionspluginswfx.lblplugindescription.caption
 msgctxt "tfrmoptionspluginswfx.lblplugindescription.caption"
-msgid "Fi&le system plugins allow access to disks inaccessible by operating system or to external devices like Palm/PocketPC."
-msgstr "Позволя&ют обращаться к дискам, недоступным из ОС или к внешним устройствам, типа Palm/PocketPC, и т.д."
+msgid "Fi&le system plugins allow access to disks inaccessible by operating system or to external devices like smartphones."
+msgstr "Позволя&ют обращаться к дискам, недоступным из ОС или к внешним устройствам, типа смартфонов, и т.д."
 
 #: tfrmoptionspluginswfx.stgplugins.columns[0].title.caption
 msgctxt "tfrmoptionspluginswfx.stgplugins.columns[0].title.caption"
@@ -8064,6 +8056,10 @@ msgctxt "tfrmoptionstoolbarbase.misubtoolbarpriorcurrent.caption"
 msgid "just prior current selection"
 msgstr "перед выбранным"
 
+#: tfrmoptionstoolbarbase.rblinebreak.caption
+msgid "Line break"
+msgstr "Перенос строки"
+
 #: tfrmoptionstoolbarbase.rbseparator.caption
 msgid "Separator"
 msgstr "Разделитель"
@@ -8594,23 +8590,23 @@ msgstr "Удалить правило"
 msgid "Use &content plugins, combine with:"
 msgstr "Использовать контентные плагины, объединять с:"
 
-#: tfrmsearchplugin.headercontrol.sections[0].text
-msgctxt "tfrmsearchplugin.headercontrol.sections[0].text"
-msgid "Plugin"
-msgstr "Плагин"
-
-#: tfrmsearchplugin.headercontrol.sections[1].text
-msgctxt "tfrmsearchplugin.headercontrol.sections[1].text"
+#: tfrmsearchplugin.lblfield.caption
+msgctxt "tfrmsearchplugin.lblfield.caption"
 msgid "Field"
 msgstr "Поле"
 
-#: tfrmsearchplugin.headercontrol.sections[2].text
-msgctxt "tfrmsearchplugin.headercontrol.sections[2].text"
+#: tfrmsearchplugin.lbloperator.caption
+msgctxt "tfrmsearchplugin.lbloperator.caption"
 msgid "Operator"
 msgstr "Оператор"
 
-#: tfrmsearchplugin.headercontrol.sections[3].text
-msgctxt "tfrmsearchplugin.headercontrol.sections[3].text"
+#: tfrmsearchplugin.lblplugin.caption
+msgctxt "tfrmsearchplugin.lblplugin.caption"
+msgid "Plugin"
+msgstr "Плагин"
+
+#: tfrmsearchplugin.lblvalue.caption
+msgctxt "tfrmsearchplugin.lblvalue.caption"
 msgid "Value"
 msgstr "Значение"
 
@@ -10298,27 +10294,27 @@ msgstr "Тб"
 
 #: ulng.rsdefaultsuffixdroppedtext
 msgid "_DroppedText"
-msgstr ""
+msgstr "_DroppedText"
 
 #: ulng.rsdefaultsuffixdroppedtexthtmlfilename
 msgid "_DroppedHTMLtext"
-msgstr ""
+msgstr "_DroppedText"
 
 #: ulng.rsdefaultsuffixdroppedtextrichtextfilename
 msgid "_DroppedRichtext"
-msgstr ""
+msgstr "_DroppedText"
 
 #: ulng.rsdefaultsuffixdroppedtextsimplefilename
 msgid "_DroppedSimpleText"
-msgstr ""
+msgstr "_DroppedText"
 
 #: ulng.rsdefaultsuffixdroppedtextunicodeutf16filename
 msgid "_DroppedUnicodeUTF16text"
-msgstr "_DroppedUTF16text"
+msgstr "_DroppedTextUTF16"
 
 #: ulng.rsdefaultsuffixdroppedtextunicodeutf8filename
 msgid "_DroppedUnicodeUTF8text"
-msgstr "_DroppedUTF8text"
+msgstr "_DroppedTextUTF8"
 
 #: ulng.rsdiffadds
 msgid " Adds: "
@@ -10553,6 +10549,22 @@ msgctxt "ulng.rseditgotolinetitle"
 msgid "Goto Line"
 msgstr "Переход к строке"
 
+#: ulng.rsedithintcursorpos
+msgid "Cursor Position"
+msgstr "Позиция курсора"
+
+#: ulng.rsedithintinsertmode
+msgid "Insert Mode"
+msgstr "Режим вставки"
+
+#: ulng.rsedithintmodified
+msgid "Modified"
+msgstr "Изменён"
+
+#: ulng.rsedithintselectionmode
+msgid "Selection Mode"
+msgstr "Режим выделения"
+
 #: ulng.rseditnewfile
 msgid "new.txt"
 msgstr "новый.txt"
@@ -10582,6 +10594,26 @@ msgstr "&Вперед"
 msgctxt "ulng.rseditsearchreplace"
 msgid "Replace"
 msgstr "Заменить"
+
+#: ulng.rseditstatinsertmodeins
+msgid "INS"
+msgstr "ВСТ"
+
+#: ulng.rseditstatinsertmodeovr
+msgid "OVR"
+msgstr "ЗАМ"
+
+#: ulng.rseditstatselmodecol
+msgid "COL"
+msgstr "СТЛБ"
+
+#: ulng.rseditstatselmodeline
+msgid "LINE"
+msgstr "СТРК"
+
+#: ulng.rseditstatselmodenorm
+msgid "NORM"
+msgstr "НОРМ"
 
 #: ulng.rseditwithexternaleditor
 msgid "with external editor"
@@ -10999,9 +11031,17 @@ msgstr "Не использовать \"Enter\""
 msgid "By command name;By shortcut key (grouped);By shortcut key (one per row)"
 msgstr "По имени команды;По горячим клавишам (группир.);По горячим клавишам (по одной)"
 
+#: ulng.rsiclouddrivercopyseedfileconfirmdlgmessage
+msgid "It is recommended to download the files first. Otherwise, what is copied is not the content of the files, but the corresponding placeholder files, which will result in hidden files with the .iCloud extension."
+msgstr "Рекомендуется сначала загрузить файлы. В противном случае будет скопировано не содержимое файлов, а соответствующие файлы-заполнители, что приведет к появлению скрытых файлов с расширением .iCloud."
+
+#: ulng.rsiclouddrivercopyseedfileconfirmdlgtitle
+msgid "The operation may contain files that were not downloaded, continue anyway?"
+msgstr "Операция может содержать файлы, которые не были загружены. Продолжить в любом случае?"
+
 #: ulng.rsimporttoolbarproblem
 msgid "Cannot find reference to default bar file"
-msgstr "Не удалось найти ссылку на файл панели инструментов по умолчанию"
+msgstr "Не удалось найти файл панели инструментов по умолчанию"
 
 #: ulng.rslegacydisplaysizesinglelettergiga
 msgid "G"
@@ -11027,6 +11067,11 @@ msgstr "Б"
 #: ulng.rslistoffindfileswindows
 msgid "List of \"Find files\" windows"
 msgstr "Список окон \"Поиск файлов\""
+
+#: ulng.rsmacosassignfindertagstomultiitems
+#, object-pascal-format
+msgid "Assign tags to %d items"
+msgstr "Добавить теги выделенному (%d)"
 
 #: ulng.rsmarkminus
 msgid "Unselect mask"
@@ -11056,9 +11101,222 @@ msgstr "Настроить наборы колонок"
 msgid "Enter new custom columns name"
 msgstr "Введите имя нового набора колонок"
 
+#: ulng.rsmenumacosaddfindertag
+#, object-pascal-format
+msgid "Add \"%s\""
+msgstr "Добавить \"%s\""
+
+#: ulng.rsmenumacoseditfindertags
+msgctxt "ulng.rsmenumacoseditfindertags"
+msgid "Edit Finder Tags..."
+msgstr "Изменить теги Finder..."
+
+#: ulng.rsmenumacosgrantpermissiontosupportfindertags
+msgid "Grant \"Full Disk Access\" permission to support Finder Tags..."
+msgstr "Предоставьте разрешение \"Полный доступ к диску\" для поддержки тегов Finder..."
+
+#: ulng.rsmenumacosremovefindertag
+#, object-pascal-format
+msgid "Remove \"%s\""
+msgstr "Удалить \"%s\""
+
 #: ulng.rsmenumacosshare
 msgid "Share..."
 msgstr "Поделиться..."
+
+#: ulng.rsmfstbiairdroptips
+msgctxt "ulng.rsmfstbiairdroptips"
+msgid "AirDrop"
+msgstr ""
+
+#: ulng.rsmfstbiairdroptitle
+msgctxt "ulng.rsmfstbiairdroptitle"
+msgid "AirDrop"
+msgstr ""
+
+#: ulng.rsmfstbicommandmenudirectoryhotlist
+msgctxt "ulng.rsmfstbicommandmenudirectoryhotlist"
+msgid "Directory Hotlist"
+msgstr "Избранные каталоги"
+
+#: ulng.rsmfstbicommandmenufavoritetabs
+msgctxt "ulng.rsmfstbicommandmenufavoritetabs"
+msgid "Favorite Tabs"
+msgstr "Избранные вкладки"
+
+#: ulng.rsmfstbicommandmenuquicklook
+msgid "macOS QuickLook"
+msgstr "Быстрый просмотр macOS"
+
+#: ulng.rsmfstbicommandtitle
+msgctxt "ulng.rsmfstbicommandtitle"
+msgid "Command"
+msgstr "Команда"
+
+#: ulng.rsmfstbicomparetips
+msgid "Compare by Contents..."
+msgstr "Сравнить по содержимому..."
+
+#: ulng.rsmfstbicomparetitle
+msgctxt "ulng.rsmfstbicomparetitle"
+msgid "Compare"
+msgstr "Сравнить"
+
+#: ulng.rsmfstbieditfindertagtips
+msgctxt "ulng.rsmfstbieditfindertagtips"
+msgid "Edit Finder Tags..."
+msgstr "Изменить теги Finder..."
+
+#: ulng.rsmfstbieditfindertagtitle
+msgid "EditTag"
+msgstr "Изменить тег"
+
+#: ulng.rsmfstbiedittips
+msgid "Edit..."
+msgstr "Правка..."
+
+#: ulng.rsmfstbiedittitle
+msgctxt "ulng.rsmfstbiedittitle"
+msgid "Edit"
+msgstr "Правка"
+
+#: ulng.rsmfstbifinderrevealtips
+msgid "Reveal in Finder"
+msgstr "Открыть в Finder"
+
+#: ulng.rsmfstbifinderrevealtitle
+msgid "Finder"
+msgstr ""
+
+#: ulng.rsmfstbigotips
+msgctxt "ulng.rsmfstbigotips"
+msgid "Go"
+msgstr "Перейти в"
+
+#: ulng.rsmfstbigotitle
+msgctxt "ulng.rsmfstbigotitle"
+msgid "Go"
+msgstr "Перейти в"
+
+#: ulng.rsmfstbihorzsplittips
+msgid "Toggle Horizontal Split Mode"
+msgstr "Переключить режим расположения панелей (вертикально/горизонтально)"
+
+#: ulng.rsmfstbihorzsplittitle
+msgid "HorzSplit"
+msgstr "Горизонтальное разделение"
+
+#: ulng.rsmfstbiiclouddrivertips
+msgctxt "ulng.rsmfstbiiclouddrivertips"
+msgid "iCloud Driver"
+msgstr "Диск iCloud"
+
+#: ulng.rsmfstbiiclouddrivertitle
+msgctxt "ulng.rsmfstbiiclouddrivertitle"
+msgid "iCloud Driver"
+msgstr "Диск iCloud"
+
+#: ulng.rsmfstbiprivilegetips
+msgid "As a file manager, Double Command requires full disk access permissions. Clicking this button will pop up the macOS system settings page. Please add \"Double Commander.app\" to the \"Full Disk Access\" list to complete the authorization."
+msgstr "Как файловый менеджер, Double Commander требует разрешения на полный доступ к диску. Нажатие этой кнопки откроет страницу системных настроек macOS. Пожалуйста, добавьте \"Double Commande.app\" в список \"Полный доступ к диску\", чтобы завершить авторизацию."
+
+#: ulng.rsmfstbiprivilegetitle
+msgid "Privilege"
+msgstr "Привилегия"
+
+#: ulng.rsmfstbiquicklooktips
+msgid "macOS Quick Look Panel"
+msgstr "Панель быстрого просмотра macOS"
+
+#: ulng.rsmfstbiquicklooktitle
+msgid "QuickLook"
+msgstr "Быстрый просмотр"
+
+#: ulng.rsmfstbirefreshtips
+msgid "Refresh File List"
+msgstr "Обновить список файлов"
+
+#: ulng.rsmfstbirefreshtitle
+msgid "Refresh"
+msgstr "Обновить"
+
+#: ulng.rsmfstbisearchcombinedtags
+msgid "Search for combined tags..."
+msgstr "Поиск комбинированных тегов..."
+
+#: ulng.rsmfstbisearchtips
+msgid "Search Files..."
+msgstr "Поиск файлов..."
+
+#: ulng.rsmfstbisearchtitle
+msgctxt "ulng.rsmfstbisearchtitle"
+msgid "Search"
+msgstr "Поиск"
+
+#: ulng.rsmfstbisharetitle
+msgid "Share"
+msgstr "Поделиться"
+
+#: ulng.rsmfstbishowbrieftitle
+msgid "as Brief"
+msgstr "Краткий"
+
+#: ulng.rsmfstbishowfulltitle
+msgid "as Full"
+msgstr "Подробный"
+
+#: ulng.rsmfstbishowinfotips
+msgid "Show Info in Finder"
+msgstr "Показать информацию о файле в Finder"
+
+#: ulng.rsmfstbishowinfotitle
+msgid "ShowInfo"
+msgstr "Показать информацию"
+
+#: ulng.rsmfstbishowmodetips
+msgid "Show as Brief, Full or Thumbnails"
+msgstr "Показать в кратком виде, в подробном виде или в виде эскизов"
+
+#: ulng.rsmfstbishowmodetitle
+msgid "ShowMode"
+msgstr "Режим отображения"
+
+#: ulng.rsmfstbishowthumbnailstitle
+msgid "as Thumbnails"
+msgstr "Эскизы"
+
+#: ulng.rsmfstbiswappanelstips
+msgid "Swap Panels"
+msgstr "Поменять файловые панели местами"
+
+#: ulng.rsmfstbiswappanelstitle
+msgid "SwapPanels"
+msgstr "Поменять панели местами"
+
+#: ulng.rsmfstbisynctips
+msgid "Synchronize Dirs..."
+msgstr "Синхронизировать каталоги..."
+
+#: ulng.rsmfstbisynctitle
+msgid "Sync"
+msgstr "Синхронизация"
+
+#: ulng.rsmfstbiterminaltips
+msgid "Open in Terminal"
+msgstr "Открыть в терминале"
+
+#: ulng.rsmfstbiterminaltitle
+msgctxt "ulng.rsmfstbiterminaltitle"
+msgid "Terminal"
+msgstr "Терминал"
+
+#: ulng.rsmfstbitreeviewtips
+msgid "Show Tree View Panel"
+msgstr "Показать панель с деревом каталогов"
+
+#: ulng.rsmfstbitreeviewtitle
+msgid "TreeView"
+msgstr "Дерево каталогов"
 
 #: ulng.rsmnuactions
 msgctxt "ulng.rsmnuactions"
@@ -11093,6 +11351,14 @@ msgstr "Извлечь"
 #: ulng.rsmnuextracthere
 msgid "Extract here..."
 msgstr "Распаковать здесь..."
+
+#: ulng.rsmnuiclouddriverdownloadnow
+msgid "Download Now"
+msgstr "Загрузить сейчас"
+
+#: ulng.rsmnuiclouddriverremovedownload
+msgid "Remove Download"
+msgstr "Удалить загрузку"
 
 #: ulng.rsmnumount
 msgid "Mount"
@@ -11147,6 +11413,24 @@ msgstr "Отмонтировать"
 msgctxt "ulng.rsmnuview"
 msgid "View"
 msgstr "Просмотреть"
+
+#: ulng.rsmountedfilesourcecopymultifilestowcxdlgmessage
+msgid ""
+"Some virtual filesystem contain specific directory structures. When copying from it to a compressed archive, only one directory can be selected at a time, unless the actual locations of the selected directories are all located under the same parent directory.\n"
+"\n"
+"For example, for iCloud Drive, when copying directory from the root to a compressed archive, maybe only one directory should be selected.\n"
+"\n"
+"It is recommended that you follow your usual practice and try to select only one directory when you receive this prompt."
+msgstr ""
+"Некоторые виртуальные файловые системы содержат специальные структуры каталогов. При копировании из них в сжатый архив может быть выделен только один каталог, если только реальное расположение выбранных каталогов не в одном и том же реальном родительском каталоге.\n"
+"\n"
+"Например, для диска iCloud при копировании в сжатый архив каталогов из корневого каталога, возможно, следует выбрать только один каталог.\n"
+"\n"
+"Рекомендуется выбирать только один каталог, иначе вы получите это сообщение."
+
+#: ulng.rsmountedfilesourcecopymultifilestowcxdlgtitle
+msgid "The operation is not supported"
+msgstr "Операция не поддерживается"
 
 #: ulng.rsmsgaccount
 msgid "Account:"
@@ -13272,6 +13556,7 @@ msgid "Drives list button"
 msgstr "Kнопка списка дисков"
 
 #: ulng.rsoptionseditorfavoritetabs
+msgctxt "ulng.rsoptionseditorfavoritetabs"
 msgid "Favorite Tabs"
 msgstr "Избранные вкладки"
 
@@ -13398,6 +13683,26 @@ msgstr ""
 msgctxt "ulng.rsoptionseditorplugins"
 msgid "Plugins"
 msgstr "Плагины"
+
+#: ulng.rsoptionseditorpluginsdsx
+msgid "Search plugins"
+msgstr ""
+
+#: ulng.rsoptionseditorpluginswcx
+msgid "Packer plugins"
+msgstr ""
+
+#: ulng.rsoptionseditorpluginswdx
+msgid "Content plugins"
+msgstr ""
+
+#: ulng.rsoptionseditorpluginswfx
+msgid "File system plugins"
+msgstr ""
+
+#: ulng.rsoptionseditorpluginswlx
+msgid "Viewer plugins"
+msgstr ""
 
 #: ulng.rsoptionseditorquicksearch
 msgctxt "ulng.rsoptionseditorquicksearch"

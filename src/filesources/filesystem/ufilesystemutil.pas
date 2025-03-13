@@ -10,13 +10,14 @@ interface
 uses
   Classes, SysUtils, uDescr, uLog, uGlobs, DCOSUtils,
   uFile,
+  uFileSource,
   uFileSourceOperation,
   uFileSourceOperationOptions,
   uFileSourceOperationUI,
   uFileSourceCopyOperation,
   uFileSourceTreeBuilder;
 
-  function ApplyRenameMask(aFile: TFile; NameMask: String; ExtMask: String): String; overload;
+  function ApplyRenameMask(FileSource: IFileSource; aFile: TFile; NameMask: String; ExtMask: String): String; overload;
   procedure FillAndCount(Files: TFiles;
                          CountDirs: Boolean;
                          ExcludeRootDir: Boolean;
@@ -60,6 +61,7 @@ type
     FMode: TFileSystemOperationHelperMode;
     FBuffer: Pointer;
     FBufferSize: LongWord;
+    FFileSource: IFileSource;
     FRootTargetPath: String;
     FRenameMask: String;
     FRenameNameMask, FRenameExtMask: String;
@@ -81,6 +83,7 @@ type
     FSkipRenameError: Boolean;
     FSkipOpenForReadingError: Boolean;
     FSkipOpenForWritingError: Boolean;
+    FSkipCreateSymLinkError: Boolean;
     FSkipReadError: Boolean;
     FSkipWriteError: Boolean;
     FSkipCopyError: Boolean;
@@ -150,6 +153,7 @@ type
 
                        OperationThread: TThread;
                        Mode: TFileSystemOperationHelperMode;
+                       FileSource: IFileSource;
                        TargetPath: String;
                        StartingStatistics: TFileSourceCopyOperationStatistics);
     destructor Destroy; override;
@@ -176,7 +180,7 @@ implementation
 
 uses
   uDebug, uDCUtils, uOSUtils, DCStrUtils, FileUtil, uFindEx, DCClassesUtf8, uFileProcs, uLng,
-  DCBasicTypes, uFileSource, uFileSystemFileSource, uFileProperty, uAdministrator,
+  DCBasicTypes, uFileSystemFileSource, uFileProperty, uAdministrator,
   StrUtils, DCDateTimeUtils, uShowMsg, Forms, LazUTF8, uHash, uFileCopyEx, SysConst,
   Math, DateUtils
 {$IFDEF UNIX}
@@ -187,13 +191,16 @@ uses
 const
   HASH_TYPE = HASH_BEST;
 
-function ApplyRenameMask(aFile: TFile; NameMask: String; ExtMask: String): String; overload;
+function ApplyRenameMask(FileSource: IFileSource; aFile: TFile; NameMask: String; ExtMask: String): String; overload;
+var
+  filename: String;
 begin
+  filename:= FileSource.GetFileName( aFile );
   // Only change name for files.
   if aFile.IsDirectory or aFile.IsLink then
-    Result := aFile.Name
+    Result := filename
   else
-    Result := ApplyRenameMask(aFile.Name, NameMask, ExtMask);
+    Result := ApplyRenameMask(filename, NameMask, ExtMask);
 end;
 
 procedure FillAndCount(Files: TFiles; CountDirs: Boolean; ExcludeRootDir: Boolean;
@@ -398,6 +405,7 @@ constructor TFileSystemOperationHelper.Create(
   UpdateStatisticsFunction: TUpdateStatisticsFunction;
   ShowCompareFilesUIFunction: TShowCompareFilesUIFunction;
   OperationThread: TThread; Mode: TFileSystemOperationHelperMode;
+  FileSource: IFileSource;
   TargetPath: String; StartingStatistics: TFileSourceCopyOperationStatistics);
 begin
   AskQuestion := AskQuestionFunction;
@@ -422,6 +430,7 @@ begin
   FDirExistsOption := fsoodeNone;
   FSetPropertyError := fsoospeNone;
   FRootTargetPath := TargetPath;
+  FFileSource := FileSource;
   FRenameMask := '';
   FStatistics := StartingStatistics;
   FRenamingFiles := False;
@@ -615,7 +624,7 @@ var
             TotalBytesToRead := SourceFileStream.Size;
             if FReserveSpace then
             begin
-              TargetFileStream.Size:= SourceFileStream.Size;
+              TargetFileStream.Capacity:= SourceFileStream.Size;
               TargetFileStream.Seek(0, fsFromBeginning);
             end;
           end;
@@ -634,9 +643,8 @@ begin
   Result := False;
 
   { Check disk free space }
-  if FCheckFreeSpace = True then
+  if FCheckFreeSpace and GetDiskFreeSpace(ExtractFilePath(TargetFileName), iFreeDiskSize, iTotalDiskSize) then
   begin
-    GetDiskFreeSpace(ExtractFilePath(TargetFileName), iFreeDiskSize, iTotalDiskSize);
     if SourceFile.Size > iFreeDiskSize then
     begin
       if FSkipAllBigFiles = True then
@@ -759,7 +767,7 @@ begin
 
         if FReserveSpace then
         begin
-          TargetFileStream.Size:= SourceFileStream.Size;
+          TargetFileStream.Capacity:= SourceFileStream.Size;
           TargetFileStream.Seek(0, fsFromBeginning);
         end;
       end else
@@ -831,8 +839,7 @@ begin
                 on E: EWriteError do
                   begin
                     { Check disk free space }
-                    GetDiskFreeSpace(ExtractFilePath(TargetFileName), iFreeDiskSize, iTotalDiskSize);
-                    if BytesRead > iFreeDiskSize then
+                    if GetDiskFreeSpace(ExtractFilePath(TargetFileName), iFreeDiskSize, iTotalDiskSize) and (BytesRead > iFreeDiskSize) then
                       begin
                         case AskQuestion(rsMsgNoFreeSpaceRetry, '',
                                          [fsourYes, fsourNo, fsourSkip],
@@ -1091,9 +1098,9 @@ begin
     if FRenamingRootDir and (aFile = FRootDir) then
       TargetName := CurrentTargetPath + FRenameMask
     else if FRenamingFiles then
-      TargetName := CurrentTargetPath + ApplyRenameMask(aFile, FRenameNameMask, FRenameExtMask)
+      TargetName := CurrentTargetPath + ApplyRenameMask(FFileSource, aFile, FRenameNameMask, FRenameExtMask)
     else
-      TargetName := CurrentTargetPath + aFile.Name;
+      TargetName := CurrentTargetPath + FFileSource.GetFileName(aFile);
 
     with FStatistics do
     begin
@@ -1348,14 +1355,27 @@ begin
                 LinkTarget := CorrectedLink;
             end;
 
-            if CreateSymbolicLinkUAC(LinkTarget, AbsoluteTargetFileName) then
+            if CreateSymbolicLinkUAC(LinkTarget, AbsoluteTargetFileName, aFile.Attributes) then
             begin
               CopyProperties(aFile, AbsoluteTargetFileName);
               if (FMode = fsohmMove) then Result:= DeleteFile(aFile);
             end
             else
             begin
-              ShowError(rsMsgLogError + Format(rsMsgLogSymLink, [AbsoluteTargetFileName]));
+              if not FSkipCreateSymLinkError then
+              begin
+                case AskQuestion(rsSymErrCreate.TrimRight(['.']) + ' ' +
+                                 WrapTextSimple(AbsoluteTargetFileName, 64) +
+                                 LineEnding + LineEnding + mbSysErrorMessage, '',
+                                 [fsourSkip, fsourSkipAll, fsourAbort],
+                                 fsourSkip, fsourAbort) of
+                  fsourAbort:
+                    AbortOperation;
+                  fsourSkip: ; // Do nothing
+                  fsourSkipAll:
+                    FSkipCreateSymLinkError := True;
+                end;
+              end;
               Result := False;
             end;
           end
@@ -1372,6 +1392,16 @@ begin
 
     else
       raise Exception.Create('Invalid TargetExists result');
+  end;
+
+  if Result = True then
+  begin
+    LogMessage(Format(rsMsgLogSuccess + rsMsgLogSymLink, [aNode.TheFile.FullPath + ' -> ' + AbsoluteTargetFileName]),
+               [log_cp_mv_ln], lmtSuccess);
+  end
+  else begin
+    LogMessage(Format(rsMsgLogError + rsMsgLogSymLink, [aNode.TheFile.FullPath + ' -> ' + AbsoluteTargetFileName]),
+               [log_cp_mv_ln], lmtError);
   end;
 
   Inc(FStatistics.DoneFiles);
@@ -1415,7 +1445,7 @@ begin
 {$ENDIF}
 
     if (aNode.TheFile.Size > GetDiskMaxFileSize(ExtractFileDir(AbsoluteTargetFileName))) then
-      case AskQuestion('', Format(rsMsgFileSizeTooBig, [aNode.TheFile.Name]),
+      case AskQuestion('', Format(rsMsgFileSizeTooBig, [FFileSource.GetFileName(aNode.TheFile)]),
                        [fsourSkip, fsourAbort],
                        fsourSkip, fsourAbort) of
         fsourSkip:

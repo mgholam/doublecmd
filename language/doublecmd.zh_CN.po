@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Double Commander 1.1.0 alpha\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-11-15 11:15+0300\n"
-"PO-Revision-Date: 2023-04-05 22:00+0800\n"
+"PO-Revision-Date: 2024-11-01 21:00+0800\n"
 "Last-Translator: iYoung <iyoung@126.com>\n"
 "Language-Team: Chinese <iyoung@126.com>\n"
 "Language: zh_CN\n"
@@ -330,7 +330,11 @@ msgstr "任务完成后打开校验码文件"
 
 #: tfrmchecksumcalc.cbseparatefile.caption
 msgid "C&reate separate checksum file for each file"
-msgstr "为每个文件分别创建 MD5/SHA1 文件(&R)"
+msgstr "为每个文件分别创建校验码文件(&R)"
+
+#: tfrmchecksumcalc.cbseparatefolder.caption
+msgid "Create separate checksum file for each &directory"
+msgstr "为每个文件夹分别创建校验码文件(&D)"
 
 #: tfrmchecksumcalc.lblfileformat.caption
 msgid "File &format"
@@ -994,6 +998,10 @@ msgstr "取消(&A)"
 msgctxt "tfrmeditor.acteditselectall.hint"
 msgid "Select All"
 msgstr "全选"
+
+#: tfrmeditor.actedittimedate.caption
+msgid "Time/Date"
+msgstr "时间/日期"
 
 #: tfrmeditor.acteditundo.caption
 msgctxt "TFRMEDITOR.ACTEDITUNDO.CAPTION"
@@ -1723,26 +1731,6 @@ msgstr "输入应从搜索中排除的文件名，以分号 (;) 分隔"
 #: tfrmfinddlg.cmbfindfilemask.hint
 msgid "Enter files names separated with \";\""
 msgstr "输入以分号 (;) 分隔的文件名，"
-
-#: tfrmfinddlg.frmcontentplugins.headercontrol.sections[0].text
-msgctxt "tfrmfinddlg.frmcontentplugins.headercontrol.sections[0].text"
-msgid "Plugin"
-msgstr "插件"
-
-#: tfrmfinddlg.frmcontentplugins.headercontrol.sections[1].text
-msgctxt "tfrmfinddlg.frmcontentplugins.headercontrol.sections[1].text"
-msgid "Field"
-msgstr "字段"
-
-#: tfrmfinddlg.frmcontentplugins.headercontrol.sections[2].text
-msgctxt "tfrmfinddlg.frmcontentplugins.headercontrol.sections[2].text"
-msgid "Operator"
-msgstr "操作符"
-
-#: tfrmfinddlg.frmcontentplugins.headercontrol.sections[3].text
-msgctxt "tfrmfinddlg.frmcontentplugins.headercontrol.sections[3].text"
-msgid "Value"
-msgstr "数值"
 
 #: tfrmfinddlg.gbdirectories.caption
 msgctxt "tfrmfinddlg.gbdirectories.caption"
@@ -3144,7 +3132,7 @@ msgid "C&onfiguration"
 msgstr "配置(&O)"
 
 #: tfrmmain.mnufavoritetabs.caption
-msgid "Favorites"
+msgid "F&avorites"
 msgstr "收藏夹(&A)"
 
 #: tfrmmain.mnufiles.caption
@@ -3162,7 +3150,7 @@ msgstr "标记(&M)"
 
 #: tfrmmain.mnunetwork.caption
 msgctxt "tfrmmain.mnunetwork.caption"
-msgid "Network"
+msgid "&Network"
 msgstr "网络(&N)"
 
 #: tfrmmain.mnushow.caption
@@ -3932,6 +3920,10 @@ msgstr "显示控制台输出(&H)"
 #: tfrmoptionsarchivers.chkfilenameonlylist.caption
 msgid "Use archive name without extension as list"
 msgstr "使用不含扩展名的压缩文件名称作为列表"
+
+#: tfrmoptionsarchivers.chkhide.caption
+msgid "Show as normal files"
+msgstr ""
 
 #: tfrmoptionsarchivers.ckbarchiverunixfileattributes.caption
 msgid "Uni&x file attributes"
@@ -5368,11 +5360,6 @@ msgstr "背景(&K)"
 msgid "Reset"
 msgstr "重置"
 
-#: tfrmoptionseditorcolors.btnsavemask.hint
-msgctxt "tfrmoptionseditorcolors.btnsavemask.hint"
-msgid "Save"
-msgstr "保存"
-
 #: tfrmoptionseditorcolors.bvlattributesection.caption
 msgid "Element Attributes"
 msgstr "元素属性"
@@ -6352,11 +6339,6 @@ msgctxt "TFRMOPTIONSFILETYPESCOLORS.BTNADDCATEGORY.CAPTION"
 msgid "A&dd"
 msgstr "添加(&D)"
 
-#: tfrmoptionsfiletypescolors.btnapplycategory.caption
-msgctxt "TFRMOPTIONSFILETYPESCOLORS.BTNAPPLYCATEGORY.CAPTION"
-msgid "A&pply"
-msgstr "应用(&P)"
-
 #: tfrmoptionsfiletypescolors.btndeletecategory.caption
 msgctxt "TFRMOPTIONSFILETYPESCOLORS.BTNDELETECATEGORY.CAPTION"
 msgid "D&elete"
@@ -6517,6 +6499,16 @@ msgstr "参数"
 #: tfrmoptionshotkeys.stghotkeys.columns[2].title.caption
 msgid "Controls"
 msgstr "控件"
+
+#: tfrmoptionsicloud.appslistview.columns[0].caption
+msgctxt "tfrmoptionsicloud.appslistview.columns[0].caption"
+msgid "Applications"
+msgstr "应用"
+
+#: tfrmoptionsicloud.appslistview.columns[1].caption
+msgctxt "tfrmoptionsicloud.appslistview.columns[1].caption"
+msgid "Count of Contents"
+msgstr "包含的文件数量"
 
 #: tfrmoptionsicons.cbiconsexclude.caption
 msgctxt "TFRMOPTIONSICONS.CBICONSEXCLUDE.CAPTION"
@@ -7145,8 +7137,10 @@ msgid "File name"
 msgstr "文件名"
 
 #: tfrmoptionspluginswfx.lblplugindescription.caption
+#, fuzzy
+#| msgid "Fi&le system plugins allow access to disks inaccessible by operating system or to external devices like Palm/PocketPC."
 msgctxt "tfrmoptionspluginswfx.lblplugindescription.caption"
-msgid "Fi&le system plugins allow access to disks inaccessible by operating system or to external devices like Palm/PocketPC."
+msgid "Fi&le system plugins allow access to disks inaccessible by operating system or to external devices like smartphones."
 msgstr "文件系统插件允许访问操作系统或 Palm/PocketPC 等外部设备中无法访问的磁盘。"
 
 #: tfrmoptionspluginswfx.stgplugins.columns[0].title.caption
@@ -7355,12 +7349,12 @@ msgstr "新的收藏夹标签保存在菜单中的默认位置："
 #: tfrmoptionsterminal.edrunintermcloseparams.hint
 msgctxt "tfrmoptionsterminal.edrunintermcloseparams.hint"
 msgid "{command} should normally be present here to reflect the command to be run in terminal"
-msgstr "{命令} 通常应该在此出现，以反映在终端中运行的命令"
+msgstr "{command} 通常应该在此出现，以反映在终端中运行的命令"
 
 #: tfrmoptionsterminal.edrunintermstayopenparams.hint
 msgctxt "tfrmoptionsterminal.edrunintermstayopenparams.hint"
 msgid "{command} should normally be present here to reflect the command to be run in terminal"
-msgstr "{命令} 通常应该在此出现，以反映在终端中运行的命令"
+msgstr "{command} 通常应该在此出现，以反映在终端中运行的命令"
 
 #: tfrmoptionsterminal.gbjustrunterminal.caption
 msgid "Command for just running terminal:"
@@ -7843,6 +7837,10 @@ msgstr "作为最后一个元素"
 msgctxt "tfrmoptionstoolbarbase.misubtoolbarpriorcurrent.caption"
 msgid "just prior current selection"
 msgstr "在当前选择之前"
+
+#: tfrmoptionstoolbarbase.rblinebreak.caption
+msgid "Line break"
+msgstr ""
 
 #: tfrmoptionstoolbarbase.rbseparator.caption
 msgid "Separator"
@@ -8363,23 +8361,23 @@ msgstr "较少规则(&E)"
 msgid "Use &content plugins, combine with:"
 msgstr "使用内容插件，并结合使用(&C)："
 
-#: tfrmsearchplugin.headercontrol.sections[0].text
-msgctxt "tfrmsearchplugin.headercontrol.sections[0].text"
-msgid "Plugin"
-msgstr "插件"
-
-#: tfrmsearchplugin.headercontrol.sections[1].text
-msgctxt "tfrmsearchplugin.headercontrol.sections[1].text"
+#: tfrmsearchplugin.lblfield.caption
+msgctxt "tfrmsearchplugin.lblfield.caption"
 msgid "Field"
 msgstr "字段"
 
-#: tfrmsearchplugin.headercontrol.sections[2].text
-msgctxt "tfrmsearchplugin.headercontrol.sections[2].text"
+#: tfrmsearchplugin.lbloperator.caption
+msgctxt "tfrmsearchplugin.lbloperator.caption"
 msgid "Operator"
 msgstr "操作符"
 
-#: tfrmsearchplugin.headercontrol.sections[3].text
-msgctxt "tfrmsearchplugin.headercontrol.sections[3].text"
+#: tfrmsearchplugin.lblplugin.caption
+msgctxt "tfrmsearchplugin.lblplugin.caption"
+msgid "Plugin"
+msgstr "插件"
+
+#: tfrmsearchplugin.lblvalue.caption
+msgctxt "tfrmsearchplugin.lblvalue.caption"
 msgid "Value"
 msgstr "值"
 
@@ -10293,6 +10291,22 @@ msgctxt "ulng.rseditgotolinetitle"
 msgid "Goto Line"
 msgstr "跳转到行"
 
+#: ulng.rsedithintcursorpos
+msgid "Cursor Position"
+msgstr "光标位置"
+
+#: ulng.rsedithintinsertmode
+msgid "Insert Mode"
+msgstr "插入模式"
+
+#: ulng.rsedithintmodified
+msgid "Modified"
+msgstr "已修改"
+
+#: ulng.rsedithintselectionmode
+msgid "Selection Mode"
+msgstr "选择模式"
+
 #: ulng.rseditnewfile
 msgid "new.txt"
 msgstr "new.txt"
@@ -10310,6 +10324,7 @@ msgid "&Backward"
 msgstr "后退(&B)"
 
 #: ulng.rseditsearchcaption
+msgctxt "ulng.rseditsearchcaption"
 msgid "Search"
 msgstr "搜索"
 
@@ -10321,6 +10336,26 @@ msgstr "前进(&F)"
 msgctxt "ulng.rseditsearchreplace"
 msgid "Replace"
 msgstr "替换"
+
+#: ulng.rseditstatinsertmodeins
+msgid "INS"
+msgstr "插入"
+
+#: ulng.rseditstatinsertmodeovr
+msgid "OVR"
+msgstr "覆盖"
+
+#: ulng.rseditstatselmodecol
+msgid "COL"
+msgstr "列"
+
+#: ulng.rseditstatselmodeline
+msgid "LINE"
+msgstr "行"
+
+#: ulng.rseditstatselmodenorm
+msgid "NORM"
+msgstr "常规"
 
 #: ulng.rseditwithexternaleditor
 msgid "with external editor"
@@ -10736,6 +10771,14 @@ msgstr "没有带回车键的快捷键"
 msgid "By command name;By shortcut key (grouped);By shortcut key (one per row)"
 msgstr "按命令名称;按快捷键（分组）;按快捷键（每行一个）"
 
+#: ulng.rsiclouddrivercopyseedfileconfirmdlgmessage
+msgid "It is recommended to download the files first. Otherwise, what is copied is not the content of the files, but the corresponding placeholder files, which will result in hidden files with the .iCloud extension."
+msgstr "建议先完成文件下载后再操作。否则，复制的不是文件本身的内容，而是对应的占位符文件，这只会复制以.iCloud为扩展名的隐藏文件。"
+
+#: ulng.rsiclouddrivercopyseedfileconfirmdlgtitle
+msgid "The operation may contain files that were not downloaded, continue anyway?"
+msgstr "操作可能包含未下载的文件，仍然继续吗？"
+
 #: ulng.rsimporttoolbarproblem
 msgid "Cannot find reference to default bar file"
 msgstr "无法找到引用默认工具栏的文件"
@@ -10765,6 +10808,11 @@ msgstr ""
 msgid "List of \"Find files\" windows"
 msgstr "<查找文件> 窗口列表"
 
+#: ulng.rsmacosassignfindertagstomultiitems
+#, object-pascal-format
+msgid "Assign tags to %d items"
+msgstr "将标签分配给%d个项目"
+
 #: ulng.rsmarkminus
 msgid "Unselect mask"
 msgstr "不选择掩码"
@@ -10793,9 +10841,245 @@ msgstr "配置自定义列"
 msgid "Enter new custom columns name"
 msgstr "输入新的自定义列名称"
 
+#: ulng.rsmenumacosaddfindertag
+#, object-pascal-format
+msgid "Add \"%s\""
+msgstr "添加“%s”"
+
+#: ulng.rsmenumacoseditfindertags
+msgctxt "ulng.rsmenumacoseditfindertags"
+msgid "Edit Finder Tags..."
+msgstr "编辑“访达”标签..."
+
+#: ulng.rsmenumacosgrantpermissiontosupportfindertags
+msgid "Grant \"Full Disk Access\" permission to support Finder Tags..."
+msgstr "授予“完全磁盘访问”权限以支持“访达”标签..."
+
+#: ulng.rsmenumacosremovefindertag
+#, object-pascal-format
+msgid "Remove \"%s\""
+msgstr "移除“%s”"
+
 #: ulng.rsmenumacosshare
 msgid "Share..."
 msgstr "共享..."
+
+#: ulng.rsmfstbiairdroptips
+msgctxt "ulng.rsmfstbiairdroptips"
+msgid "AirDrop"
+msgstr "隔空投送"
+
+#: ulng.rsmfstbiairdroptitle
+msgctxt "ulng.rsmfstbiairdroptitle"
+msgid "AirDrop"
+msgstr "隔空投送"
+
+#: ulng.rsmfstbicommandmenudirectoryhotlist
+msgctxt "ulng.rsmfstbicommandmenudirectoryhotlist"
+msgid "Directory Hotlist"
+msgstr "常用文件夹列表"
+
+#: ulng.rsmfstbicommandmenufavoritetabs
+msgctxt "ulng.rsmfstbicommandmenufavoritetabs"
+msgid "Favorite Tabs"
+msgstr "收藏夹标签"
+
+#: ulng.rsmfstbicommandmenuquicklook
+msgctxt "ulng.rsmfstbicommandmenuquicklook"
+msgid "macOS QuickLook"
+msgstr "macOS快速查看"
+
+#: ulng.rsmfstbicommandtitle
+msgctxt "ulng.rsmfstbicommandtitle"
+msgid "Command"
+msgstr "命令"
+
+#: ulng.rsmfstbicomparetips
+msgid "Compare by Contents..."
+msgstr "比较内容..."
+
+#: ulng.rsmfstbicomparetitle
+msgctxt "ulng.rsmfstbicomparetitle"
+msgid "Compare"
+msgstr "比较"
+
+#: ulng.rsmfstbieditfindertagtips
+msgctxt "ulng.rsmfstbieditfindertagtips"
+msgid "Edit Finder Tags..."
+msgstr "编辑“访达”标签..."
+
+#: ulng.rsmfstbieditfindertagtitle
+msgid "EditTag"
+msgstr "编辑标签"
+
+#: ulng.rsmfstbiedittips
+msgid "Edit..."
+msgstr "编辑..."
+
+#: ulng.rsmfstbiedittitle
+msgctxt "ulng.rsmfstbiedittitle"
+msgid "Edit"
+msgstr "编辑"
+
+#: ulng.rsmfstbifinderrevealtips
+msgctxt "ulng.rsmfstbifinderrevealtips"
+msgid "Reveal in Finder"
+msgstr "在“访达”中访问文件"
+
+#: ulng.rsmfstbifinderrevealtitle
+msgctxt "ulng.rsmfstbifinderrevealtitle"
+msgid "Finder"
+msgstr "访达"
+
+#: ulng.rsmfstbigotips
+msgctxt "ulng.rsmfstbigotips"
+msgid "Go"
+msgstr "前往"
+
+#: ulng.rsmfstbigotitle
+msgctxt "ulng.rsmfstbigotitle"
+msgid "Go"
+msgstr "前往"
+
+#: ulng.rsmfstbihorzsplittips
+msgctxt "ulng.rsmfstbihorzsplittips"
+msgid "Toggle Horizontal Split Mode"
+msgstr "切换水平/垂直分隔显示模式"
+
+#: ulng.rsmfstbihorzsplittitle
+msgctxt "ulng.rsmfstbihorzsplittitle"
+msgid "HorzSplit"
+msgstr "水平分隔"
+
+#: ulng.rsmfstbiiclouddrivertips
+msgctxt "ulng.rsmfstbiiclouddrivertips"
+msgid "iCloud Driver"
+msgstr "iCloud云盘"
+
+#: ulng.rsmfstbiiclouddrivertitle
+msgctxt "ulng.rsmfstbiiclouddrivertitle"
+msgid "iCloud Driver"
+msgstr "iCloud云盘"
+
+#: ulng.rsmfstbiprivilegetips
+msgid "As a file manager, Double Command requires full disk access permissions. Clicking this button will pop up the macOS system settings page. Please add \"Double Commander.app\" to the \"Full Disk Access\" list to complete the authorization."
+msgstr "Double Command作为文件管理器，需要获得完全磁盘访问权限。点击此按钮将弹出macOS系统设置页，请添加“Double Commander.app”到“完全磁盘访问权限”列表中完成授权。"
+
+#: ulng.rsmfstbiprivilegetitle
+msgid "Privilege"
+msgstr "权限"
+
+#: ulng.rsmfstbiquicklooktips
+msgctxt "ulng.rsmfstbiquicklooktips"
+msgid "macOS Quick Look Panel"
+msgstr "macOS快速查看"
+
+#: ulng.rsmfstbiquicklooktitle
+msgctxt "ulng.rsmfstbiquicklooktitle"
+msgid "QuickLook"
+msgstr "快速查看"
+
+#: ulng.rsmfstbirefreshtips
+msgctxt "ulng.rsmfstbirefreshtips"
+msgid "Refresh File List"
+msgstr "刷新文件列表"
+
+#: ulng.rsmfstbirefreshtitle
+msgctxt "ulng.rsmfstbirefreshtitle"
+msgid "Refresh"
+msgstr "刷新"
+
+#: ulng.rsmfstbisearchcombinedtags
+msgid "Search for combined tags..."
+msgstr "搜索组合标签"
+
+#: ulng.rsmfstbisearchtips
+msgctxt "ulng.rsmfstbisearchtips"
+msgid "Search Files..."
+msgstr "搜索文件..."
+
+#: ulng.rsmfstbisearchtitle
+msgctxt "ulng.rsmfstbisearchtitle"
+msgid "Search"
+msgstr "搜索"
+
+#: ulng.rsmfstbisharetitle
+msgctxt "ulng.rsmfstbisharetitle"
+msgid "Share"
+msgstr "共享"
+
+#: ulng.rsmfstbishowbrieftitle
+msgctxt "ulng.rsmfstbishowbrieftitle"
+msgid "as Brief"
+msgstr "以简约方式显示"
+
+#: ulng.rsmfstbishowfulltitle
+msgctxt "ulng.rsmfstbishowfulltitle"
+msgid "as Full"
+msgstr "以完整详细列表方式显示"
+
+#: ulng.rsmfstbishowinfotips
+msgctxt "ulng.rsmfstbishowinfotips"
+msgid "Show Info in Finder"
+msgstr "在“访达”中显示文件简介"
+
+#: ulng.rsmfstbishowinfotitle
+msgctxt "ulng.rsmfstbishowinfotitle"
+msgid "ShowInfo"
+msgstr "简介"
+
+#: ulng.rsmfstbishowmodetips
+msgctxt "ulng.rsmfstbishowmodetips"
+msgid "Show as Brief, Full or Thumbnails"
+msgstr "以简约、完整或者缩略图方式显示"
+
+#: ulng.rsmfstbishowmodetitle
+msgctxt "ulng.rsmfstbishowmodetitle"
+msgid "ShowMode"
+msgstr "显示方式"
+
+#: ulng.rsmfstbishowthumbnailstitle
+msgctxt "ulng.rsmfstbishowthumbnailstitle"
+msgid "as Thumbnails"
+msgstr "以缩略图方式显示"
+
+#: ulng.rsmfstbiswappanelstips
+msgctxt "ulng.rsmfstbiswappanelstips"
+msgid "Swap Panels"
+msgstr "对调面板"
+
+#: ulng.rsmfstbiswappanelstitle
+msgctxt "ulng.rsmfstbiswappanelstitle"
+msgid "SwapPanels"
+msgstr "对调面板"
+
+#: ulng.rsmfstbisynctips
+msgid "Synchronize Dirs..."
+msgstr "同步文件夹..."
+
+#: ulng.rsmfstbisynctitle
+msgid "Sync"
+msgstr "同步"
+
+#: ulng.rsmfstbiterminaltips
+msgctxt "ulng.rsmfstbiterminaltips"
+msgid "Open in Terminal"
+msgstr "在终端打开当前路径"
+
+#: ulng.rsmfstbiterminaltitle
+msgctxt "ulng.rsmfstbiterminaltitle"
+msgid "Terminal"
+msgstr "终端"
+
+#: ulng.rsmfstbitreeviewtips
+msgctxt "ulng.rsmfstbitreeviewtips"
+msgid "Show Tree View Panel"
+msgstr "显示文件树状图面板"
+
+#: ulng.rsmfstbitreeviewtitle
+msgctxt "ulng.rsmfstbitreeviewtitle"
+msgid "TreeView"
+msgstr "树状图"
 
 #: ulng.rsmnuactions
 msgctxt "ulng.rsmnuactions"
@@ -10830,6 +11114,14 @@ msgstr "弹出"
 #: ulng.rsmnuextracthere
 msgid "Extract here..."
 msgstr "解压缩到此处..."
+
+#: ulng.rsmnuiclouddriverdownloadnow
+msgid "Download Now"
+msgstr "现在下载"
+
+#: ulng.rsmnuiclouddriverremovedownload
+msgid "Remove Download"
+msgstr "移除下载项"
 
 #: ulng.rsmnumount
 msgid "Mount"
@@ -10884,6 +11176,24 @@ msgstr "卸载"
 msgctxt "ulng.rsmnuview"
 msgid "View"
 msgstr "查看"
+
+#: ulng.rsmountedfilesourcecopymultifilestowcxdlgmessage
+msgid ""
+"Some virtual filesystem contain specific directory structures. When copying from it to a compressed archive, only one directory can be selected at a time, unless the actual locations of the selected directories are all located under the same parent directory.\n"
+"\n"
+"For example, for iCloud Drive, when copying directory from the root to a compressed archive, maybe only one directory should be selected.\n"
+"\n"
+"It is recommended that you follow your usual practice and try to select only one directory when you receive this prompt."
+msgstr ""
+"某些虚拟文件系统，内部包含异构的目录结构。从中复制到压缩档案时，一次只能选中一个目录。除非选中的目录对应的实际位置，都位于相同的父目录下。\n"
+"\n"
+"例如对于iCloud云盘，在根目录下复制目录到压缩档案时，就有可能一次只能选中一个目录。\n"
+"\n"
+"建议先按照您的习惯操作，在收到这个提示时，才尝试一次只选中一个目录。"
+
+#: ulng.rsmountedfilesourcecopymultifilestowcxdlgtitle
+msgid "The operation is not supported"
+msgstr "不支持该操作"
 
 #: ulng.rsmsgaccount
 msgid "Account:"
@@ -12995,6 +13305,7 @@ msgid "Drives list button"
 msgstr "驱动器列表按钮"
 
 #: ulng.rsoptionseditorfavoritetabs
+msgctxt "ulng.rsoptionseditorfavoritetabs"
 msgid "Favorite Tabs"
 msgstr "收藏夹标签"
 
@@ -13113,6 +13424,26 @@ msgstr ""
 msgctxt "ulng.rsoptionseditorplugins"
 msgid "Plugins"
 msgstr "插件"
+
+#: ulng.rsoptionseditorpluginsdsx
+msgid "Search plugins"
+msgstr ""
+
+#: ulng.rsoptionseditorpluginswcx
+msgid "Packer plugins"
+msgstr ""
+
+#: ulng.rsoptionseditorpluginswdx
+msgid "Content plugins"
+msgstr ""
+
+#: ulng.rsoptionseditorpluginswfx
+msgid "File system plugins"
+msgstr ""
+
+#: ulng.rsoptionseditorpluginswlx
+msgid "Viewer plugins"
+msgstr ""
 
 #: ulng.rsoptionseditorquicksearch
 msgid "Quick search/filter"

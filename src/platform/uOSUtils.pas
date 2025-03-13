@@ -215,6 +215,15 @@ begin
   if LowerCase(ExtractOnlyFileExt(FileName)) = 'lnk' then
     Result:= SHFileIsLinkToFolder(FileName, LinkTarget);
 end;
+{$ELSEIF DEFINED(DARWIN)}
+begin
+  LinkTarget:= ResolveAliasFile(FileName);
+  if mbCompareFileNames(FileName, LinkTarget) then
+    Result:= False
+  else begin
+    Result:= mbDirectoryExists(LinkTarget);
+  end;
+end;
 {$ELSEIF DEFINED(UNIX)}
 begin
   Result:= False;
@@ -396,7 +405,7 @@ begin
         // Special case Microsoft Photos
         if (AppID = 'Microsoft.Windows.Photos_8wekyb3d8bbwe!App') then
         begin
-          if (Win32BuildNumber >= 22631) then
+          if CheckPhotosVersion then
           begin
             URL:= URIEncode(URL);
             URL:= 'ms-photos:viewer?fileName=' + StringReplace(URL, '%5C', '\', [rfReplaceAll]);
@@ -498,6 +507,7 @@ begin
     Exit(GetFreeMem(FreeSize, TotalSize));
   end;
 {$ENDIF}
+  if (sbfs.blocks = 0) then Exit(False);
   FreeSize := (Int64(sbfs.bavail) * sbfs.bsize);
   TotalSize := (Int64(sbfs.blocks) * sbfs.bsize);
 end;

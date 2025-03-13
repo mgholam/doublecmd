@@ -762,15 +762,27 @@ procedure TfrmFileOp.SetProgressBytes(Operation: TFileSourceOperation;
   ProgressBar: TKASProgressBar; CurrentBytes: Int64; TotalBytes: Int64);
 begin
   if (CurrentBytes = -1) then
-    ProgressBar.Style := pbstMarquee
+  begin
+    ProgressBar.Style := pbstMarquee;
+    ProgressBar.BarShowText := False;
+  end
   else begin
-    if Operation.State = fsosRunning then ProgressBar.Style := pbstNormal;
+    if (ProgressBar.Style = pbstMarquee) and (Operation.State = fsosRunning) then
+    begin
+      if (TotalBytes <> 0) then
+      begin
+        ProgressBar.Style := pbstNormal;
+        ProgressBar.BarShowText := True;
+      end;
+    end;
 
     // Show only percent
     if TotalBytes < 0 then
     begin
       ProgressBar.SetProgress(CurrentBytes, -TotalBytes, EmptyStr);
     end
+    else if TotalBytes = 0 then
+      ProgressBar.BarShowText := False
     else begin
       ProgressBar.SetProgress(CurrentBytes, TotalBytes,
                               cnvFormatFileSize(CurrentBytes, uoscOperation) + '/' +
@@ -784,15 +796,27 @@ procedure TfrmFileOp.SetProgressFiles(Operation: TFileSourceOperation;
   ProgressBar: TKASProgressBar; CurrentFiles: Int64; TotalFiles: Int64);
 begin
   if (CurrentFiles = -1) then
-    ProgressBar.Style := pbstMarquee
+  begin
+    ProgressBar.Style := pbstMarquee;
+    ProgressBar.BarShowText := False;
+  end
   else begin
-    if Operation.State = fsosRunning then ProgressBar.Style := pbstNormal;
+    if (ProgressBar.Style = pbstMarquee) and (Operation.State = fsosRunning) then
+    begin
+      if (TotalFiles <> 0) then
+      begin
+        ProgressBar.Style := pbstNormal;
+        ProgressBar.BarShowText := True;
+      end;
+    end;
 
     // Show only percent
     if TotalFiles < 0 then
     begin
       ProgressBar.SetProgress(CurrentFiles, -TotalFiles, EmptyStr);
     end
+    else if TotalFiles = 0 then
+      ProgressBar.BarShowText := False
     else begin
       ProgressBar.SetProgress(CurrentFiles, TotalFiles,
                               IntToStrTS(CurrentFiles) + '/' +
@@ -946,6 +970,7 @@ end;
 
 procedure TfrmFileOp.UpdateCopyOperation(Operation: TFileSourceOperation);
 var
+  Speed: String;
   CopyOperation: TFileSourceCopyOperation;
   CopyStatistics: TFileSourceCopyOperationStatistics;
 begin
@@ -957,15 +982,21 @@ begin
     SetLabelCaption(lblFileNameFrom, CurrentFileFrom);
     SetLabelCaption(lblFileNameTo, CurrentFileTo);
 
+    if (TotalBytes < 0) then
+      Speed:= '?'
+    else begin
+      Speed:= cnvFormatFileSize(BytesPerSecond, uoscOperation);
+    end;
     SetProgressCount(Operation, DoneFiles, TotalFiles);
     SetProgressBytes(Operation, pbCurrent, CurrentFileDoneBytes, CurrentFileTotalBytes);
     SetProgressBytes(Operation, pbTotal, DoneBytes, TotalBytes);
-    SetSpeedAndTime(Operation, RemainingTime, cnvFormatFileSize(BytesPerSecond, uoscOperation));
+    SetSpeedAndTime(Operation, RemainingTime, Speed);
   end;
 end;
 
 procedure TfrmFileOp.UpdateMoveOperation(Operation: TFileSourceOperation);
 var
+  Speed: String;
   MoveOperation: TFileSourceMoveOperation;
   MoveStatistics: TFileSourceMoveOperationStatistics;
 begin
@@ -977,10 +1008,15 @@ begin
     SetLabelCaption(lblFileNameFrom, CurrentFileFrom);
     SetLabelCaption(lblFileNameTo, CurrentFileTo);
 
+    if (TotalBytes < 0) then
+      Speed:= '?'
+    else begin
+      Speed:= cnvFormatFileSize(BytesPerSecond, uoscOperation);
+    end;
     SetProgressCount(Operation, DoneFiles, TotalFiles);
     SetProgressBytes(Operation, pbCurrent, CurrentFileDoneBytes, CurrentFileTotalBytes);
     SetProgressBytes(Operation, pbTotal, DoneBytes, TotalBytes);
-    SetSpeedAndTime(Operation, RemainingTime, cnvFormatFileSize(BytesPerSecond, uoscOperation));
+    SetSpeedAndTime(Operation, RemainingTime, Speed);
   end;
 end;
 

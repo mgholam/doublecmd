@@ -3,7 +3,7 @@
    -------------------------------------------------------------------------
    Build-in File Viewer.
 
-   Copyright (C) 2007-2024  Alexander Koblov (alexx2000@mail.ru)
+   Copyright (C) 2007-2025  Alexander Koblov (alexx2000@mail.ru)
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -61,7 +61,8 @@ uses
   Grids, ActnList, viewercontrol, GifAnim, fFindView, WLXPlugin, uWLXModule,
   uFileSource, fModView, Types, uThumbnails, uFormCommands, uOSForms,Clipbrd,
   uExifReader, KASStatusBar, SynEdit, uShowForm, uRegExpr, uRegExprU,
-  Messages, fEditSearch, uMasks, uSearchTemplate;
+  Messages, fEditSearch, uMasks, uSearchTemplate, uFileSourceOperation,
+  uFileSourceCalcStatisticsOperation;
 
 type
 
@@ -74,13 +75,25 @@ type
   TDrawGrid = class(Grids.TDrawGrid)
   private
     FMutex: Integer;
+    FFileList: TStringList;
   private
     function GetIndex: Integer;
     procedure SetIndex(AValue: Integer);
   protected
+    procedure CalculateColRowCount;
+    function MouseOnGrid(X, Y: LongInt): Boolean;
+    function  CellToIndex(ACol, ARow: Integer): Integer;
+    procedure IndexToCell(Index: Integer; out ACol, ARow: Integer);
+  protected
     procedure MoveSelection; override;
+    procedure DoAutoAdjustLayout(const AMode: TLayoutAdjustmentPolicy;
+                const AXProportion, AYProportion: Double); override;
+    procedure KeyDown(var Key : Word; Shift : TShiftState); override;
+    procedure MouseDown(Button: TMouseButton; Shift:TShiftState; X,Y: Integer); override;
   public
+    procedure DrawCell(aCol, aRow: Integer; aRect: TRect; aState: TGridDrawState); override;
     property Index: Integer read GetIndex write SetIndex;
+    property FileList: TStringList write FFileList;
   end;
 
   { TfrmViewer }
@@ -233,6 +246,7 @@ type
     TimerReload: TTimer;
     TimerScreenshot: TTimer;
     TimerViewer: TTimer;
+    tmUpdateFolderSize: TTimer;
     ToolBar1: TToolBar;
     btnReload: TToolButton;
     btn270: TToolButton;
@@ -276,8 +290,6 @@ type
     procedure btnRedEyeClick(Sender: TObject);
     procedure btnResizeClick(Sender: TObject);
     procedure btnSlideShowClick(Sender: TObject);
-    procedure DrawPreviewDrawCell(Sender: TObject; aCol, aRow: Integer;
-      aRect: TRect; aState: TGridDrawState);
     procedure DrawPreviewSelection(Sender: TObject; aCol, aRow: Integer);
     procedure DrawPreviewTopleftChanged(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -317,6 +329,9 @@ type
     procedure TimerReloadTimer(Sender: TObject);
     procedure TimerScreenshotTimer(Sender: TObject);
     procedure TimerViewerTimer(Sender: TObject);
+    procedure tmUpdateFolderSizeTimer(Sender: TObject);
+    procedure FileSourceOperationStateChangedNotify(Operation: TFileSourceOperation;
+                                                    State: TFileSourceOperationState);
     procedure ViewerControlMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure frmViewerClose(Sender: TObject; var CloseAction: TCloseAction);
@@ -334,6 +349,8 @@ type
     procedure ViewerPositionChanged(Sender:TObject);
     function  PluginShowFlags : Integer;
     procedure UpdateImagePlacement;
+    procedure StartCalcFolderSize;
+    procedure StopCalcFolderSize;
 
   private
     FFileName: String;
@@ -357,6 +374,7 @@ type
     tmp_all: TCustomBitmap;
     FModSizeDialog: TfrmModView;
     FThumbnailManager: TThumbnailManager;
+    FFileSourceCalcStatisticsOperation: TFileSourceCalcStatisticsOperation;
     FCommands: TFormCommands;
     FZoomFactor: Integer;
     FExif: TExifReader;
@@ -405,7 +423,9 @@ type
     procedure SynEditCaret;
     procedure ExitPluginMode;
     procedure DeleteCurrentFile;
+    procedure EnableCopy(AEnabled: Boolean);
     procedure EnablePrint(AEnabled: Boolean);
+    procedure EnableSearch(AEnabled: Boolean);
     procedure EnableActions(AEnabled: Boolean);
     procedure SavingProperties(Sender: TObject);
     procedure SetFileName(const AValue: String);
@@ -515,7 +535,8 @@ uses
   DCClassesUtf8, uFindMmap, DCStrUtils, uDCUtils, LCLIntf, uDebug, uHotkeyManager,
   uConvEncoding, DCBasicTypes, DCOSUtils, uOSUtils, uFindByrMr, uFileViewWithGrid,
   fPrintSetup, uFindFiles, uAdministrator, uOfficeXML, uHighlighterProcs, dmHigh,
-  SynEditTypes, uFile, uFileSystemFileSource, uFileProcs
+  SynEditTypes, uFile, uFileSystemFileSource, uFileProcs, uOperationsManager,
+  uFileSourceOperationOptions
 {$IFDEF LCLGTK2}
   , uGraphics
 {$ENDIF}
@@ -570,7 +591,7 @@ begin
   //DCDebug('ShowViewer - Using Internal');
   Viewer := TfrmViewer.Create(Application, WaitData);
   Viewer.FileList.Assign(FilesToView);// Make a copy of the list
-  Viewer.DrawPreview.RowCount:= Viewer.FileList.Count;
+  Viewer.DrawPreview.FileList:= Viewer.FileList;
   Viewer.actMoveFile.Enabled := FilesToView.Count > 1;
   Viewer.actDeleteFile.Enabled := FilesToView.Count > 1;
   with Viewer.ViewerControl do
@@ -614,6 +635,56 @@ begin
   end;
 end;
 
+procedure TDrawGrid.CalculateColRowCount;
+begin
+  if ClientWidth div (DefaultColWidth + 6) > 0 then
+  begin
+    ColCount:= ClientWidth div (DefaultColWidth + 6);
+  end;
+  if Assigned(FFileList) then
+  begin
+    if FFileList.Count mod ColCount > 0 then
+      RowCount:= FFileList.Count div ColCount + 1
+    else begin
+      RowCount:= FFileList.Count div ColCount;
+    end;
+  end;
+end;
+
+function TDrawGrid.MouseOnGrid(X, Y: LongInt): Boolean;
+var
+  bTemp: Boolean;
+  iRow, iCol: LongInt;
+begin
+  bTemp:= AllowOutboundEvents;
+  AllowOutboundEvents:= False;
+  MouseToCell(X, Y, iCol, iRow);
+  AllowOutboundEvents:= bTemp;
+  Result:= not (CellToIndex(iCol, iRow) < 0);
+end;
+
+function TDrawGrid.CellToIndex(ACol, ARow: Integer): Integer;
+begin
+  if (ARow < 0) or (ARow >= RowCount) or (ACol <  0) or (ACol >= ColCount) then Exit(-1);
+  Result:= ARow * ColCount + ACol;
+  if (Result < 0) or (Result >= FFileList.Count) then
+    Result:= -1;
+end;
+
+procedure TDrawGrid.IndexToCell(Index: Integer; out ACol, ARow: Integer);
+begin
+  if (Index < 0) or (Index >= FFileList.Count) or (ColCount = 0) then
+    begin
+      ACol:= -1;
+      ARow:= -1;
+    end
+  else
+    begin
+      ARow:= Index div ColCount;
+      ACol:= Index mod ColCount;
+    end;
+end;
+
 procedure TDrawGrid.MoveSelection;
 begin
   if (FMutex = 0) then
@@ -622,6 +693,125 @@ begin
     inherited MoveSelection;
   finally
     Dec(FMutex)
+  end;
+end;
+
+procedure TDrawGrid.DoAutoAdjustLayout(const AMode: TLayoutAdjustmentPolicy;
+  const AXProportion, AYProportion: Double);
+begin
+  // Don't auto adjust vertical layout
+  inherited DoAutoAdjustLayout(AMode, AXProportion, 1.0);
+end;
+
+procedure TDrawGrid.KeyDown(var Key: Word; Shift: TShiftState);
+var
+  ACol, ARow: Integer;
+begin
+  case Key of
+    VK_LEFT:
+      begin
+        if (Col - 1 < 0) and (Row > 0) then
+        begin
+          MoveExtend(False, ColCount - 1, Row - 1);
+          Key:= 0;
+        end;
+      end;
+    VK_RIGHT:
+      begin
+        if (CellToIndex(Col + 1, Row) < 0) then
+        begin
+          if (Row + 1 < RowCount) then
+            MoveExtend(False, 0, Row + 1)
+          else
+            begin
+              IndexToCell(FFileList.Count - 1, ACol, ARow);
+              MoveExtend(False, ACol, ARow);
+            end;
+          Key:= 0;
+        end;
+      end;
+    VK_HOME:
+      begin
+        MoveExtend(False, 0, 0);
+        Key:= 0;
+      end;
+    VK_END:
+      begin
+        IndexToCell(FFileList.Count - 1, ACol, ARow);
+        MoveExtend(False, ACol, ARow);
+        Key:= 0;
+      end;
+    VK_DOWN:
+      begin
+        if (CellToIndex(Col, Row + 1) < 0) then
+          begin
+            IndexToCell(FFileList.Count - 1, ACol, ARow);
+            MoveExtend(False, ACol, ARow);
+            Key:= 0;
+          end
+      end;
+  end;
+  inherited KeyDown(Key, Shift);
+end;
+
+procedure TDrawGrid.MouseDown(Button: TMouseButton; Shift: TShiftState; X,
+  Y: Integer);
+begin
+  if MouseOnGrid(X, Y) then
+    inherited MouseDown(Button, Shift, X, Y)
+  else begin
+    if Assigned(OnMouseDown) then
+    begin
+      OnMouseDown(Self, Button, Shift, X, Y);
+    end;
+    if not Focused then
+    begin
+      if CanSetFocus then SetFocus;
+    end;
+  end;
+end;
+
+procedure TDrawGrid.DrawCell(aCol, aRow: Integer; aRect: TRect;
+  aState: TGridDrawState);
+var
+  ATextSize: TSize;
+  sFileName: String;
+  bmpThumb: TBitmap;
+  AIndex, X, Y: Integer;
+begin
+  AIndex:= CellToIndex(aCol, aRow);
+
+  if InRange(AIndex, 0, FFileList.Count - 1) then
+  begin
+    PrepareCanvas(aCol, aRow, aState);
+    DefaultDrawCell(aCol, aRow, aRect, aState);
+
+    LCLIntf.InflateRect(aRect, -2, -2);
+    bmpThumb:= TBitmap(FFileList.Objects[AIndex]);
+    sFileName:= ExtractFileName(FFileList.Strings[AIndex]);
+    sFileName:= FitOtherCellText(sFileName, Canvas, aRect.Width);
+    ATextSize:= Canvas.TextExtent(sFileName);
+
+    if Assigned(bmpThumb) then
+    begin
+      // Draw thumbnail at center
+      X:= aRect.Left + (aRect.Width - bmpThumb.Width) div 2;
+      Y:= aRect.Top + (aRect.Height - bmpThumb.Height - ATextSize.Height - 4) div 2;
+      Canvas.Draw(X, Y, bmpThumb);
+    end;
+
+    // Draw file name at center
+    Y:= (aRect.Bottom - ATextSize.Height) - 2;
+    X:= aRect.Left + (aRect.Width - ATextSize.Width) div 2;
+    Canvas.TextOut(X, Y, sFileName);
+
+    // Draw grid
+    LCLIntf.InflateRect(aRect, 2, 2);
+    DrawCellGrid(aCol, aRow, aRect, aState);
+  end
+  else begin
+    Canvas.Brush.Color:= Color;
+    Canvas.FillRect(aRect);
   end;
 end;
 
@@ -714,6 +904,7 @@ end;
 destructor TfrmViewer.Destroy;
 begin
   FExif.Free;
+  StopCalcFolderSize;
   FreeAndNil(FRegExp);
   FreeAndNil(FileList);
   FreeAndNil(FThumbnailManager);
@@ -746,6 +937,11 @@ begin
     Status.Panels[i].Text := '';
 
   dwFileAttributes := mbFileGetAttr(aFileName);
+
+  if FPS_ISLNK(dwFileAttributes) then
+  begin
+    dwFileAttributes := mbFileGetAttrNoLinks(aFileName);
+  end;
 
   if dwFileAttributes = faInvalidAttributes then
   begin
@@ -785,6 +981,7 @@ begin
         memFolder.Lines.Add(rsPropsFolder + ': ');
         memFolder.Lines.Add(aFileName);
         memFolder.Lines.Add('');
+        StartCalcFolderSize;
       end
     else if CheckGraphics(aFileName) and LoadGraphics(aFileName) then
       ActivatePanel(pnlImage)
@@ -1165,13 +1362,13 @@ end;
 procedure TfrmViewer.ImageMouseWheelDown(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: Boolean);
 begin
-  if ssCtrl in Shift then cm_Zoom(['0.9']);
+  if ssCtrl in Shift then ZoomImage(0.9);
 end;
 
 procedure TfrmViewer.ImageMouseWheelUp(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: Boolean);
 begin
-  if ssCtrl in Shift then cm_Zoom(['1.1']);
+  if ssCtrl in Shift then ZoomImage(1.1);
 end;
 
 procedure TfrmViewer.miPenClick(Sender: TObject);
@@ -1393,12 +1590,30 @@ begin
   SplitterChangeBounds;
 end;
 
+procedure TfrmViewer.EnableCopy(AEnabled: Boolean);
+begin
+  actSelectAll.Enabled:= AEnabled;
+  actCopyToClipboard.Enabled:= AEnabled;
+  actSelectAll.Visible:= AEnabled;
+  actCopyToClipboard.Visible:= AEnabled;
+end;
+
 procedure TfrmViewer.EnablePrint(AEnabled: Boolean);
 begin
   actPrint.Enabled:= AEnabled;
   actPrint.Visible:= AEnabled;
   actPrintSetup.Enabled:= AEnabled;
   actPrintSetup.Visible:= AEnabled;
+end;
+
+procedure TfrmViewer.EnableSearch(AEnabled: Boolean);
+begin
+  actFind.Enabled:= AEnabled;
+  actFindNext.Enabled:= AEnabled;
+  actFindPrev.Enabled:= AEnabled;
+  actFind.Visible:= AEnabled;
+  actFindNext.Visible:= AEnabled;
+  actFindPrev.Visible:= AEnabled;
 end;
 
 procedure TfrmViewer.EnableActions(AEnabled: Boolean);
@@ -1903,12 +2118,7 @@ end;
 
 procedure TfrmViewer.SplitterChangeBounds;
 begin
-  if DrawPreview.Width div (DrawPreview.DefaultColWidth+6)>0 then
-    DrawPreview.ColCount:= DrawPreview.Width div (DrawPreview.DefaultColWidth + 6);
-  if FileList.Count mod DrawPreview.ColCount > 0 then
-    DrawPreview.RowCount:= FileList.Count div DrawPreview.ColCount + 1
-  else
-    DrawPreview.RowCount:= FileList.Count div DrawPreview.ColCount;
+  DrawPreview.CalculateColRowCount;
   if bPlugin then FWlxModule.ResizeWindow(GetListerRect);
 end;
 
@@ -1949,40 +2159,6 @@ begin
   TimerScreenshot.Enabled:=False;
   Application.Restore;
   Self.BringToFront;
-end;
-
-procedure TfrmViewer.DrawPreviewDrawCell(Sender: TObject; aCol, aRow: Integer;
-  aRect: TRect; aState: TGridDrawState);
-var
-  ATextSize: TSize;
-  sFileName: String;
-  bmpThumb: TBitmap;
-  Index, X, Y: Integer;
-begin
-  LCLIntf.InflateRect(aRect, -2, -2);
-  // Calculate FileList index
-  Index:= (aRow * DrawPreview.ColCount) + aCol;
-  if (Index >= 0) and (Index < FileList.Count) then
-  begin
-    DrawPreview.Canvas.FillRect(aRect);
-    bmpThumb:= TBitmap(FileList.Objects[Index]);
-    sFileName:= ExtractFileName(FileList.Strings[Index]);
-    sFileName:= FitOtherCellText(sFileName, DrawPreview.Canvas, aRect.Width);
-    ATextSize:= DrawPreview.Canvas.TextExtent(sFileName);
-
-    if Assigned(bmpThumb) then
-    begin
-      // Draw thumbnail at center
-      X:= aRect.Left + (aRect.Width - bmpThumb.Width) div 2;
-      Y:= aRect.Top + (aRect.Height - bmpThumb.Height - ATextSize.Height - 4) div 2;
-      DrawPreview.Canvas.Draw(X, Y, bmpThumb);
-    end;
-
-    // Draw file name at center
-    Y:= (aRect.Bottom - ATextSize.Height) - 2;
-    X:= aRect.Left + (aRect.Width - ATextSize.Width) div 2;
-    DrawPreview.Canvas.TextOut(X, Y, sFileName);
-  end;
 end;
 
 procedure TfrmViewer.DrawPreviewSelection(Sender: TObject; aCol, aRow: Integer);
@@ -2030,6 +2206,30 @@ begin
   begin
    sboxImage.Cursor:= crNone;
    Image.Cursor:= crNone;
+  end;
+end;
+
+procedure TfrmViewer.tmUpdateFolderSizeTimer(Sender: TObject);
+begin
+  if Assigned(FFileSourceCalcStatisticsOperation) then
+    with FFileSourceCalcStatisticsOperation.RetrieveStatistics do
+    begin
+      if Size < 0 then
+        memFolder.Lines[2]:= Format(rsSpaceMsg, [Files, Directories, '???', '???'])
+      else begin
+        memFolder.Lines[2]:= Format(rsSpaceMsg, [Files, Directories, cnvFormatFileSize(Size), IntToStrTS(Size)]);
+      end;
+    end;
+end;
+
+procedure TfrmViewer.FileSourceOperationStateChangedNotify(
+  Operation: TFileSourceOperation; State: TFileSourceOperationState);
+begin
+  if Assigned(FFileSourceCalcStatisticsOperation) and (State = fsosStopped) then
+  begin
+    tmUpdateFolderSize.Enabled:= False;
+    tmUpdateFolderSizeTimer(tmUpdateFolderSize);
+    FFileSourceCalcStatisticsOperation := nil;
   end;
 end;
 
@@ -2085,6 +2285,45 @@ begin
   end;
 end;
 
+procedure TfrmViewer.StartCalcFolderSize;
+var
+  aFile: TFile;
+  aFiles: TFiles;
+  AFileSource: IFileSource;
+begin
+  try
+    aFile:= TFileSystemFileSource.CreateFileFromFile(memFolder.Lines[1]);
+  except
+    Exit;
+  end;
+  aFiles:= TFiles.Create(EmptyStr);
+  try
+    aFiles.Add(aFile);
+    AFileSource:= TFileSystemFileSource.GetFileSource;
+    FFileSourceCalcStatisticsOperation:= AFileSource.CreateCalcStatisticsOperation(aFiles) as TFileSourceCalcStatisticsOperation;
+    if Assigned(FFileSourceCalcStatisticsOperation) then
+    begin
+      FFileSourceCalcStatisticsOperation.SkipErrors:= True;
+      FFileSourceCalcStatisticsOperation.SymLinkOption:= fsooslDontFollow;
+      FFileSourceCalcStatisticsOperation.AddStateChangedListener([fsosStopped], @FileSourceOperationStateChangedNotify);
+      OperationsManager.AddOperation(FFileSourceCalcStatisticsOperation, False);
+      tmUpdateFolderSize.Enabled:= True;
+    end;
+  finally
+    aFiles.Free;
+  end;
+end;
+
+procedure TfrmViewer.StopCalcFolderSize;
+begin
+  if Assigned(FFileSourceCalcStatisticsOperation) then
+  begin
+    tmUpdateFolderSize.Enabled:= False;
+    FFileSourceCalcStatisticsOperation.Stop;
+  end;
+  FFileSourceCalcStatisticsOperation:= nil;
+end;
+
 procedure TfrmViewer.FormCreate(Sender: TObject);
 var
   Index: Integer;
@@ -2115,6 +2354,7 @@ begin
     pmStatusBar.Items.Add(miEncoding);
     pmStatusBar.Items.Add(miImage);
   end;
+  actExitViewer.Enabled:= not bQuickView;
 
   HMViewer := HotMan.Register(Self, HotkeysCategory);
   HMViewer.RegisterActionList(actionList);
@@ -2872,6 +3112,10 @@ begin
       if sEncoding = EncodingUTF8 then
         Buffer := FSynEditOriginalText
       else begin
+        if (sEncoding = EncodingUTF16LE) or (sEncoding = EncodingUTF16BE) then
+        begin
+          FSynEditOriginalText := Copy(FSynEditOriginalText, 3, MaxInt); // Skip BOM
+        end;
         Buffer := ConvertEncoding(FSynEditOriginalText, sEncoding, EncodingUTF8);
       end;
 
@@ -3107,6 +3351,7 @@ begin
 
     if FFindDialog.cbRegExp.Checked then
     begin
+      FRegExp.ModifierI:= not FFindDialog.cbCaseSens.Checked;
       FRegExp.Expression:= sSearchTextU;
       bTextFound:= FRegExp.Exec(FLastSearchPos + FLastMatchLength + 1);
       if bTextFound then
@@ -3324,10 +3569,9 @@ begin
 
   miPlugins.Checked    := (Panel = nil);
   miGraphics.Checked   := (Panel = pnlImage);
-  miEncoding.Visible   := (Panel = nil) or (Panel = pnlText) or (Panel = pnlCode);
+  miEncoding.Visible   := (Panel = pnlText) or (Panel = pnlCode) or (bPlugin and FWlxModule.CanCommand);
   miAutoReload.Visible := (Panel = pnlText);
-  miEdit.Visible       := (Panel = pnlText) or (Panel = pnlCode) or (Panel = nil);
-  miImage.Visible      := (bImage or bPlugin);
+  miImage.Visible      := (bImage or (bPlugin and FWlxModule.CanCommand));
   miRotate.Visible     := bImage;
   miZoomIn.Visible     := bImage;
   miZoomOut.Visible    := bImage;
@@ -3340,15 +3584,24 @@ begin
 
   actGotoLine.Enabled  := (Panel = pnlCode);
   actShowCaret.Enabled := (Panel = pnlText) or (Panel = pnlCode);
-  actWrapText.Enabled  := bPlugin or ((Panel = pnlText) and (ViewerControl.Mode in [vcmText, vcmWrap]));
+  actWrapText.Enabled  := (bPlugin and FWlxModule.CanCommand) or ((Panel = pnlText) and (ViewerControl.Mode in [vcmText, vcmWrap]));
 
   miGotoLine.Visible       := (Panel = pnlCode);
   miDiv5.Visible           := (Panel = pnlText) or (Panel = pnlCode);
   pmiSelectAll.Visible     := (Panel = pnlText) or (Panel = pnlCode);
   pmiCopyFormatted.Visible := (Panel = pnlText);
 
+  EnableCopy((Panel = pnlText) or (Panel = pnlCode) or (bPlugin and FWlxModule.CanCommand));
+  EnableSearch((Panel = pnlText) or (Panel = pnlCode) or (bPlugin and FWlxModule.CanSearch));
+
+  miDiv3.Visible:= actFind.Visible and actCopyToClipboard.Visible;
+
+  miEdit.Visible:= (actFind.Visible or actCopyToClipboard.Visible);
+
   if (Panel <> pnlText) and actAutoReload.Checked then
     cm_AutoReload([]);
+
+  StopCalcFolderSize;
 end;
 
 procedure TfrmViewer.cm_About(const Params: array of string);
@@ -3772,6 +4025,8 @@ end;
 
 procedure TfrmViewer.cm_Preview(const Params: array of string);
 begin
+  if not actPreview.Enabled then Exit;
+
   miPreview.Checked:= not (miPreview.Checked);
   pnlPreview.Visible := miPreview.Checked;
   Splitter.Visible := pnlPreview.Visible;
@@ -3875,7 +4130,7 @@ end;
 
 procedure TfrmViewer.cm_ExitViewer(const Params: array of string);
 begin
-  Close;
+  if not bQuickView then Close;
 end;
 
 procedure TfrmViewer.cm_Print(const Params: array of string);

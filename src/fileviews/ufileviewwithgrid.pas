@@ -7,7 +7,8 @@ interface
 uses
   Classes, SysUtils, Controls, Grids, Graphics, StdCtrls, LCLVersion,
   uDisplayFile, DCXmlConfig, uFileSorting, uFileProperty,
-  uFileViewWithMainCtrl, uFile, uFileViewHeader, uFileView, uFileSource;
+  uFileViewWithMainCtrl, uFile, uFileViewHeader, uFileView, uFileSource,
+  uSmoothScrollingGrid;
 
 type
 
@@ -15,7 +16,7 @@ type
 
   { TFileViewGrid }
 
-  TFileViewGrid = class(TDrawGrid)
+  TFileViewGrid = class(TSmoothScrollingGrid)
   protected
     FLastMouseMoveTime: QWord;
     FLastMouseScrollTime: QWord;
@@ -618,6 +619,9 @@ begin
                            fpAttributes,      // For distinguishing directories
                            fpLink,            // For distinguishing directories (link to dir) and link icons
                            fpModificationTime // For selecting/coloring files (by SearchTemplate)
+                           {$IFDEF DARWIN}
+                           ,fpMacOSSpecific   // macOS
+                           {$ENDIF}
                           ];
 end;
 
@@ -660,6 +664,8 @@ end;
 
 function TFileViewWithGrid.GetActiveFileIndex: PtrInt;
 begin
+  if dgPanel=nil then
+    Exit;
   Result := dgPanel.CellToIndex(dgPanel.Col, dgPanel.Row);
 end;
 

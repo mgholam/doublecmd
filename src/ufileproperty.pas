@@ -12,6 +12,7 @@ const
   FOLDER_SIZE_ZERO = -1;
   FOLDER_SIZE_WAIT = -2;
   FOLDER_SIZE_CALC = -3;
+  FOLDER_SIZE_ERRO = -4;
 
 type
 
@@ -28,7 +29,8 @@ type
     fpLink = 9,
     fpType = 10,
     fpComment = 11,
-    fpInvalid = 12,
+    fpMacOSSpecific = 12,
+    fpInvalid = 13,
     fpVariant = 128,
     fpMaximum = 255
   );
@@ -420,6 +422,42 @@ type
     property Value: String read FComment write FComment;
 
   end;
+
+  {$IFDEF DARWIN}
+  { TFileFinderTagPrimaryColors }
+
+  TFileFinderTagPrimaryColors = record
+    case Byte of
+      0: (intValue: Integer);
+      1: (indexes: array [0..2] of int8);
+  end;
+
+  { TFileMacOSSpecificProperty }
+
+  TFileMacOSSpecificProperty = class(TFileProperty)
+
+  private
+    FFinderTagPrimaryColors: TFileFinderTagPrimaryColors;
+    FIsiCloudSeedFile: Boolean;
+
+  public
+    constructor Create; override;
+
+    function Clone: TFileMacOSSpecificProperty; override;
+    procedure CloneTo(FileProperty: TFileProperty); override;
+
+    class function GetDescription: String; override;
+    class function GetID: TFilePropertyType; override;
+
+    function Equals(p: TObject): Boolean; override;
+
+    function Format({%H-}Formatter: IFilePropertyFormatter): String; override;
+
+    property FinderTagPrimaryColors: TFileFinderTagPrimaryColors read FFinderTagPrimaryColors write FFinderTagPrimaryColors;
+    property IsiCloudSeedFile: Boolean read FIsiCloudSeedFile write FIsiCloudSeedFile;
+
+  end;
+  {$ENDIF}
 
   { TFileVariantProperty }
 
@@ -1204,6 +1242,62 @@ function TFileCommentProperty.Format(Formatter: IFilePropertyFormatter): String;
 begin
   Result:= FComment;
 end;
+
+{$IFDEF DARWIN}
+
+{ TFileMacOSSpecificProperty }
+
+constructor TFileMacOSSpecificProperty.Create;
+begin
+  inherited Create;
+  FFinderTagPrimaryColors.intValue:= -1;
+end;
+
+function TFileMacOSSpecificProperty.Clone: TFileMacOSSpecificProperty;
+begin
+  Result := TFileMacOSSpecificProperty.Create;
+  CloneTo(Result);
+end;
+
+procedure TFileMacOSSpecificProperty.CloneTo(FileProperty: TFileProperty);
+begin
+  if Assigned(FileProperty) then
+  begin
+    inherited CloneTo(FileProperty);
+
+    with FileProperty as TFileMacOSSpecificProperty do
+    begin
+      FFinderTagPrimaryColors := Self.FFinderTagPrimaryColors;
+      FIsiCloudSeedFile := Self.FIsiCloudSeedFile;
+    end;
+  end;
+end;
+
+class function TFileMacOSSpecificProperty.GetDescription: String;
+begin
+  Result:= '';
+end;
+
+class function TFileMacOSSpecificProperty.GetID: TFilePropertyType;
+begin
+  Result := fpMacOSSpecific;
+end;
+
+function TFileMacOSSpecificProperty.Equals(p: TObject): Boolean;
+begin
+  Result:= false;
+  if not (p is TFileMacOSSpecificProperty) then exit;
+  if self.FFinderTagPrimaryColors.intValue <> TFileMacOSSpecificProperty(p).FFinderTagPrimaryColors.intValue then exit;
+  if self.FIsiCloudSeedFile <> TFileMacOSSpecificProperty(p).FIsiCloudSeedFile then Exit;
+  Result:= true;
+end;
+
+function TFileMacOSSpecificProperty.Format(Formatter: IFilePropertyFormatter): String;
+begin
+  Result:= '';
+end;
+
+{$ENDIF}
 
 { TFileVariantProperty }
 
