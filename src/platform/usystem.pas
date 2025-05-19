@@ -9,6 +9,9 @@ uses
 {$IF DEFINED(MSWINDOWS)}
   , Windows
 {$ENDIF}
+{$IF DEFINED(LCLQT6)}
+  , Qt6
+{$ENDIF}
   ;
 
 procedure Initialize;
@@ -24,8 +27,18 @@ begin
 {$ENDIF}
 end;
 
+{$IF DEFINED(LCLQT6)}
+procedure InitializeOnce;
+begin
+  QCoreApplication_setAttribute(QtAA_ShareOpenGLContexts, True);
+end;
+{$ENDIF}
+
 initialization
   Initialize;
+{$IF DEFINED(LCLQT6)}
+  InitializeOnce;
+{$ENDIF}
 
 end.
 

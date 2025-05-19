@@ -1897,36 +1897,37 @@ function mbLoadLibraryEx(const Name: String): TLibHandle;
 const
   PATH_ENV = 'PATH';
 var
+  dwFlags:DWORD;
   APath: String;
-  FullName: String;
+  APathType: TPathType;
   usName: UnicodeString;
 begin
-  FullName:= Name;
+  usName:= CeUtf8ToUtf16(Name);
+  APathType:= GetPathType(Name);
 
-  if GetPathType(Name) = ptNone then
+  if CheckWin32Version(10) or (GetProcAddress(GetModuleHandleW(Kernel32), 'AddDllDirectory') <> nil) then
   begin
-    FindInSystemPath(FullName);
-  end;
-  usName:= CeUtf8ToUtf16(FullName);
-
-  if CheckWin32Version(10)then
-  begin
-    Result:= LoadLibraryExW(PWideChar(usName), 0, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR or LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
-  end
-  else if CheckWin32Version(6) then
-  begin
-    SetDllDirectoryW(PWideChar(ExtractFileDir(usName)));
-    try
-      Result:= LoadLibraryW(PWideChar(usName));
-    finally
-      SetDllDirectoryW(nil);
+    if APathType <> ptAbsolute then
+      dwFlags:= 0
+    else begin
+      dwFlags:= LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR;
     end;
+    Result:= LoadLibraryExW(PWideChar(usName), 0, dwFlags or LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
   end
   else begin
     APath:= mbGetEnvironmentVariable(PATH_ENV);
     try
-      mbSetEnvironmentVariable(PATH_ENV, ExtractFileDir(Name));
-      Result:= LoadLibraryW(PWideChar(usName));
+      if APathType <> ptAbsolute then
+        SetDllDirectoryW(PWideChar(''))
+      else begin
+        SetDllDirectoryW(PWideChar(ExtractFileDir(usName)));
+      end;
+      try
+        SetEnvironmentVariableW(PATH_ENV, nil);
+        Result:= LoadLibraryW(PWideChar(usName));
+      finally
+        SetDllDirectoryW(nil);
+      end;
     finally
       mbSetEnvironmentVariable(PATH_ENV, APath);
     end;

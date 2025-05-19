@@ -388,7 +388,7 @@ uses
   {$ENDIF}
   {$IFDEF MSWINDOWS}
     , ActiveX, CommCtrl, ShellAPI, Windows, DCFileAttributes, uBitmap, uGdiPlus,
-      DCConvertEncoding, uShlObjAdditional, uShellFolder,
+      DCConvertEncoding, uShlObjAdditional, uShellFolder, uMyWindows,
       uShellFileSourceUtil
   {$ELSE}
     , StrUtils, Types, DCBasicTypes
@@ -1658,7 +1658,6 @@ begin
   FSysImgList := SHGetSystemImageList(iIconSize);
 
   FOneDrivePath := TStringList.Create;
-  FOneDrivePath.CaseSensitive := FileNameCaseSensitive;
   {$ENDIF}
 
   {$IF DEFINED(MSWINDOWS) and DEFINED(LCLQT5)}
@@ -1793,20 +1792,7 @@ begin
     FiEmblemOnline:= CheckAddThemePixmap('emblem-cloud-online', I);
     FiEmblemOffline:= CheckAddThemePixmap('emblem-cloud-offline', I);
     // Microsoft OneDrive folders
-    if GetKnownFolderPath(FOLDERID_SkyDrive, sPixMap) then
-    begin
-      if (Length(sPixMap) > 0) then FOneDrivePath.Add(sPixMap);
-    end;
-    sPixMap:= mbGetEnvironmentVariable('OneDriveConsumer');
-    if (Length(sPixMap) > 0) and (FOneDrivePath.IndexOf(sPixMap) < 0) then
-    begin
-      FOneDrivePath.Add(sPixMap);
-    end;
-    sPixMap:= mbGetEnvironmentVariable('OneDriveCommercial');
-    if (Length(sPixMap) > 0) and (FOneDrivePath.IndexOf(sPixMap) < 0) then
-    begin
-      FOneDrivePath.Add(sPixMap);
-    end;
+    GetOneDriveFolders(FOneDrivePath);
   end;
   FiShortcutIconID := -1;
   if gShowIcons > sim_standart then
@@ -2219,10 +2205,9 @@ begin
     if IsDirectory or IsLinkToDirectory then
     begin
       {$IF DEFINED(MSWINDOWS)}
-      if (IconsMode = sim_standart) or
-         // Directory has special icon only if it has "read only" or "system" attributes
-         // and contains desktop.ini file
-         (not (DirectAccess and ((Attributes and FILE_ATTRIBUTE_ICON) <> 0) and mbFileExists(FullPath + '\desktop.ini'))) or
+      if (IconsMode < sim_all_and_exe) or
+         // Directory can has a special icon only when it has a "read only" or "system" attribute
+         (not (DirectAccess and ((Attributes and FILE_ATTRIBUTE_ICON) <> 0))) or
          (ScreenInfo.ColorDepth < 16) then
       {$ELSEIF DEFINED(UNIX) AND NOT (DEFINED(DARWIN) OR DEFINED(HAIKU))}
       if (IconsMode = sim_all_and_exe) and (DirectAccess) then
@@ -2745,10 +2730,14 @@ begin
 end;
 
 procedure LoadPixMapManager;
+var
+  Q: QWord;
 begin
+  Q:= GetTickCount64;
   DCDebug('Creating PixmapManager');
   PixMapManager:=TPixMapManager.Create;
   PixMapManager.Load(gpCfgDir + 'pixmaps.txt');
+  DCDebug('Creating PixmapManager done '+ IntToStr(GetTickCount64 - Q));
 end;
 
 initialization

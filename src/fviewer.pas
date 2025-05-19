@@ -62,7 +62,7 @@ uses
   uFileSource, fModView, Types, uThumbnails, uFormCommands, uOSForms,Clipbrd,
   uExifReader, KASStatusBar, SynEdit, uShowForm, uRegExpr, uRegExprU,
   Messages, fEditSearch, uMasks, uSearchTemplate, uFileSourceOperation,
-  uFileSourceCalcStatisticsOperation;
+  uFileSourceCalcStatisticsOperation, KASComCtrls, LCLVersion;
 
 type
 
@@ -155,7 +155,7 @@ type
     btnDeleteFile1: TSpeedButton;
     btnMoveFile1: TSpeedButton;
     btnNext1: TSpeedButton;
-    btnPenColor: TColorButton;
+    btnPenColor: TToolButtonClr;
     btnPrev1: TSpeedButton;
     btnReload1: TSpeedButton;
     DrawPreview: TDrawGrid;
@@ -247,7 +247,7 @@ type
     TimerScreenshot: TTimer;
     TimerViewer: TTimer;
     tmUpdateFolderSize: TTimer;
-    ToolBar1: TToolBar;
+    ToolBar1: TToolBarAdv;
     btnReload: TToolButton;
     btn270: TToolButton;
     btn90: TToolButton;
@@ -390,6 +390,9 @@ type
     FPluginEncoding: Integer;
     //---------------------
     FSynEditOriginalText: String;
+{$if lcl_fullversion >= 4990000}
+    FSynEditWrap: TLazSynEditPlugin;
+{$endif}
     FSearchOptions: TEditSearchOptions;
     FHighlighter: TSynCustomHighlighter;
     //---------------------
@@ -537,6 +540,9 @@ uses
   fPrintSetup, uFindFiles, uAdministrator, uOfficeXML, uHighlighterProcs, dmHigh,
   SynEditTypes, uFile, uFileSystemFileSource, uFileProcs, uOperationsManager,
   uFileSourceOperationOptions
+{$if lcl_fullversion >= 4990000}
+  , SynEditWrappedView
+{$endif}
 {$IFDEF LCLGTK2}
   , uGraphics
 {$ENDIF}
@@ -920,7 +926,6 @@ begin
   ToolBar1.ImagesWidth:= gToolIconsSize;
   ToolBar1.SetButtonSize(gToolIconsSize + ScaleX(6, 96),
                          gToolIconsSize + ScaleY(6, 96));
-  ToolBar1.Wrapable:= True;
 end;
 
 procedure TfrmViewer.LoadFile(const aFileName: String);
@@ -3071,6 +3076,11 @@ begin
       MarkupInfo.Background:= clBtnFace;
       MarkupInfo.Foreground:= clBtnText;
     end;
+{$if lcl_fullversion >= 4990000}
+    if gViewerWrapText then begin
+      FSynEditWrap:= TLazSynEditLineWrapPlugin.Create(SynEdit);
+    end;
+{$endif}
     SynEdit.Options:= gEditorSynEditOptions;
     SynEdit.TabWidth := gEditorSynEditTabWidth;
     SynEdit.RightEdge := gEditorSynEditRightEdge;
@@ -3585,7 +3595,11 @@ begin
 
   actGotoLine.Enabled  := (Panel = pnlCode);
   actShowCaret.Enabled := (Panel = pnlText) or (Panel = pnlCode);
-  actWrapText.Enabled  := (bPlugin and FWlxModule.CanCommand) or ((Panel = pnlText) and (ViewerControl.Mode in [vcmText, vcmWrap]));
+  actWrapText.Enabled  := (bPlugin and FWlxModule.CanCommand) or ((Panel = pnlText) and (ViewerControl.Mode in [vcmText, vcmWrap]))
+{$if lcl_fullversion >= 4990000}
+    or (Panel = pnlCode);
+{$endif}
+  ;
 
   miGotoLine.Visible       := (Panel = pnlCode);
   miDiv5.Visible           := (Panel = pnlText) or (Panel = pnlCode);
@@ -3821,6 +3835,7 @@ begin
       miStretchOnlyLarge.Checked:= False;
       if miPreview.Checked then cm_Preview(['']);
       actFullscreen.ImageIndex:= 25;
+      sboxImage.BorderStyle:= bsNone;
     end
   else
     begin
@@ -3835,6 +3850,7 @@ begin
 {$ENDIF}
       ToolBar1.Visible:= True;
       actFullscreen.ImageIndex:= 22;
+      sboxImage.BorderStyle:= bsSingle;
     end;
   if ExtractOnlyFileExt(FileList.Strings[iActiveFile]) <> 'gif' then
   begin
@@ -4165,6 +4181,10 @@ begin
 end;
 
 procedure TfrmViewer.cm_WrapText(const Params: array of string);
+{$if lcl_fullversion >= 4990000}
+var
+  TopLine: Integer;
+{$endif}
 begin
   gViewerWrapText:= not gViewerWrapText;
   actWrapText.Checked:= gViewerWrapText;
@@ -4173,6 +4193,19 @@ begin
     FWlxModule.CallListSendCommand(lc_newparams, PluginShowFlags)
   else if not miGraphics.Checked then
   begin
+{$if lcl_fullversion >= 4990000}
+    if miCode.Checked then
+    begin
+      TopLine:= SynEdit.TopLine;
+      if gViewerWrapText then
+        FSynEditWrap:= TLazSynEditLineWrapPlugin.Create(SynEdit)
+      else begin
+        FreeAndNil(FSynEditWrap);
+      end;
+      SynEdit.TopLine:= TopLine;
+    end
+    else
+{$endif}
     if ViewerControl.Mode in [vcmText, vcmWrap] then
     begin
       ViewerControl.Mode:= WRAP_MODE[gViewerWrapText];
