@@ -19,7 +19,7 @@ uses
   Classes, SysUtils,
   WfxPlugin, Extension,
   uCloudDriver, uCloudRootDriver,
-  uWFXPlugin, uWFXConfig, uWFXOptionsWindow, uWFXUtil,
+  uWFXPlugin, uWFXConfig, uWFXOptionsCommonRS, uWFXOptionsWindow, uWFXUtil,
   uMiniUtil;
 
 procedure ExtensionInitialize(StartupInfo: PExtensionStartupInfo); cdecl;
@@ -48,10 +48,12 @@ begin
     if WFXMacCloudPlugin <> nil then begin
       WFXMacCloudPlugin.configPath:= configPath;
       WFXMacCloudPlugin.pluginPath:= StartupInfo^.PluginDir;
+      WFXMacCloudPlugin.languageID:= StartupInfo^.LanguageID;
       WFXMacCloudPlugin.TranslateResourceStrings(StartupInfo);
+      TWFXCloudDriverConfigManager.initMacCloudDriverManager;
+      WFXCloudDriverConfigManager.loadFromCommon( configPath );
+      WFXCloudDriverConfigManager.loadFromSecurity;
     end;
-    WFXCloudDriverConfigManager.loadFromCommon( configPath );
-    WFXCloudDriverConfigManager.loadFromSecurity;
   except
     on e: Exception do
       TLogUtil.logError( 'error in ExtensionInitialize(): ' + e.Message );
@@ -431,7 +433,7 @@ var
       Exit( FS_EXEC_YOURSELF );
 
     if utf8Verb = 'open' then begin
-      if parser.connectionName = CONST_ADD_NEW_CONNECTION then begin
+      if parser.connectionName = rsAddNewConnection then begin
         TWFXOptionsUtil.addAndShow;
         TCloudRootHelper.saveConfig;
       end else begin
