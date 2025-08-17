@@ -73,6 +73,8 @@ type
 
   TfrmMain = class(TAloneForm, IFormCommands)
     actAddPlugin: TAction;
+    actMainFontZoomOut: TAction;
+    actMainFontZoomIn: TAction;
     actMapNetworkDrive: TAction;
     actShowTabsList: TAction;
     actSaveFileDetailsToFile: TAction;
@@ -1277,7 +1279,7 @@ end;
 procedure TfrmMain.btnF3MouseWheelDown(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: Boolean);
 begin
-  if (ssCtrl in Shift) and (gFonts[dcfFunctionButtons].Size > gFonts[dcfFunctionButtons].MinValue) then
+  if gZoomWithCtrlWheel and (ssCtrl in Shift) and (gFonts[dcfFunctionButtons].Size > gFonts[dcfFunctionButtons].MinValue) then
   begin
     Dec(gFonts[dcfFunctionButtons].Size);
     UpdateGUIFunctionKeys;
@@ -1287,7 +1289,7 @@ end;
 procedure TfrmMain.btnF3MouseWheelUp(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: Boolean);
 begin
-  if (ssCtrl in Shift) and (gFonts[dcfFunctionButtons].Size < gFonts[dcfFunctionButtons].MaxValue) then
+  if gZoomWithCtrlWheel and (ssCtrl in Shift) and (gFonts[dcfFunctionButtons].Size < gFonts[dcfFunctionButtons].MaxValue) then
   begin
     Inc(gFonts[dcfFunctionButtons].Size);
     UpdateGUIFunctionKeys;
@@ -3711,6 +3713,15 @@ begin
           Exit;
 
         params.targetPath := CopyDialog.edtDst.Text;
+        BaseDir := ExtractFilePath(params.targetPath);
+
+        // Path was removed and target filesource is not equal to source filesource
+        if (Length(BaseDir) = 0) and (not params.targetFS.Equals(params.sourceFS)) then
+        begin
+          MessageDlg(rsMsgInvalidPath, rsMsgCannotChangeTarget, mtError, [mbOK], 0);
+          Exit;
+        end;
+
         FileSourceManager.confirmOperation( params );
 
         if SourceFileSource.IsClass(TArchiveFileSource) then
@@ -3724,7 +3735,7 @@ begin
                                   BaseDir, TargetPath, sDstMaskTemp);
         params.resultTargetPath:= TargetPath;
 
-        if (TargetFileSource = nil) or (Length(params.resultTargetPath) = 0) then
+        if (params.targetFS = nil) or (Length(params.resultTargetPath) = 0) then
         begin
           MessageDlg(rsMsgInvalidPath, rsMsgErrNotSupported, mtWarning, [mbOK], 0);
           Continue;
@@ -5256,7 +5267,7 @@ begin
       AFileViewFlags := [fvfDelayLoadingFiles]
     else
       AFileViewFlags := [];
-    AFileView := TColumnsFileView.Create(Page, aFileSource, gpExePath, AFileViewFlags);
+    AFileView := TColumnsFileView.Create(Page, aFileSource, {$IFDEF DARWIN}GetHomeDir{$ELSE}gpExePath{$ENDIF}, AFileViewFlags);
     Commands.DoSortByFunctions(AFileView, ColSet.GetColumnSet('Default').GetColumnFunctions(0));
     AssignEvents(AFileView);
   end

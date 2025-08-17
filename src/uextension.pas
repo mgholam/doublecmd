@@ -75,7 +75,7 @@ end;
 
 procedure TDcxModule.InitializeExtension(StartupInfo: PExtensionStartupInfo);
 const
-  VERSION_API = 4;
+  VERSION_API = 5;
 var
   Language: String;
   AFileName, APath: String;
@@ -106,7 +106,8 @@ begin
     DialogBoxParam:= @fDialogBox.DialogBoxParam;
     SetProperty:= @fDialogBox.SetProperty;
     GetProperty:= @fDialogBox.GetProperty;
-    LanguageID:= Language;
+    if Language.Length < sizeof(LanguageID) then
+      LanguageID:= Language;
     CreateComponent:= @fDialogBox.CreateComponent;
   end;
 end;

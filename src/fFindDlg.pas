@@ -952,7 +952,10 @@ begin
   if OldIndex < lbSearchTemplates.Count then
     lbSearchTemplates.ItemIndex := OldIndex
   else if lbSearchTemplates.Count > 0 then
-    lbSearchTemplates.ItemIndex := lbSearchTemplates.Count - 1;
+    lbSearchTemplates.ItemIndex := lbSearchTemplates.Count - 1
+  else begin
+    lblSearchContents.Caption := EmptyStr;
+  end;
 end;
 
 { TfrmFindDlg.btnAttrsHelpClick }
@@ -1728,6 +1731,8 @@ begin
   cm_Cancel([]);
   Self.Repaint;
   Application.ProcessMessages;
+
+  if InvalidRegExpr then Exit;
 
   if cbFindInArchive.Enabled then
   begin
@@ -2657,7 +2662,7 @@ end;
 procedure TfrmFindDlg.lsFoundedFilesMouseWheelDown(Sender: TObject;
   Shift: TShiftState; MousePos: TPoint; var Handled: boolean);
 begin
-  if (Shift = [ssCtrl]) and (gFonts[dcfSearchResults].Size > gFonts[dcfSearchResults].MinValue) then
+  if gZoomWithCtrlWheel and (Shift = [ssCtrl]) and (gFonts[dcfSearchResults].Size > gFonts[dcfSearchResults].MinValue) then
   begin
     dec(gFonts[dcfSearchResults].Size);
     lsFoundedFiles.Font.Size := gFonts[dcfSearchResults].Size;
@@ -2669,7 +2674,7 @@ end;
 procedure TfrmFindDlg.lsFoundedFilesMouseWheelUp(Sender: TObject;
   Shift: TShiftState; MousePos: TPoint; var Handled: boolean);
 begin
-  if (Shift = [ssCtrl]) and (gFonts[dcfSearchResults].Size < gFonts[dcfSearchResults].MaxValue) then
+  if gZoomWithCtrlWheel and (Shift = [ssCtrl]) and (gFonts[dcfSearchResults].Size < gFonts[dcfSearchResults].MaxValue) then
   begin
     inc(gFonts[dcfSearchResults].Size);
     lsFoundedFiles.Font.Size := gFonts[dcfSearchResults].Size;

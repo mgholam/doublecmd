@@ -297,7 +297,7 @@ implementation
 uses
   Math, LCLType, LazFileUtils, LConvEncoding, SynEditTypes, uHash, uLng, uGlobs,
   uShowMsg, DCClassesUtf8, dmCommonData, uDCUtils, uConvEncoding, uAdministrator,
-  uFileProcs;
+  LCLStrConsts, uFileProcs;
 
 const
   HotkeysCategory = 'Differ';
@@ -902,7 +902,7 @@ var
   DlgType: TMsgDlgType = mtInformation;
 begin
   Message:= rsDiffFilesIdentical + LineEnding + LineEnding;
-  Message+= edtFileNameLeft.Text + LineEnding + edtFileNameRight.Text;
+  Message+= ReplaceHome(edtFileNameLeft.Text) + LineEnding + ReplaceHome(edtFileNameRight.Text);
   if not actBinaryCompare.Checked then
   begin
     Encoding:= (SynDiffEditLeft.Encoding <> SynDiffEditRight.Encoding);
@@ -931,7 +931,7 @@ begin
       end;
     end;
   end;
-  if MessageDlg(rsToolDiffer, Message, DlgType, [mbIgnore, mbCancel], 0, mbIgnore) = mrCancel then
+  if MsgChoiceBox(Message, rsToolDiffer, DlgType, [rsMbClose, rsDiffShow], 0, 1) = 0 then
     Close
   else begin
     FShowIdentical:= False;

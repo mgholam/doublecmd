@@ -1092,6 +1092,16 @@ msgstr "Сачувај &као..."
 msgid "Save As"
 msgstr "Сачувај као"
 
+#: tfrmeditor.actzoomin.caption
+msgctxt "tfrmeditor.actzoomin.caption"
+msgid "Zoom In"
+msgstr "Приближи"
+
+#: tfrmeditor.actzoomout.caption
+msgctxt "tfrmeditor.actzoomout.caption"
+msgid "Zoom Out"
+msgstr "Удаљи"
+
 #: tfrmeditor.caption
 msgctxt "TFRMEDITOR.CAPTION"
 msgid "Editor"
@@ -2500,6 +2510,16 @@ msgstr "&Учитај избор из датотеке..."
 msgid "&Load Tabs from File"
 msgstr "&Учитај листове из датотеке"
 
+#: tfrmmain.actmainfontzoomin.caption
+msgctxt "tfrmmain.actmainfontzoomin.caption"
+msgid "Zoom In"
+msgstr "Приближи"
+
+#: tfrmmain.actmainfontzoomout.caption
+msgctxt "tfrmmain.actmainfontzoomout.caption"
+msgid "Zoom Out"
+msgstr "Удаљи"
+
 #: tfrmmain.actmakedir.caption
 msgid "Create &Directory"
 msgstr "Направи &фасциклу"
@@ -3216,6 +3236,7 @@ msgid "&Network"
 msgstr "Мрежа"
 
 #: tfrmmain.mnushow.caption
+msgctxt "tfrmmain.mnushow.caption"
 msgid "&Show"
 msgstr "Прикажи&"
 
@@ -7076,6 +7097,11 @@ msgstr "Показивач писања не прати више показив�
 msgid "By clic&king on icon"
 msgstr "Кликом на сличицу"
 
+#: tfrmoptionsmouse.chkzoomwithctrlwheel.caption
+msgctxt "tfrmoptionsmouse.chkzoomwithctrlwheel.caption"
+msgid "Zoom with Ctrl + Scroll Wheel"
+msgstr ""
+
 #: tfrmoptionsmouse.gbopenwith.caption
 msgctxt "tfrmoptionsmouse.gbopenwith.caption"
 msgid "Open with"
@@ -7088,6 +7114,11 @@ msgstr "Клизање"
 #: tfrmoptionsmouse.gbselection.caption
 msgid "Selection"
 msgstr "Избор"
+
+#: tfrmoptionsmouse.gbzoom.caption
+msgctxt "tfrmoptionsmouse.gbzoom.caption"
+msgid "Zoom"
+msgstr "Увећање"
 
 #: tfrmoptionsmouse.lblmousemode.caption
 msgid "&Mode:"
@@ -8506,6 +8537,14 @@ msgstr "Аа"
 msgid "Case Sensitive"
 msgstr "Осетљиво на величину слова"
 
+#: tfrmquicksearch.sbdiacritics.caption
+msgid "Ďï"
+msgstr ""
+
+#: tfrmquicksearch.sbdiacritics.hint
+msgid "Diacritics and ligatures"
+msgstr ""
+
 #: tfrmquicksearch.sbdirectories.caption
 msgid "D"
 msgstr "Д"
@@ -9704,6 +9743,7 @@ msgid "&Wrap text"
 msgstr "&Преламај писмо"
 
 #: tfrmviewer.actzoom.caption
+msgctxt "tfrmviewer.actzoom.caption"
 msgid "Zoom"
 msgstr "Увећање"
 
@@ -10004,14 +10044,6 @@ msgstr "Ради у позадини (посебна веза)"
 msgctxt "TWFXPLUGINCOPYMOVEOPERATIONOPTIONSUI.LBLFILEEXISTS.CAPTION"
 msgid "When file exists"
 msgstr "Када датотека постоји"
-
-#: uaccentsutils.rsstraccents
-msgid "á;â;à;å;ã;ä;ç;é;ê;è;ë;í;î;ì;ï;ñ;ó;ô;ò;ø;õ;ö;ú;û;ù;ü;ÿ;Á;Â;À;Å;Ã;Ä;Ç;É;Ê;È;Ë;Í;Í;Ì;Ï;Ñ;Ó;Ô;Ø;Õ;Ö;ß;Ú;Û;Ù;Ü;Ÿ;¿;¡;œ;æ;Æ;Œ"
-msgstr "á;â;à;å;ã;ä;ç;é;ê;è;ë;í;î;ì;ï;ñ;ó;ô;ò;ø;õ;ö;ú;û;ù;ü;ÿ;Á;Â;À;Å;Ã;Ä;Ç;É;Ê;È;Ë;Í;Í;Ì;Ï;Ñ;Ó;Ô;Ø;Õ;Ö;ß;Ú;Û;Ù;Ü;Ÿ;¿;¡;œ;æ;Æ;Œ"
-
-#: uaccentsutils.rsstraccentsstripped
-msgid "a;a;a;a;a;a;c;e;e;e;e;i;i;i;i;n;o;o;o;o;o;o;u;u;u;u;y;A;A;A;A;A;A;C;E;E;E;E;I;I;I;I;N;O;O;O;O;O;B;U;U;U;U;Y;?;!;oe;ae;AE;OE"
-msgstr "a;a;a;a;a;a;c;e;e;e;e;i;i;i;i;n;o;o;o;o;o;o;u;u;u;u;y;A;A;A;A;A;A;C;E;E;E;E;I;I;I;I;N;O;O;O;O;O;B;U;U;U;U;Y;?;!;oe;ae;AE;OE"
 
 #: uadministrator.rselevationrequired
 msgid "You need to provide administrator permission"
@@ -10318,6 +10350,12 @@ msgstr " Поклапања: "
 #: ulng.rsdiffmodifies
 msgid " Modifies: "
 msgstr " Измене: "
+
+#: ulng.rsdiffshow
+#, fuzzy
+msgctxt "ulng.rsdiffshow"
+msgid "&Show"
+msgstr "Прикажи&"
 
 #: ulng.rsdifftextdifferenceencoding
 msgctxt "ulng.rsdifftextdifferenceencoding"
@@ -11194,12 +11232,12 @@ msgstr ""
 
 #: ulng.rsmfstbiiclouddrivertips
 msgctxt "ulng.rsmfstbiiclouddrivertips"
-msgid "iCloud Driver"
+msgid "iCloud Drive"
 msgstr ""
 
 #: ulng.rsmfstbiiclouddrivertitle
 msgctxt "ulng.rsmfstbiiclouddrivertitle"
-msgid "iCloud Driver"
+msgid "iCloud Drive"
 msgstr ""
 
 #: ulng.rsmfstbinetworktips
@@ -11462,6 +11500,10 @@ msgstr ""
 #: ulng.rsmsgcanceloperation
 msgid "Are you sure that you want to cancel this operation?"
 msgstr "Да ли сте сигурни да желите отказати ову обраду?"
+
+#: ulng.rsmsgcannotchangetarget
+msgid "You cannot change a target location!"
+msgstr ""
 
 #: ulng.rsmsgcannotcopymoveitself
 #, object-pascal-format
@@ -13819,7 +13861,9 @@ msgid "&Files;Di&rectories;Files a&nd Directories"
 msgstr "&Датотеке;&Фасцикле;Датотеке и фасцикле"
 
 #: ulng.rsoptsearchopt
-msgid "&Hide filter panel when not focused;Keep saving setting modifications for next session"
+#, fuzzy
+#| msgid "&Hide filter panel when not focused;Keep saving setting modifications for next session"
+msgid "Ignore &diacritics and ligatures;&Hide filter panel when not focused;Keep saving setting modifications for next session"
 msgstr "&Сакриј површ услова када он није у жижи;Чувај поставке измена за следећу седницу"
 
 #: ulng.rsoptsortcasesens

@@ -1075,6 +1075,16 @@ msgstr "S&alva Come.."
 msgid "Save As"
 msgstr "Salva come"
 
+#: tfrmeditor.actzoomin.caption
+msgctxt "tfrmeditor.actzoomin.caption"
+msgid "Zoom In"
+msgstr "Ingrandisci"
+
+#: tfrmeditor.actzoomout.caption
+msgctxt "tfrmeditor.actzoomout.caption"
+msgid "Zoom Out"
+msgstr "Riduci"
+
 #: tfrmeditor.caption
 msgctxt "tfrmeditor.caption"
 msgid "Editor"
@@ -2451,6 +2461,16 @@ msgstr "Carica selezione da &file..."
 msgid "&Load Tabs from File"
 msgstr "&Carica le schede da un file"
 
+#: tfrmmain.actmainfontzoomin.caption
+msgctxt "tfrmmain.actmainfontzoomin.caption"
+msgid "Zoom In"
+msgstr "Ingrandisci"
+
+#: tfrmmain.actmainfontzoomout.caption
+msgctxt "tfrmmain.actmainfontzoomout.caption"
+msgid "Zoom Out"
+msgstr "Riduci"
+
 #: tfrmmain.actmakedir.caption
 msgid "Create &Directory"
 msgstr "Crea &Cartella"
@@ -3157,6 +3177,7 @@ msgid "&Network"
 msgstr "&Rete"
 
 #: tfrmmain.mnushow.caption
+msgctxt "tfrmmain.mnushow.caption"
 msgid "&Show"
 msgstr "&Visualizzazione"
 
@@ -6903,6 +6924,11 @@ msgstr "Il cursore del testo non segue più il cursore del mouse"
 msgid "By clic&king on icon"
 msgstr "&Cliccando sull'icona"
 
+#: tfrmoptionsmouse.chkzoomwithctrlwheel.caption
+msgctxt "tfrmoptionsmouse.chkzoomwithctrlwheel.caption"
+msgid "Zoom with Ctrl + Scroll Wheel"
+msgstr ""
+
 #: tfrmoptionsmouse.gbopenwith.caption
 msgctxt "tfrmoptionsmouse.gbopenwith.caption"
 msgid "Open with"
@@ -6915,6 +6941,12 @@ msgstr "Scorrimento"
 #: tfrmoptionsmouse.gbselection.caption
 msgid "Selection"
 msgstr "Selezione"
+
+#: tfrmoptionsmouse.gbzoom.caption
+#, fuzzy
+msgctxt "tfrmoptionsmouse.gbzoom.caption"
+msgid "Zoom"
+msgstr "Zoom"
 
 #: tfrmoptionsmouse.lblmousemode.caption
 msgid "&Mode:"
@@ -8311,6 +8343,14 @@ msgstr "Aa"
 msgid "Case Sensitive"
 msgstr "Distingui maiuscole/minuscole"
 
+#: tfrmquicksearch.sbdiacritics.caption
+msgid "Ďï"
+msgstr ""
+
+#: tfrmquicksearch.sbdiacritics.hint
+msgid "Diacritics and ligatures"
+msgstr ""
+
 #: tfrmquicksearch.sbdirectories.caption
 msgid "D"
 msgstr "D"
@@ -9476,6 +9516,7 @@ msgid "&Wrap text"
 msgstr "&Testo a capo"
 
 #: tfrmviewer.actzoom.caption
+msgctxt "tfrmviewer.actzoom.caption"
 msgid "Zoom"
 msgstr "Zoom"
 
@@ -9773,14 +9814,6 @@ msgstr "Lavora in secondo piano (connesione separata)"
 msgctxt "TWFXPLUGINCOPYMOVEOPERATIONOPTIONSUI.LBLFILEEXISTS.CAPTION"
 msgid "When file exists"
 msgstr "Quando il file esiste"
-
-#: uaccentsutils.rsstraccents
-msgid "á;â;à;å;ã;ä;ç;é;ê;è;ë;í;î;ì;ï;ñ;ó;ô;ò;ø;õ;ö;ú;û;ù;ü;ÿ;Á;Â;À;Å;Ã;Ä;Ç;É;Ê;È;Ë;Í;Í;Ì;Ï;Ñ;Ó;Ô;Ø;Õ;Ö;ß;Ú;Û;Ù;Ü;Ÿ;¿;¡;œ;æ;Æ;Œ"
-msgstr "á;â;à;å;ã;ä;ç;é;ê;è;ë;í;î;ì;ï;ñ;ó;ô;ò;ø;õ;ö;ú;û;ù;ü;ÿ;Á;Â;À;Å;Ã;Ä;Ç;É;Ê;È;Ë;Í;Í;Ì;Ï;Ñ;Ó;Ô;Ø;Õ;Ö;ß;Ú;Û;Ù;Ü;Ÿ;¿;¡;œ;æ;Æ;Œ"
-
-#: uaccentsutils.rsstraccentsstripped
-msgid "a;a;a;a;a;a;c;e;e;e;e;i;i;i;i;n;o;o;o;o;o;o;u;u;u;u;y;A;A;A;A;A;A;C;E;E;E;E;I;I;I;I;N;O;O;O;O;O;B;U;U;U;U;Y;?;!;oe;ae;AE;OE"
-msgstr "a;a;a;a;a;a;c;e;e;e;e;i;i;i;i;n;o;o;o;o;o;o;u;u;u;u;y;A;A;A;A;A;A;C;E;E;E;E;I;I;I;I;N;O;O;O;O;O;B;U;U;U;U;Y;?;!;oe;ae;AE;OE"
 
 #: uadministrator.rselevationrequired
 msgid "You need to provide administrator permission"
@@ -10087,6 +10120,12 @@ msgstr " Corrispondenze: "
 #: ulng.rsdiffmodifies
 msgid " Modifies: "
 msgstr " Modifiche: "
+
+#: ulng.rsdiffshow
+#, fuzzy
+msgctxt "ulng.rsdiffshow"
+msgid "&Show"
+msgstr "&Visualizzazione"
 
 #: ulng.rsdifftextdifferenceencoding
 msgctxt "ulng.rsdifftextdifferenceencoding"
@@ -10957,12 +10996,12 @@ msgstr ""
 
 #: ulng.rsmfstbiiclouddrivertips
 msgctxt "ulng.rsmfstbiiclouddrivertips"
-msgid "iCloud Driver"
+msgid "iCloud Drive"
 msgstr ""
 
 #: ulng.rsmfstbiiclouddrivertitle
 msgctxt "ulng.rsmfstbiiclouddrivertitle"
-msgid "iCloud Driver"
+msgid "iCloud Drive"
 msgstr ""
 
 #: ulng.rsmfstbinetworktips
@@ -11225,6 +11264,10 @@ msgstr ""
 #: ulng.rsmsgcanceloperation
 msgid "Are you sure that you want to cancel this operation?"
 msgstr "Sei sicuro di voler annullare quest'operazione?"
+
+#: ulng.rsmsgcannotchangetarget
+msgid "You cannot change a target location!"
+msgstr ""
 
 #: ulng.rsmsgcannotcopymoveitself
 #, object-pascal-format
@@ -13560,7 +13603,9 @@ msgid "&Files;Di&rectories;Files a&nd Directories"
 msgstr "&File;Ca&rtelle;File &e cartelle"
 
 #: ulng.rsoptsearchopt
-msgid "&Hide filter panel when not focused;Keep saving setting modifications for next session"
+#, fuzzy
+#| msgid "&Hide filter panel when not focused;Keep saving setting modifications for next session"
+msgid "Ignore &diacritics and ligatures;&Hide filter panel when not focused;Keep saving setting modifications for next session"
 msgstr "Nascondi il &pannello del filtro quando non è attivo;Continua a salvare le modifiche delle impostazioni per la sessione successiva"
 
 #: ulng.rsoptsortcasesens
