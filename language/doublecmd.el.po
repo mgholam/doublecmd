@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: Double Commander 1.1.0 alpha\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-11-15 11:15+0300\n"
-"PO-Revision-Date: 2024-10-18 20:59+0300\n"
-"Last-Translator: Anastasios Kazakis <anastasios.kazakis@tutanota.com>\n"
+"PO-Revision-Date: 2025-09-06 07:04+0300\n"
+"Last-Translator: Anastasios Kazakis <anastasios.kazakis@gmail.com>\n"
 "Language-Team: Anastasios Kazakis <anastasios.kazakis@tutanota.com>\n"
 "Language: el_GR\n"
 "MIME-Version: 1.0\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Native-Language: ελληνικά\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Poedit 3.6\n"
 "X-Language: el_GR\n"
 "X-Source-Language: el\n"
 "X-Poedit-SourceCharset: ISO-8859-7\n"
@@ -81,7 +81,7 @@ msgstr "Διόρθωση δεσμών"
 #: tfilesystemcopymoveoperationoptionsui.cbdropreadonlyflag.caption
 msgctxt "TFILESYSTEMCOPYMOVEOPERATIONOPTIONSUI.CBDROPREADONLYFLAG.CAPTION"
 msgid "Drop readonly fla&g"
-msgstr "Αφαίρεση ιδιότητας μόνο για ανάγνωση"
+msgstr "Κατάργηση σημαίας μόνο για ανάγνωση"
 
 #: tfilesystemcopymoveoperationoptionsui.cbexcludeemptydirectories.caption
 msgid "E&xclude empty directories"
@@ -152,7 +152,7 @@ msgstr "Μεταγλώττιση"
 #: tfrmabout.lblcommit.caption
 msgctxt "tfrmabout.lblcommit.caption"
 msgid "Commit"
-msgstr "Τροποποίηση"
+msgstr "Υποβολή"
 
 #: tfrmabout.lblfreepascalver.caption
 msgctxt "tfrmabout.lblfreepascalver.caption"
@@ -208,7 +208,7 @@ msgstr "Επιλογή ιδιοτήτων"
 #: tfrmattributesedit.cbarchive.caption
 msgctxt "TFRMATTRIBUTESEDIT.CBARCHIVE.CAPTION"
 msgid "&Archive"
-msgstr "Αρχειοθετημένο"
+msgstr "Αρχειοθήκη"
 
 #: tfrmattributesedit.cbcompressed.caption
 msgid "Co&mpressed"
@@ -245,7 +245,7 @@ msgstr "Αραιό"
 #: tfrmattributesedit.cbsticky.caption
 msgctxt "TFRMATTRIBUTESEDIT.CBSTICKY.CAPTION"
 msgid "Sticky"
-msgstr "Κολημμένο"
+msgstr "Κολλημένο"
 
 #: tfrmattributesedit.cbsuid.caption
 msgctxt "TFRMATTRIBUTESEDIT.CBSUID.CAPTION"
@@ -276,7 +276,7 @@ msgstr "Γενικές ιδιότητες"
 #: tfrmattributesedit.lblattrbitsstr.caption
 msgctxt "TFRMATTRIBUTESEDIT.LBLATTRBITSSTR.CAPTION"
 msgid "Bits:"
-msgstr "Ιδιότητες:"
+msgstr "Bits:"
 
 #: tfrmattributesedit.lblattrgroupstr.caption
 msgctxt "TFRMATTRIBUTESEDIT.LBLATTRGROUPSTR.CAPTION"
@@ -348,7 +348,7 @@ msgstr "Δημιουργία ξεχωριστού αρχείου αθροίσμ�
 
 #: tfrmchecksumcalc.cbseparatefolder.caption
 msgid "Create separate checksum file for each &directory"
-msgstr ""
+msgstr "Δημιουργία ξεχωριστού αθροίσματος ελέγχου για κάθε κατάλογο"
 
 #: tfrmchecksumcalc.lblfileformat.caption
 msgid "File &format"
@@ -365,6 +365,10 @@ msgstr "Unix"
 #: tfrmchecksumcalc.rbwindows.caption
 msgid "Windows"
 msgstr "Windows"
+
+#: tfrmchecksumcalc.rghashalgorithm.caption
+msgid "Algorithm"
+msgstr ""
 
 #: tfrmchecksumverify.btnclose.caption
 msgctxt "TFRMCHECKSUMVERIFY.BTNCLOSE.CAPTION"
@@ -443,27 +447,27 @@ msgstr "Νέα ουρά"
 #: tfrmcopydlg.mnuqueue1.caption
 msgctxt "tfrmcopydlg.mnuqueue1.caption"
 msgid "Queue 1"
-msgstr "Ουρά 1"
+msgstr "Ουρά 1η"
 
 #: tfrmcopydlg.mnuqueue2.caption
 msgctxt "tfrmcopydlg.mnuqueue2.caption"
 msgid "Queue 2"
-msgstr "Ουρά 2"
+msgstr "Ουρά 2η"
 
 #: tfrmcopydlg.mnuqueue3.caption
 msgctxt "tfrmcopydlg.mnuqueue3.caption"
 msgid "Queue 3"
-msgstr "Ουρά 3"
+msgstr "Ουρά 3η"
 
 #: tfrmcopydlg.mnuqueue4.caption
 msgctxt "tfrmcopydlg.mnuqueue4.caption"
 msgid "Queue 4"
-msgstr "Ουρά 4"
+msgstr "Ουρά 4η"
 
 #: tfrmcopydlg.mnuqueue5.caption
 msgctxt "tfrmcopydlg.mnuqueue5.caption"
 msgid "Queue 5"
-msgstr "Ουρά 5"
+msgstr "Ουρά 5η"
 
 #: tfrmdescredit.actsavedescription.caption
 msgid "Save Description"
@@ -1020,7 +1024,7 @@ msgstr "Επιλογή Όλων"
 
 #: tfrmeditor.actedittimedate.caption
 msgid "Time/Date"
-msgstr ""
+msgstr "Ημερομηνία/Ώρα"
 
 #: tfrmeditor.acteditundo.caption
 msgctxt "TFRMEDITOR.ACTEDITUNDO.CAPTION"
@@ -3053,11 +3057,6 @@ msgctxt "TFRMMAIN.BTNLEFTROOT.HINT"
 msgid "Go to root directory"
 msgstr "Μετάβαση στον κατάλογο root"
 
-#: tfrmmain.btnleftup.caption
-msgctxt "TFRMMAIN.BTNLEFTUP.CAPTION"
-msgid ".."
-msgstr ".."
-
 #: tfrmmain.btnleftup.hint
 msgctxt "TFRMMAIN.BTNLEFTUP.HINT"
 msgid "Go to parent directory"
@@ -3091,11 +3090,6 @@ msgstr "~"
 msgctxt "TFRMMAIN.BTNRIGHTROOT.CAPTION"
 msgid "/"
 msgstr "/"
-
-#: tfrmmain.btnrightup.caption
-msgctxt "TFRMMAIN.BTNRIGHTUP.CAPTION"
-msgid ".."
-msgstr ".."
 
 #: tfrmmain.caption
 msgctxt "TFRMMAIN.CAPTION"
@@ -3580,6 +3574,10 @@ msgstr "Επίκληση Μενού Σχετικής Διαδρομής"
 msgid "Load Last Preset"
 msgstr "Φόρτωση Τελευταίου Ορίσματος"
 
+#: tfrmmultirename.actloadnamesfromclipboard.caption
+msgid "Load Names from Clipboard"
+msgstr ""
+
 #: tfrmmultirename.actloadnamesfromfile.caption
 msgid "Load Names from File..."
 msgstr "Φόρτωμα ονομάτων από το αρχείο..."
@@ -3726,6 +3724,14 @@ msgstr "Αντικατάσταση μια φορά μόνο σε κάθε αρχ
 msgctxt "TFRMMULTIRENAME.CBREGEXP.CAPTION"
 msgid "Regular e&xpressions"
 msgstr "Συνήθεις φράσεις"
+
+#: tfrmmultirename.cbrepext.caption
+msgid "E"
+msgstr ""
+
+#: tfrmmultirename.cbrepext.hint
+msgid "Replace also in file extensions"
+msgstr ""
 
 #: tfrmmultirename.cbusesubs.caption
 msgid "&Use substitution"
@@ -4584,31 +4590,6 @@ msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNALLUSEINVERTEDSELECTION.HINT"
 msgid "Apply modification to all columns"
 msgstr "Εφαρμογή των αλλαγών σε όλες τις στήλες"
 
-#: tfrmoptionscustomcolumns.btnbackcolor.caption
-msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNBACKCOLOR.CAPTION"
-msgid ">>"
-msgstr ">>"
-
-#: tfrmoptionscustomcolumns.btnbackcolor2.caption
-msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNBACKCOLOR2.CAPTION"
-msgid ">>"
-msgstr ">>"
-
-#: tfrmoptionscustomcolumns.btncursorbordercolor.caption
-msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNCURSORBORDERCOLOR.CAPTION"
-msgid ">>"
-msgstr ">>"
-
-#: tfrmoptionscustomcolumns.btncursorcolor.caption
-msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNCURSORCOLOR.CAPTION"
-msgid ">>"
-msgstr ">>"
-
-#: tfrmoptionscustomcolumns.btncursortext.caption
-msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNCURSORTEXT.CAPTION"
-msgid ">>"
-msgstr ">>"
-
 #: tfrmoptionscustomcolumns.btndeleteconfigcolumns.caption
 msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNDELETECONFIGCOLUMNS.CAPTION"
 msgid "&Delete"
@@ -4619,29 +4600,9 @@ msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNFONT.CAPTION"
 msgid "..."
 msgstr "..."
 
-#: tfrmoptionscustomcolumns.btnforecolor.caption
-msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNFORECOLOR.CAPTION"
-msgid ">>"
-msgstr ">>"
-
 #: tfrmoptionscustomcolumns.btngotosetdefault.caption
 msgid "Go to set default"
 msgstr "Μετάβαση στον ορισμό προκαθορισμένου"
-
-#: tfrmoptionscustomcolumns.btninactivecursorcolor.caption
-msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNINACTIVECURSORCOLOR.CAPTION"
-msgid ">>"
-msgstr ">>"
-
-#: tfrmoptionscustomcolumns.btninactivemarkcolor.caption
-msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNINACTIVEMARKCOLOR.CAPTION"
-msgid ">>"
-msgstr ">>"
-
-#: tfrmoptionscustomcolumns.btnmarkcolor.caption
-msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNMARKCOLOR.CAPTION"
-msgid ">>"
-msgstr ">>"
 
 #: tfrmoptionscustomcolumns.btnnewconfig.caption
 msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNNEWCONFIG.CAPTION"
@@ -6649,12 +6610,12 @@ msgstr "Χειριστήρια"
 #: tfrmoptionsicloud.appslistview.columns[0].caption
 msgctxt "tfrmoptionsicloud.appslistview.columns[0].caption"
 msgid "Applications"
-msgstr ""
+msgstr "Εφαρμογές"
 
 #: tfrmoptionsicloud.appslistview.columns[1].caption
 msgctxt "tfrmoptionsicloud.appslistview.columns[1].caption"
 msgid "Count of Contents"
-msgstr ""
+msgstr "Αριθμός Περιεχομένων"
 
 #: tfrmoptionsicons.cbiconsexclude.caption
 msgctxt "TFRMOPTIONSICONS.CBICONSEXCLUDE.CAPTION"
@@ -6972,11 +6933,6 @@ msgstr "Εργασίες Καταγραφής"
 msgid "Operation status"
 msgstr "Κατάσταση Λειτουργίας"
 
-#: tfrmoptionsmisc.btnoutputpathfortoolbar.caption
-msgctxt "TFRMOPTIONSMISC.BTNOUTPUTPATHFORTOOLBAR.CAPTION"
-msgid ">>"
-msgstr ">>"
-
 #: tfrmoptionsmisc.btnrelativeoutputpathfortoolbar.hint
 msgctxt "TFRMOPTIONSMISC.BTNRELATIVEOUTPUTPATHFORTOOLBAR.HINT"
 msgid "Some functions to select appropriate path"
@@ -7090,7 +7046,7 @@ msgstr "Κάνοντας κλικ στο εικονίδιο"
 #: tfrmoptionsmouse.chkzoomwithctrlwheel.caption
 msgctxt "tfrmoptionsmouse.chkzoomwithctrlwheel.caption"
 msgid "Zoom with Ctrl + Scroll Wheel"
-msgstr ""
+msgstr "Μεγέθυνση με Ctrl + Τροχός Κύλισης"
 
 #: tfrmoptionsmouse.gbopenwith.caption
 msgctxt "tfrmoptionsmouse.gbopenwith.caption"
@@ -7106,7 +7062,6 @@ msgid "Selection"
 msgstr "Επιλογή"
 
 #: tfrmoptionsmouse.gbzoom.caption
-#, fuzzy
 msgctxt "tfrmoptionsmouse.gbzoom.caption"
 msgid "Zoom"
 msgstr "Μεγέθυνση"
@@ -7336,11 +7291,9 @@ msgid "File name"
 msgstr "Όνομα Αρχείου"
 
 #: tfrmoptionspluginswfx.lblplugindescription.caption
-#, fuzzy
-#| msgid "Fi&le system plugins allow access to disks inaccessible by operating system or to external devices like Palm/PocketPC."
 msgctxt "tfrmoptionspluginswfx.lblplugindescription.caption"
 msgid "Fi&le system plugins allow access to disks inaccessible by operating system or to external devices like smartphones."
-msgstr "Τα πρόσθετα αρχείων συστήματος επιτρέπουν την πρόσβαση σε δίσκους μη προσβάσιμους από το λειτουργικό σύστημα ή σε εξωτερικές συσκευές όπως το Palm/PocketPC."
+msgstr "Τα πρόσθετα αρχείων συστήματος επιτρέπουν την πρόσβαση σε δίσκους μη προσβάσιμους από το λειτουργικό σύστημα ή σε εξωτερικές συσκευές όπως τα έξυπνα τηλέφωνα."
 
 #: tfrmoptionspluginswfx.stgplugins.columns[0].title.caption
 msgctxt "tfrmoptionspluginswfx.stgplugins.columns[0].title.caption"
@@ -7634,11 +7587,6 @@ msgstr "Εισαγωγή νέου κουμπιού"
 msgid "Select"
 msgstr "Επιλέξτε"
 
-#: tfrmoptionstoolbarbase.btnopenfile.caption
-msgctxt "tfrmoptionstoolbarbase.BTNOPENFILE.CAPTION"
-msgid ">>"
-msgstr ">>"
-
 #: tfrmoptionstoolbarbase.btnother.caption
 msgctxt "tfrmoptionstoolbarbase.BTNOTHER.CAPTION"
 msgid "Other..."
@@ -7648,11 +7596,6 @@ msgstr "Άλλα..."
 msgctxt "tfrmoptionstoolbarbase.BTNREMOVEHOTKEY.CAPTION"
 msgid "Remove hotke&y"
 msgstr "Αφαίρεση ειδικού πλήκτρου"
-
-#: tfrmoptionstoolbarbase.btnstartpath.caption
-msgctxt "tfrmoptionstoolbarbase.BTNSTARTPATH.CAPTION"
-msgid ">>"
-msgstr ">>"
 
 #: tfrmoptionstoolbarbase.btnsuggestiontooltip.caption
 msgid "Suggest"
@@ -8057,7 +8000,7 @@ msgstr "αμέσως πριν την τρέχουσα επιλογή"
 
 #: tfrmoptionstoolbarbase.rblinebreak.caption
 msgid "Line break"
-msgstr ""
+msgstr "Αλλαγή γραμμής"
 
 #: tfrmoptionstoolbarbase.rbseparator.caption
 msgid "Separator"
@@ -8153,11 +8096,6 @@ msgstr "Αντιγραφή"
 msgctxt "tfrmoptionstooltips.btndeletetooltipsfiletype.caption"
 msgid "Delete"
 msgstr "Διαγραφή"
-
-#: tfrmoptionstooltips.btnfieldslist.caption
-msgctxt "TFRMOPTIONSTOOLTIPS.BTNFIELDSLIST.CAPTION"
-msgid ">>"
-msgstr ">>"
 
 #: tfrmoptionstooltips.btnfieldssearchtemplate.hint
 msgctxt "TFRMOPTIONSTOOLTIPS.BTNFIELDSSEARCHTEMPLATE.HINT"
@@ -8409,10 +8347,6 @@ msgstr "Μετακίνηση στην αρχειοθήκη"
 msgid "&Multiple disk archive"
 msgstr "Πολλαπλή αρχειοθήκη δίσκου"
 
-#: tfrmpackdlg.cbotherplugins.caption
-msgid "=>"
-msgstr "=>"
-
 #: tfrmpackdlg.cbputintarfirst.caption
 msgid "P&ut in the TAR archive first"
 msgstr "Τοποθέτηση πρώτο στην TAR αρχειοθήκη"
@@ -8530,11 +8464,11 @@ msgstr "Διάκριση Πεζών-Κεφαλαίων"
 
 #: tfrmquicksearch.sbdiacritics.caption
 msgid "Ďï"
-msgstr ""
+msgstr "Ďï"
 
 #: tfrmquicksearch.sbdiacritics.hint
 msgid "Diacritics and ligatures"
-msgstr ""
+msgstr "Διακριτικά σημεία και καλλιγραφικοί συνδυασμοί"
 
 #: tfrmquicksearch.sbdirectories.caption
 msgid "D"
@@ -8913,17 +8847,17 @@ msgstr "Εγγραφή"
 #: tfrmsetfileproperties.zvcreationdatetime.textfornulldate
 msgctxt "tfrmsetfileproperties.zvcreationdatetime.textfornulldate"
 msgid " "
-msgstr ""
+msgstr " "
 
 #: tfrmsetfileproperties.zvlastaccessdatetime.textfornulldate
 msgctxt "tfrmsetfileproperties.zvlastaccessdatetime.textfornulldate"
 msgid " "
-msgstr ""
+msgstr " "
 
 #: tfrmsetfileproperties.zvlastwritedatetime.textfornulldate
 msgctxt "tfrmsetfileproperties.zvlastwritedatetime.textfornulldate"
 msgid " "
-msgstr ""
+msgstr " "
 
 #: tfrmsortanything.btnsort.caption
 msgid "&Sort"
@@ -10341,7 +10275,6 @@ msgid " Modifies: "
 msgstr " Μεταβολές: "
 
 #: ulng.rsdiffshow
-#, fuzzy
 msgctxt "ulng.rsdiffshow"
 msgid "&Show"
 msgstr "Εμφάνιση"
@@ -10557,19 +10490,19 @@ msgstr "Μετάβαση στη γραμμή"
 
 #: ulng.rsedithintcursorpos
 msgid "Cursor Position"
-msgstr ""
+msgstr "Θέση Κέρσορα"
 
 #: ulng.rsedithintinsertmode
 msgid "Insert Mode"
-msgstr ""
+msgstr "Λειτουργία Εισαγωγής"
 
 #: ulng.rsedithintmodified
 msgid "Modified"
-msgstr ""
+msgstr "Τροποποιημένο"
 
 #: ulng.rsedithintselectionmode
 msgid "Selection Mode"
-msgstr ""
+msgstr "Λειτουργία Επιλογής"
 
 #: ulng.rseditnewfile
 msgid "new.txt"
@@ -10603,23 +10536,23 @@ msgstr "Αντικατάσταση"
 
 #: ulng.rseditstatinsertmodeins
 msgid "INS"
-msgstr ""
+msgstr "ΕΙΣ"
 
 #: ulng.rseditstatinsertmodeovr
 msgid "OVR"
-msgstr ""
+msgstr "OVR"
 
 #: ulng.rseditstatselmodecol
 msgid "COL"
-msgstr ""
+msgstr "ΣΤΗΛ"
 
 #: ulng.rseditstatselmodeline
 msgid "LINE"
-msgstr ""
+msgstr "ΓΡΑΜΜΗ"
 
 #: ulng.rseditstatselmodenorm
 msgid "NORM"
-msgstr ""
+msgstr "ΦΥΣΙΟΛ"
 
 #: ulng.rseditwithexternaleditor
 msgid "with external editor"
@@ -11041,11 +10974,11 @@ msgstr "Βάσει ονόματος εντολής;Βάσει κουμπιού �
 
 #: ulng.rsiclouddrivercopyseedfileconfirmdlgmessage
 msgid "It is recommended to download the files first. Otherwise, what is copied is not the content of the files, but the corresponding placeholder files, which will result in hidden files with the .iCloud extension."
-msgstr ""
+msgstr "Προτείνεται να κατεβάσετε τα αρχεία πρώτα. Αλλιώς, ότι αντιγράφεται δεν είναι το περιεχόμενο των αρχείων, αλλά τα αντίστοιχα αρχεία κράτησης χώρου, τα οποία θα έχουν σαν αποτέλεσμα κρυφά αρχεία με την κατάληξη .iCloud."
 
 #: ulng.rsiclouddrivercopyseedfileconfirmdlgtitle
 msgid "The operation may contain files that were not downloaded, continue anyway?"
-msgstr ""
+msgstr "Η λειτουργία μπορεί να περιέχει αρχεία που δεν έχουν ληφθεί, συνέχιση έτσι κι αλλιώς;"
 
 #: ulng.rsimporttoolbarproblem
 msgid "Cannot find reference to default bar file"
@@ -11079,7 +11012,7 @@ msgstr "Λίστα παραθύρων \"Αναζήτηση Αρχείων\""
 #: ulng.rsmacosassignfindertagstomultiitems
 #, object-pascal-format
 msgid "Assign tags to %d items"
-msgstr ""
+msgstr "Ανάθεση ετικετών σε %d αντικείμενα"
 
 #: ulng.rsmarkminus
 msgid "Unselect mask"
@@ -11121,7 +11054,7 @@ msgstr "Επεξεργασία Ετικετών Εφαρμογής Εύρεση�
 
 #: ulng.rsmenumacosgrantpermissiontosupportfindertags
 msgid "Grant \"Full Disk Access\" permission to support Finder Tags..."
-msgstr ""
+msgstr "Δώστε \"Πρόσβαση σε όλο το Δίσκο\" άδεια για να υποστηρίξετε Ετικέτες Εύρεσης..."
 
 #: ulng.rsmenumacosremovefindertag
 #, object-pascal-format
@@ -11190,7 +11123,7 @@ msgstr "Επεξεργασία"
 
 #: ulng.rsmfstbifinderrevealtips
 msgid "Reveal in Finder"
-msgstr "Αποκάλυψη στην Εφαρμογή Αναζήτησης"
+msgstr "Αποκάλυψη στην Εφαρμογή Εύρεσης"
 
 #: ulng.rsmfstbifinderrevealtitle
 msgid "Finder"
@@ -11217,22 +11150,22 @@ msgstr "HorzSplit"
 #: ulng.rsmfstbiiclouddrivertips
 msgctxt "ulng.rsmfstbiiclouddrivertips"
 msgid "iCloud Drive"
-msgstr ""
+msgstr "Οδηγός iCloud"
 
 #: ulng.rsmfstbiiclouddrivertitle
 msgctxt "ulng.rsmfstbiiclouddrivertitle"
 msgid "iCloud Drive"
-msgstr ""
+msgstr "Οδηγός iCloud"
 
 #: ulng.rsmfstbinetworktips
 msgctxt "ulng.rsmfstbinetworktips"
 msgid "network"
-msgstr ""
+msgstr "δίκτυο"
 
 #: ulng.rsmfstbinetworktitle
 msgctxt "ulng.rsmfstbinetworktitle"
 msgid "network"
-msgstr ""
+msgstr "δίκτυο"
 
 #: ulng.rsmfstbiprivilegetips
 msgid "As a file manager, Double Command requires full disk access permissions. Clicking this button will pop up the macOS system settings page. Please add \"Double Commander.app\" to the \"Full Disk Access\" list to complete the authorization."
@@ -11244,7 +11177,7 @@ msgstr "Προνόμιο"
 
 #: ulng.rsmfstbiquicklooktips
 msgid "macOS Quick Look Panel"
-msgstr "Καρτέλα macOS Quick Look"
+msgstr "Καρτέλα σύντομης προβολής macOS"
 
 #: ulng.rsmfstbiquicklooktitle
 msgid "QuickLook"
@@ -11260,7 +11193,7 @@ msgstr "Ανανέωση"
 
 #: ulng.rsmfstbisearchcombinedtags
 msgid "Search for combined tags..."
-msgstr ""
+msgstr "Αναζήτηση για συνδυαστικές ετικέτες..."
 
 #: ulng.rsmfstbisearchtips
 msgid "Search Files..."
@@ -11277,15 +11210,15 @@ msgstr "Διαμοιρασμός"
 
 #: ulng.rsmfstbishowbrieftitle
 msgid "as Brief"
-msgstr "Σύντομη Περιγραφή"
+msgstr "σύντομο"
 
 #: ulng.rsmfstbishowfulltitle
 msgid "as Full"
-msgstr "Πλήρης Περιγραφή"
+msgstr "πλήρες"
 
 #: ulng.rsmfstbishowinfotips
 msgid "Show Info in Finder"
-msgstr "Εμφάνιση Πληροφοριών στην Εφαρμογή Αναζήτησης"
+msgstr "Εμφάνιση Πληροφοριών στην Εφαρμογή Εύρεσης"
 
 #: ulng.rsmfstbishowinfotitle
 msgid "ShowInfo"
@@ -11372,11 +11305,11 @@ msgstr "Εξαγωγή εδώ..."
 
 #: ulng.rsmnuiclouddriverdownloadnow
 msgid "Download Now"
-msgstr ""
+msgstr "Λήψη τώρα"
 
 #: ulng.rsmnuiclouddriverremovedownload
 msgid "Remove Download"
-msgstr ""
+msgstr "Αφαίρεση Ληφθέντος"
 
 #: ulng.rsmnumount
 msgid "Mount"
@@ -11440,10 +11373,15 @@ msgid ""
 "\n"
 "It is recommended that you follow your usual practice and try to select only one directory when you receive this prompt."
 msgstr ""
+"Μερικά συστήματα αρχείων περιέχουν ειδικές δομές καταλόγου. Κατά την αντιγραφή σε μία συμπιεσμένη αρχειοθήκη, μόνο ένας κατάλογος μπορεί να επιλεχθεί κάθε φορά, εκτός αν οι πραγματικές τοποθεσίες των επιλεγμένων αρχειοθηκών βρίσκονται όλες στον ίδιο γονικό κατάλογο.\n"
+"\n"
+"Για παράδειγμα, στον οδηγό iCloud, κατά την αντιγραφή καταλόγου από έναν αρχικό κατάλογο σε μία συμπιεσμένη αρχειοθήκη, ίσως μόνο ένας κατάλογος θα πρέπει να επιλεχθεί.\n"
+"\n"
+"Συνίσταται να ακολουθήσετε τη συνήθη σας πρακτική και να προσπαθήσετε να επιλέξετε μόνο έναν κατάλογο όταν λαμβάνεται αυτήν την ειδοποίηση."
 
 #: ulng.rsmountedfilesourcecopymultifilestowcxdlgtitle
 msgid "The operation is not supported"
-msgstr ""
+msgstr "Η λειτουργία δεν υποστηρίζεται"
 
 #: ulng.rsmsgaccount
 msgid "Account:"
@@ -11485,7 +11423,7 @@ msgstr "Σίγουρα επιθυμείτε ακύρωση της λειτουρ
 
 #: ulng.rsmsgcannotchangetarget
 msgid "You cannot change a target location!"
-msgstr ""
+msgstr "Δεν μπορείτε να αλλάξετε την τοποθεσία στόχου!"
 
 #: ulng.rsmsgcannotcopymoveitself
 #, object-pascal-format
@@ -13698,23 +13636,23 @@ msgstr "Πρόσθετα"
 
 #: ulng.rsoptionseditorpluginsdsx
 msgid "Search plugins"
-msgstr ""
+msgstr "Πρόσθετα αναζήτησης"
 
 #: ulng.rsoptionseditorpluginswcx
 msgid "Packer plugins"
-msgstr ""
+msgstr "Πρόσθετα προγράμματος πακεταρίσματος"
 
 #: ulng.rsoptionseditorpluginswdx
 msgid "Content plugins"
-msgstr ""
+msgstr "Πρόσθετα περιεχομένου"
 
 #: ulng.rsoptionseditorpluginswfx
 msgid "File system plugins"
-msgstr ""
+msgstr "Πρόσθετα αρχείων συστήματος"
 
 #: ulng.rsoptionseditorpluginswlx
 msgid "Viewer plugins"
-msgstr ""
+msgstr "Πρόσθετα προβολέα"
 
 #: ulng.rsoptionseditorquicksearch
 msgctxt "ulng.rsoptionseditorquicksearch"
@@ -13841,10 +13779,8 @@ msgid "&Files;Di&rectories;Files a&nd Directories"
 msgstr "Αρχεία;Κατάλογοι;Αρχεία και Κατάλογοι"
 
 #: ulng.rsoptsearchopt
-#, fuzzy
-#| msgid "&Hide filter panel when not focused;Keep saving setting modifications for next session"
 msgid "Ignore &diacritics and ligatures;&Hide filter panel when not focused;Keep saving setting modifications for next session"
-msgstr "&Κρύψιμο του πάνελ φίλτρου όταν δεν είναι εστιασμένο;συνέχιση αποθήκευσης ρυθμίσεων μετατροπών για την επόμενη συνεδρία"
+msgstr "Αγνόηση διακριτικών σημείων και καλλιγραφικών συνδυασμών;Κρύψιμο καρτέλας φίλτρου όταν δεν είναι σε εστίαση;Συνέχιση αποθήκευσης ρυθμίσεων μετατροπών για την επόμενη συνεδρία"
 
 #: ulng.rsoptsortcasesens
 msgid "not case sensitive;according to locale settings (aAbBcC);first upper then lower case (ABCabc)"

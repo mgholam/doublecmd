@@ -8,7 +8,7 @@ interface
 uses
   Classes, SysUtils, LCLType,
   sqldb, SQLite3Conn, syncobjs,
-  uDebug,
+  uLog, uDebug,
   MacOSAll, CocoaAll, CocoaConst, Cocoa_Extra;
 
 type
@@ -96,10 +96,16 @@ type
 implementation
 
 const
-  FINDER_TAGS_DATABASE_PATH_14plus  = '/Library/Daemon Containers/F6F9E4C1-EF5D-4BF3-BEAD-0D777574F0A0/Data/com.apple.kvs/com.apple.KeyValueService-Production.sqlite';
-  FINDER_TAGS_DATABASE_PATH_12to13  = '/Library/SyncedPreferences/com.apple.kvs/com.apple.KeyValueService-Production.sqlite';
+  FINDER_TAGS_DATABASE_NAME         = '/Data/com.apple.kvs/com.apple.KeyValueService-Production.sqlite';
+  FINDER_TAGS_DATABASE_UUID_PATH    = '/Library/Daemon Containers';
+  FINDER_TAGS_DATABASE_STATIC_PATH  = '/Library/SyncedPreferences/com.apple.kvs/com.apple.KeyValueService-Production.sqlite';
   FINDER_TAGS_FILE_PATH_11minus     = '/Library/SyncedPreferences/com.apple.finder.plist';
   FAVORITE_FINDER_TAGS_FILE_PATH    = '/Library/Preferences/com.apple.finder.plist';
+
+var
+  NSSTR_FINDER_TAGS_DATABASE_NAME: NSString;
+  NSSTR_FINDER_TAGS_DATABASE_UUID_PATH: NSString;
+  FINDER_TAGS_DATABASE_PATH_12to13: String;
 
 { TFinderTag }
 
@@ -408,6 +414,7 @@ begin
     // it is suitable for just recording exception and handling it silently
     on e: Exception do begin
       DCDebug( 'Exception in uDarwinFinderUtil.getAllTags(): ', e.ToString );
+      LogWrite( 'Exception in uDarwinFinderUtil.getAllTags(): ' + e.ToString, lmtError );
     end;
   end;
 end;
@@ -534,6 +541,33 @@ begin
 end;
 
 class function uDarwinFinderModelUtil.getTagsDataFromDatabase: TBytes;
+  function getDatabaseUUIDPath: String;
+  var
+    manager: NSFileManager;
+    subPaths: NSArray;
+    uuid: NSString;
+    databasePath: NSString;
+  begin
+    manager:= NSFileManager.defaultManager;
+    subPaths:= manager.contentsOfDirectoryAtPath_error( NSSTR_FINDER_TAGS_DATABASE_UUID_PATH, nil );
+    for uuid in subPaths do begin
+      databasePath:= NSSTR_FINDER_TAGS_DATABASE_UUID_PATH.stringByAppendingPathComponent(uuid).stringByAppendingPathComponent(NSSTR_FINDER_TAGS_DATABASE_NAME);
+      if manager.fileExistsAtPath(databasePath) then begin
+        Result:= databasePath.UTF8String;
+        Exit;
+      end;
+    end;
+    Result:= EmptyStr;
+  end;
+
+  function getDatabasePath: String;
+  begin
+    if NSAppKitVersionNumber < NSAppKitVersionNumber14_0 then
+      Result:= FINDER_TAGS_DATABASE_PATH_12to13
+    else
+      Result:= getDatabaseUUIDPath;
+  end;
+
 var
   connection: TSQLConnection = nil;
   transaction: TSQLTransaction = nil;
@@ -545,11 +579,9 @@ begin
     connection:= TSQLite3Connection.Create( nil );
     transaction:= TSQLTransaction.Create( connection );
     connection.Transaction:= transaction;
-    if NSAppKitVersionNumber >= NSAppKitVersionNumber14_0 then
-      databasePath:= FINDER_TAGS_DATABASE_PATH_14plus
-    else
-      databasePath:= FINDER_TAGS_DATABASE_PATH_12to13;
-    databasePath:= NSHomeDirectory.UTF8String + databasePath;
+    databasePath:= getDatabasePath;
+    if databasePath = EmptyStr then
+      Exit;
     connection.DatabaseName:= databasePath;
 
     query:= TSQLQuery.Create( nil );
@@ -640,7 +672,15 @@ begin
   ];
 end;
 
+procedure initNSSTR;
+begin
+  NSSTR_FINDER_TAGS_DATABASE_NAME:= NSSTR( FINDER_TAGS_DATABASE_NAME );
+  NSSTR_FINDER_TAGS_DATABASE_UUID_PATH:= NSHomeDirectory.stringByAppendingPathComponent( NSSTR(FINDER_TAGS_DATABASE_UUID_PATH) ).retain;
+  FINDER_TAGS_DATABASE_PATH_12to13:= NSHomeDirectory.UTF8String + FINDER_TAGS_DATABASE_STATIC_PATH;
+end;
+
 initialization
+  initNSSTR;
   uDarwinFinderModelUtil.initFinderTagNSColors;
 
 end.

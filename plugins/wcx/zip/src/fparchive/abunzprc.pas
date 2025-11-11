@@ -147,6 +147,9 @@ uses
   {$IFDEF UnzipZstdSupport}
   AbZstd,
   {$ENDIF}
+  {$IFDEF UnzipBrotliSupport}
+  AbBrotli,
+  {$ENDIF}
   AbBitBkt,
   AbConst,
   AbDfCryS,
@@ -159,6 +162,7 @@ uses
   AbWinZipAes,
   Inflate64Stream,
   DCOSUtils,
+  DCStrUtils,
   DCClassesUtf8,
   DCConvertEncoding;
 
@@ -994,6 +998,20 @@ begin
 end;
 {$ENDIF}
 { -------------------------------------------------------------------------- }
+{$IFDEF UnzipBrotliSupport}
+procedure DoExtractBrotli(Archive : TAbZipArchive; Item : TAbZipItem; InStream, OutStream : TStream);
+var
+  BrotliStream: TStream;
+begin
+  BrotliStream := TBrotliDecompressionStream.Create(InStream);
+  try
+    OutStream.CopyFrom(BrotliStream, Item.UncompressedSize);
+  finally
+    BrotliStream.Free;
+  end;
+end;
+{$ENDIF}
+{ -------------------------------------------------------------------------- }
 function ExtractPrep(ZipArchive: TAbZipArchive; Item: TAbZipItem): TStream;
 var
   LFH         : TAbZipLocalFileHeader;
@@ -1144,6 +1162,11 @@ begin
         DoExtractZstd(aZipArchive, aItem, aInStream, OutStream);
       end;
       {$ENDIF}
+      {$IFDEF UnzipBrotliSupport}
+      cmBrotli: begin
+        DoExtractBrotli(aZipArchive, aItem, aInStream, OutStream);
+      end;
+      {$ENDIF}
       cmShrunk..cmImploded: begin
         DoLegacyUnzip(aZipArchive, aItem, aInStream, OutStream);
       end;
@@ -1193,6 +1216,8 @@ procedure AbUnzip(Sender : TObject; Item : TAbZipItem; const UseName : string);
   {create the output filestream and pass it to DoExtract}
 var
   LinkTarget : String;
+  PathType : TPathType;
+  AbsolutePath : String;
   ZipArchive : TAbZipArchive;
   InStream, OutStream : TStream;
 begin
@@ -1210,10 +1235,23 @@ begin
           try    {OutStream}
             DoExtract(ZipArchive, Item, InStream, OutStream);
             SetString(LinkTarget, TMemoryStream(OutStream).Memory, OutStream.Size);
-            LinkTarget := CeRawToUtf8(LinkTarget);
+            LinkTarget := NormalizePathDelimiters(CeRawToUtf8(LinkTarget));
           finally {OutStream}
             OutStream.Free;
           end;   {OutStream}
+
+          PathType := GetPathType(LinkTarget);
+          if PathType in [ptRelative, ptAbsolute] then
+          begin
+            if PathType = ptAbsolute then
+              AbsolutePath := LinkTarget
+            else begin
+              AbsolutePath := GetAbsoluteFileName(ExtractFilePath(UseName), LinkTarget);
+            end;
+            if not IsInPath(ZipArchive.BaseDirectory, AbsolutePath, True, True) then
+              ZipArchive.SuspiciousLinks.Add(NormalizePathDelimiters(Item.FileName));
+          end;
+
           if not CreateSymLink(LinkTarget, UseName, UInt32(Item.NativeFileAttributes)) then
             RaiseLastOSError;
         except
@@ -1223,6 +1261,7 @@ begin
         end;
       end
       else begin
+        ZipArchive.VerifyItem(Item);
         OutStream := TFileStreamEx.Create(UseName, fmCreate or fmShareDenyWrite);
         try
           try    {OutStream}
@@ -1243,7 +1282,7 @@ begin
   end;
   if not FPS_ISLNK(Item.NativeFileAttributes) then
   begin
-    AbSetFileTime(UseName, Item.LastModTimeAsDateTime);
+    AbSetFileTime(UseName, Item.LastWriteTime);
     AbSetFileAttr(UseName, Item.NativeFileAttributes);
   end;
 end;

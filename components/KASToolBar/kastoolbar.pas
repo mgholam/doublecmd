@@ -58,6 +58,8 @@ type
     FOverlay: TBitmap;
     FToolItem: TKASToolItem;
     function GetToolBar: TKASToolBar;
+    function GetGlyphBitmap: TBitmap;
+    procedure SetGlyphBitmap(bitmap: TBitmap);
   protected
     procedure CalculatePreferredSize(var PreferredWidth,
       PreferredHeight: integer; WithThemeSpace: Boolean); override;
@@ -72,6 +74,7 @@ type
   public
     property ToolBar: TKASToolBar read GetToolBar;
     property ToolItem: TKASToolItem read FToolItem;
+    property Glyph: TBitmap read GetGlyphBitmap write SetGlyphBitmap;
   end;
 
   { TKASToolDivider }
@@ -80,6 +83,15 @@ type
   protected
     procedure CalculatePreferredSize(var PreferredWidth,
       PreferredHeight: integer; WithThemeSpace: Boolean); override;
+    procedure Paint; override;
+  public
+    constructor Create(AOwner: TComponent; Item: TKASToolItem); override;
+  end;
+
+  { TKASToolLabel }
+
+  TKASToolLabel = class(TKASToolButton)
+  protected
     procedure Paint; override;
   public
     constructor Create(AOwner: TComponent; Item: TKASToolItem); override;
@@ -167,7 +179,9 @@ type
     procedure RemoveButton(Button: TKASToolButton);
     procedure RemoveToolItemExecutor(ExecuteFunction: TOnToolItemExecute);
     procedure UncheckAllButtons;
+    function GlyphBitmapSize: Integer;
     procedure UpdateIcon(ToolButton: TKASToolButton);
+    procedure UpdateIconWithBitmap(ToolButton: TKASToolButton; bitmap: TBitmap);
     procedure UseItems(AItems: TKASToolBarItems);
 
     procedure LoadConfiguration(Config: TXmlConfig; RootNode: TXmlNode;
@@ -206,7 +220,7 @@ procedure Register;
 implementation
 
 uses
-  Themes, Types, Math, ActnList, DCOSUtils;
+  Themes, Types, Math, ActnList, LCLType, LCLIntf, DCOSUtils;
 
 type
   PToolItemExecutor = ^TToolItemExecutor;
@@ -218,6 +232,29 @@ type
 procedure Register;
 begin
   RegisterComponents('KASComponents',[TKASToolBar]);
+end;
+
+function findScaleFactorByFirstForm: Double;
+begin
+  Result:= 1;
+  if Screen.FormCount > 0 then
+    Result:= Screen.Forms[0].GetCanvasScaleFactor();
+end;
+
+function findScaleFactorByControl( control: TControl ): Double;
+var
+  topParent: TControl;
+begin
+  if Assigned(control) then begin
+    topParent:= control.GetTopParent;
+    if Assigned(topParent) then
+      control:= topParent;
+    if (control is TWinControl) and TWinControl(control).HandleAllocated then begin
+      Result:= control.GetCanvasScaleFactor;
+      Exit;
+    end;
+  end;
+  Result:= findScaleFactorByFirstForm();
 end;
 
 { TKASToolBar }
@@ -554,10 +591,18 @@ begin
   if FGlyphSize = AValue then Exit;
   FGlyphSize:= AValue;
 
+  self.Images.Clear;
+  self.images.Width:= GlyphBitmapSize;
+  self.images.Height:= GlyphBitmapSize;
+  self.ImagesWidth:= FGlyphSize;
+  Self.Images.Scaled := (findScaleFactorByControl(Self) > 1.0);
+
   BeginUpdate;
   try
-    for I := 0 to ButtonList.Count - 1 do
+    for I := 0 to ButtonList.Count - 1 do begin
+      TKASToolButton(ButtonList[i]).ImageIndex:= -1;
       UpdateIcon(TKASToolButton(ButtonList[i]));
+    end;
   finally
     EndUpdate;
   end;
@@ -724,7 +769,7 @@ var
 begin
   try
     if Assigned(FOnLoadButtonGlyph) then
-      Bitmap := FOnLoadButtonGlyph(ToolButton.ToolItem, FGlyphSize, clBtnFace);
+      Bitmap := FOnLoadButtonGlyph(ToolButton.ToolItem, GlyphBitmapSize, clBtnFace);
 
     if not Assigned(Bitmap) and (ToolButton.ToolItem is TKASNormalItem) then
       Bitmap := LoadBtnIcon(TKASNormalItem(ToolButton.ToolItem).Icon);
@@ -736,12 +781,25 @@ begin
         ToolButton.FOverlay := FOnLoadButtonOverlay(ToolButton.ToolItem, FGlyphSize div 2, clBtnFace);
       end;
 
-      ToolButton.Glyph.Assign(Bitmap);
+      if Assigned(Bitmap) then
+        self.UpdateIconWithBitmap(ToolButton, Bitmap);
     finally
       Bitmap.Free;
     end;
   except
     // Ignore
+  end;
+end;
+
+procedure TKASToolBar.UpdateIconWithBitmap(ToolButton: TKASToolButton;
+  bitmap: TBitmap);
+begin
+  if ToolButton.ImageIndex < 0 then begin
+    ToolButton.Images:= self.Images;
+    ToolButton.ImageIndex:= self.Images.Add( bitmap, nil );
+    ToolButton.ImageWidth:= self.ImagesWidth;
+  end else begin
+    self.Images.Replace( ToolButton.ImageIndex, bitmap, nil );
   end;
 end;
 
@@ -835,7 +893,8 @@ end;
 constructor TKASToolBar.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
-  FGlyphSize:= 16; // by default
+  self.images:= TImageList.Create(self);
+  self.GlyphSize:= 16; // by default
   FUpdateCount:= 0;
   FButtonWidth := 23;
   FButtonHeight := 22;
@@ -855,6 +914,10 @@ begin
     if Item is TKASSeparatorItem then
     begin
       Result := TKASToolDivider.Create(Self, Item);
+    end
+    else if Item is TKASLabelItem then
+    begin
+      Result := TKASToolLabel.Create(Self, Item);
     end
     else
     begin
@@ -1033,12 +1096,18 @@ begin
     Buttons[I].Down:= False;
 end;
 
+function TKASToolBar.GlyphBitmapSize: Integer;
+begin
+  Result:= Round(FGlyphSize * findScaleFactorByControl(self));
+end;
+
 { TKASToolButton }
 
 procedure TKASToolButton.CalculatePreferredSize(var PreferredWidth,
   PreferredHeight: integer; WithThemeSpace: Boolean);
 var
   TextSize: TSize;
+  iconWidth: Integer;
 begin
   if (Parent = nil) then
     inherited
@@ -1056,7 +1125,10 @@ begin
     begin
       // Size to extent of the icon + caption.
       TextSize := Canvas.TextExtent(Caption);
-      PreferredWidth  := Max(TextSize.cx + Glyph.Width + 16, PreferredWidth);
+      iconWidth := self.ImageWidth;
+      if iconWidth = 0 then
+        iconWidth := Glyph.Width;
+      PreferredWidth  := Max(TextSize.cx + iconWidth + 16, PreferredWidth);
       PreferredHeight := Max(TextSize.cy + 4, PreferredHeight);
     end;
   end;
@@ -1128,6 +1200,16 @@ end;
 function TKASToolButton.GetToolBar: TKASToolBar;
 begin
   Result := Parent as TKASToolBar;
+end;
+
+function TKASToolButton.GetGlyphBitmap: TBitmap;
+begin
+  Result:= Inherited Glyph;
+end;
+
+procedure TKASToolButton.SetGlyphBitmap(bitmap: TBitmap);
+begin
+  self.ToolBar.UpdateIconWithBitmap(self, bitmap);
 end;
 
 { TKASToolDivider }
@@ -1220,6 +1302,41 @@ constructor TKASToolDivider.Create(AOwner: TComponent; Item: TKASToolItem);
 begin
   inherited Create(AOwner, Item);
   ControlStyle:= ControlStyle + [csAutoSize0x0];
+end;
+
+{ TKASToolLabel }
+
+procedure TKASToolLabel.Paint;
+const
+  cAlignment: array[TAlignment] of Longint = (DT_LEFT, DT_RIGHT, DT_CENTER);
+var
+  R: TRect;
+  Flags: Longint;
+  LabelText: String;
+begin
+  R:= ClientRect;
+  Canvas.Font:= Font;
+  LabelText:= Caption;
+  InflateRect(R, -8, 0);
+  Canvas.Brush.Color:= Color;
+  Canvas.Brush.Style:= bsClear;
+
+  Flags:= DT_EXPANDTABS or DT_VCENTER;
+  Flags:= Flags or DT_SINGLELINE or DT_NOPREFIX;
+
+  if UseRightToLeftReading then
+  begin
+    Flags:= Flags or DT_RTLREADING;
+  end;
+  Flags:= Flags or cAlignment[BidiFlipAlignment(Self.Alignment, UseRightToLeftAlignment)];
+
+  DrawText(Canvas.Handle, PAnsiChar(LabelText), Length(LabelText), R, Flags or DT_NOCLIP);
+end;
+
+constructor TKASToolLabel.Create(AOwner: TComponent; Item: TKASToolItem);
+begin
+  inherited Create(AOwner, Item);
+  AutoSize:= True;
 end;
 
 end.

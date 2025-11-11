@@ -4965,8 +4965,17 @@ begin
 end;
 
 function CompareDrives(Item1, Item2: Pointer): Integer;
+var
+  driver1: PDrive absolute Item1;
+  driver2: PDrive absolute Item2;
 begin
-  Result := CompareText(PDrive(Item1)^.DisplayName, PDrive(Item2)^.DisplayName);
+  if driver1 = driver2 then
+    Exit(0);
+  if driver1^.Path = PathDelim then
+    Exit(-1);
+  if driver2^.Path = PathDelim then
+    Exit(1);
+  Result := CompareText(driver1^.DisplayName, driver2^.DisplayName);
 end;
 
 procedure TfrmMain.UpdateDiskCount;
@@ -5052,10 +5061,37 @@ procedure TfrmMain.AddSpecialButtons(dskPanel: TKASToolBar);
     Button := dskPanel.AddButton(ToolItem);
     Button.GroupIndex := 0;
   end;
+
+  procedure AddFreeSpace;
+  var
+    S: String;
+    Button: TKASToolButton;
+    ToolItem: TKASLabelItem;
+  begin
+    ToolItem := TKASLabelItem.Create;
+    Button := dskPanel.AddButton(ToolItem);
+
+    Button.GroupIndex := 0;
+
+    if gShortFormatDriveInfo then
+      S := Format(rsFreeMsgShort, [cnvFormatFileSize(High(Int64), uoscHeader)])
+    else begin
+      S := Format(rsFreeMsg, [cnvFormatFileSize(High(Int64), uoscHeader), cnvFormatFileSize(High(Int64), uoscHeader)]);;
+    end;
+
+    Button.Alignment:= taLeftJustify;
+    Button.Constraints.MinWidth:= Button.Canvas.TextWidth(S) + ScaleX(16, 96);
+  end;
+
 begin
   AddItem(btnLeftRoot);
   AddItem(btnLeftUp);
   AddItem(btnLeftHome);
+
+  if gDriveFreeSpace and gDriveBarFreeSpace then
+  begin
+    AddFreeSpace;
+  end;
 end;
 
 procedure TfrmMain.CreateDiskPanel(dskPanel: TKASToolBar);
@@ -5084,7 +5120,7 @@ begin
 
       // Set drive icon.
       BitmapTmp := PixMapManager.GetDriveIcon(Drive, dskPanel.GlyphSize, clBtnFace, False);
-      Button.Glyph.Assign(BitmapTmp);
+      Button.Glyph := BitmapTmp;
       FreeAndNil(BitmapTmp);
 
       {Set Buttons Transparent. Is need? }
@@ -5658,9 +5694,9 @@ begin
     btnLeftDirectoryHotlist.Flat := gInterfaceFlat;
     btnLeftEqualRight.Visible := gDrivesListButton;
     btnLeftEqualRight.Flat:= gInterfaceFlat;
-    lblLeftDriveInfo.Visible:= gDriveFreeSpace;
+    lblLeftDriveInfo.Visible:= (gDriveFreeSpace and not (gDriveBarFreeSpace and not gDrivesListButton));
     pbxLeftDrive.Visible := gDriveInd;
-    pnlLeftTools.Visible:= gDrivesListButton or gDriveFreeSpace or gDriveInd;
+    pnlLeftTools.Visible:= gDrivesListButton or gDriveInd or lblLeftDriveInfo.Visible;
     pnlLeftTools.DoubleBuffered := True;
 
     btnRightDrive.Visible := gDrivesListButton;
@@ -5675,13 +5711,13 @@ begin
     btnRightDirectoryHotlist.Flat := gInterfaceFlat;
     btnRightEqualLeft.Visible := gDrivesListButton;
     btnRightEqualLeft.Flat:= gInterfaceFlat;
-    lblRightDriveInfo.Visible:= gDriveFreeSpace;
+    lblRightDriveInfo.Visible:= (gDriveFreeSpace and not (gDriveBarFreeSpace and not gDrivesListButton));
     pbxRightDrive.Visible := gDriveInd;
-    pnlRightTools.Visible:= gDrivesListButton or gDriveFreeSpace or gDriveInd;
+    pnlRightTools.Visible:= gDrivesListButton or gDriveInd or lblRightDriveInfo.Visible;
     pnlRightTools.DoubleBuffered := True;
 
     // Free space indicator.
-    if gDriveFreeSpace then
+    if (gDriveFreeSpace and not (gDriveBarFreeSpace and not gDrivesListButton)) then
     begin
       AnchorFreeSpace(lblLeftDriveInfo, lblRightDriveInfo, gDriveInd);
       if gDriveInd then
@@ -6580,12 +6616,10 @@ begin
       BitmapTmp := PixMapManager.GetDefaultDriveIcon(gDiskIconsSize, DriveButton.Color);
   end;
 
-  DriveButton.Glyph := BitmapTmp;
+  AssignRetinaBitmapForControl(DriveButton, gDiskIconsSize, BitmapTmp);
 
-  DriveButton.Width := DriveButton.Glyph.Width
+  DriveButton.Width := gDiskIconsSize
                      + DriveButton.Canvas.TextWidth(DriveButton.Caption) + 24;
-
-  FreeAndNil(BitmapTmp);
 end;
 
 procedure TfrmMain.UpdateSelectedDrive(ANoteBook: TFileViewNotebook);
@@ -6899,6 +6933,7 @@ var
   aFileView: TFileView;
   sboxDrive: TPaintBox;
   lblDriveInfo: TLabel;
+  Button: TKASToolButton = nil;
   AData: TFreeSpaceData absolute Data;
 begin
   case AData.Panel of
@@ -6915,10 +6950,26 @@ begin
         lblDriveInfo := lblRightDriveInfo;
       end;
   end;
+  if gDriveFreeSpace and gDriveBar1 and (gDriveBarFreeSpace and not gDrivesListButton) then
+  begin
+    if gDriveBar2 or (AData.Panel = PanelSelected) then
+    begin
+      if (AData.Panel = fpRight) or (not gDriveBar2) then
+        Button:= dskRight.Buttons[dskRight.ButtonCount - 1]
+      else begin
+        Button:= dskLeft.Buttons[dskLeft.ButtonCount - 1];
+      end;
+    end;
+  end;
   if mbCompareFileNames(AData.Path, aFileView.CurrentPath) then
   begin
     if not AData.Result then
     begin
+      if Assigned(Button) then
+      begin
+        Button.Hint:= '';
+        Button.Caption:= '';
+      end;
       lblDriveInfo.Caption := '';
       lblDriveInfo.Hint := '';
       sboxDrive.Hint := '';
@@ -6942,6 +6993,12 @@ begin
         lblDriveInfo.Caption := lblDriveInfo.Hint;
       end;
       sboxDrive.Hint := lblDriveInfo.Hint;
+
+      if Assigned(Button) then
+      begin
+        Button.Hint:= lblDriveInfo.Hint;
+        Button.Caption:= lblDriveInfo.Caption;
+      end;
     end;
   end;
   AData.Free;
@@ -6953,6 +7010,7 @@ var
   sboxDrive: TPaintBox;
   lblDriveInfo: TLabel;
   AData: TFreeSpaceData;
+  Button: TKASToolButton;
 begin
   case Panel of
     fpLeft :
@@ -6976,6 +7034,20 @@ begin
     sboxDrive.Hint := '';
     sboxDrive.Tag := -1;
     sboxDrive.Invalidate;
+
+    if gDriveFreeSpace and gDriveBar1 and (gDriveBarFreeSpace and not gDrivesListButton) then
+    begin
+      if gDriveBar2 or (Panel = PanelSelected) then
+      begin
+        if (Panel = fpRight) or (not gDriveBar2) then
+          Button:= dskRight.Buttons[dskRight.ButtonCount - 1]
+        else begin
+          Button:= dskLeft.Buttons[dskLeft.ButtonCount - 1];
+        end;
+        Button.Hint:= '';
+        Button.Caption:= '';
+      end;
+    end;
   end;
 
   AData := TFreeSpaceData.Create;

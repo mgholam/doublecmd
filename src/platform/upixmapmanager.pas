@@ -45,7 +45,8 @@ interface
 {$ENDIF}
 
 uses
-  Classes, SysUtils, Graphics, syncobjs, uFileSorting, DCStringHashListUtf8,
+  Classes, SysUtils,
+  Graphics, ImgList, Controls, ExtCtrls, Buttons, syncobjs, uFileSorting, DCStringHashListUtf8,
   uFile, uIconTheme, uDrive, uDisplayFile, uGlobs, uDCReadPSD, uOSUtils, FPImage,
   LCLVersion, uVectorImage, uMultiArc, uFileSource, WfxPlugin
   {$IF DEFINED(MSWINDOWS)}
@@ -378,6 +379,16 @@ function AdjustIconSize(ASize: Integer; APixelsPerInch: Integer): Integer;
 function StretchBitmap(var bmBitmap : Graphics.TBitmap; iIconSize : Integer;
                        clBackColor : TColor; bFreeAtEnd : Boolean = False) : Graphics.TBitmap;
 
+procedure AssignRetinaBitmapForControl(
+  const button: TCustomSpeedButton;
+  const imageSize: Integer;
+  bitmap: Graphics.TBitmap);
+
+procedure AssignRetinaBitmapForControl(
+  const imageControl: TCustomImage;
+  const imageSize: Integer;
+  bitmap: Graphics.TBitmap);
+
 {$IF DEFINED(DARWIN)}
 function NSImageToTBitmap( const image:NSImage ): TBitmap;
 function getBestNSImageWithSize( const srcImage:NSImage; const size:Integer ): NSImage;
@@ -458,6 +469,53 @@ begin
       raise;
     end;
   end;
+end;
+
+procedure AssignRetinaBitmapForControl(
+  const button: TCustomSpeedButton;
+  const imageSize: Integer;
+  bitmap: Graphics.TBitmap);
+var
+  ScaleFactor: Double;
+  oldImages: TCustomImageList;
+  images: TImageList;
+  imageListSize: Integer;
+begin
+  oldImages:= button.Images;
+  ScaleFactor := findScaleFactorByControl(button);
+  imageListSize := Round(imageSize * ScaleFactor);
+  images := TImageList.Create(button);
+  images.Width := imageListSize;
+  images.Height := imageListSize;
+  images.Scaled := (ScaleFactor > 1.0);
+  images.Add(bitmap, nil);
+  button.ImageWidth := imageSize;
+  button.Images := images;
+  button.ImageIndex := 0;
+  FreeAndNil(bitmap);
+  FreeAndNil(oldImages);
+end;
+
+procedure AssignRetinaBitmapForControl(
+  const imageControl: TCustomImage;
+  const imageSize: Integer;
+  bitmap: Graphics.TBitmap);
+var
+  oldImages: TCustomImageList;
+  images: TImageList;
+  imageListSize: Integer;
+begin
+  oldImages:= imageControl.Images;
+  imageListSize := Round(imageSize * findScaleFactorByControl(imageControl));
+  images := TImageList.Create(imageControl);
+  images.Width := imageListSize;
+  images.Height := imageListSize;
+  images.Add(bitmap, nil);
+  imageControl.ImageWidth := imageSize;
+  imageControl.Images := images;
+  imageControl.ImageIndex := 0;
+  FreeAndNil(bitmap);
+  FreeAndNil(oldImages);
 end;
 
 { TPixMapManager }
@@ -1142,20 +1200,20 @@ end;
 
 function NSImageToTBitmap( const image:NSImage ): TBitmap;
 var
+  nsbitmap: NSBitmapImageRep;
   tempData: NSData;
-  tempStream: TBlobStream;
-  tempBitmap: TTiffImage;
+  tempStream: TBlobStream = nil;
+  tempBitmap: TPortableNetworkGraphic = nil;
   bitmap: TBitmap;
 begin
   Result:= nil;
   if image=nil then exit;
 
-  tempStream:= nil;
-  tempBitmap:= nil;
   try
-    tempData:= image.TIFFRepresentation;
+    nsbitmap:= NSBitmapImageRep.imageRepWithData( image.TIFFRepresentation );
+    tempData:= nsbitmap.representationUsingType_properties( NSPNGFileType, nil );
     tempStream:= TBlobStream.Create( tempData.Bytes, tempData.Length );
-    tempBitmap:= TTiffImage.Create;
+    tempBitmap:= TPortableNetworkGraphic.Create;
     tempBitmap.LoadFromStream( tempStream );
     bitmap:= TBitmap.Create;
     bitmap.Assign( tempBitmap );
@@ -1186,13 +1244,18 @@ var
   fileIndex: PtrInt;
   image: NSImage;
   bmpBitmap: Graphics.TBitmap;
+  key: String;
 begin
   Result:= -1;
   if AIconSize = 0 then AIconSize := gIconsSize;
 
+  key:= AFullPath;
+  if AIconSize <> gIconsSize then
+    key:= key + '@' + IntToStr(AIconSize);
+
   FPixmapsLock.Acquire;
   try
-    fileIndex := FPixmapsFileNames.Find(AFullPath);
+    fileIndex := FPixmapsFileNames.Find(key);
     if fileIndex >= 0 then begin
       Result:= PtrInt(FPixmapsFileNames.List[fileIndex]^.Data);
       Exit;
@@ -1205,7 +1268,8 @@ begin
     image:= getBestNSImageWithSize(image, AIconSize);
     bmpBitmap:= NSImageToTBitmap(image);
     Result := FPixmapList.Add(bmpBitmap);
-    FPixmapsFileNames.Add(AFullPath, Pointer(Result));
+
+    FPixmapsFileNames.Add(key, Pointer(Result));
   finally
     FPixmapsLock.Release;
   end;
@@ -1292,16 +1356,18 @@ end;
 function TPixMapManager.LoadThemeIcon(AIconTheme: TIconTheme; const AIconName: String; AIconSize: Integer): Graphics.TBitmap;
 var
   FileName: String;
+  bitmapSize: Integer;
 begin
-  FileName:= AIconTheme.FindIcon(AIconName, AIconSize);
+  bitmapSize := Round(AIconSize * findScaleFactorByFirstForm());
+  FileName:= AIconTheme.FindIcon(AIconName, bitmapSize, 1);
   if FileName = EmptyStr then Exit(nil);
   if TScalableVectorGraphics.IsFileExtensionSupported(ExtractFileExt(FileName)) then
-    Result := TScalableVectorGraphics.CreateBitmap(FileName, AIconSize, AIconSize)
+    Result := TScalableVectorGraphics.CreateBitmap(FileName, bitmapSize, bitmapSize)
   else
   begin
     Result := CheckLoadPixmapFromFile(FileName);
     if Assigned(Result) then begin
-      Result:= StretchBitmap(Result, AIconSize, clNone, True);
+      Result:= StretchBitmap(Result, bitmapSize, clNone, True);
     end;
   end;
 end;
@@ -1452,7 +1518,6 @@ var
 begin
   Result:= -1;
   if not FUseSystemTheme then Exit;
-  if AIconSize = 24 then AIconSize:= 32;
   nImage:= NSWorkspace.sharedWorkspace.iconForFileType(NSSTR(PChar(AFileExt)));
   // Try to find best representation for requested icon size
   bestRect.origin.x:= 0;

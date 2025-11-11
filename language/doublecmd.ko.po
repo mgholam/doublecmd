@@ -3,15 +3,15 @@ msgstr ""
 "Project-Id-Version: Double Commander 1.1.0 alpha\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-11-15 11:15+0300\n"
-"PO-Revision-Date: 2025-07-17 15:45+0900\n"
-"Last-Translator: VenusGirl: venusgirl@outlook.com/\n"
+"PO-Revision-Date: 2025-10-23 02:54+0900\n"
+"Last-Translator: VenusGirl <venusgirl@outlook.com>\n"
 "Language-Team: 비너스걸: https://venusgirls.tistory.com/\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Native-Language: 한국어\n"
-"X-Generator: Poedit 3.6\n"
+"X-Generator: Poedit 3.7\n"
 
 #: fsyncdirsdlg.rscomparingpercent
 #, object-pascal-format
@@ -352,6 +352,10 @@ msgstr "Unix"
 #: tfrmchecksumcalc.rbwindows.caption
 msgid "Windows"
 msgstr "Windows"
+
+#: tfrmchecksumcalc.rghashalgorithm.caption
+msgid "Algorithm"
+msgstr "알고리즘"
 
 #: tfrmchecksumverify.btnclose.caption
 msgctxt "TFRMCHECKSUMVERIFY.BTNCLOSE.CAPTION"
@@ -1615,7 +1619,7 @@ msgstr "\"디렉터리에서 시작\"으로 저장(&V)"
 
 #: tfrmfinddlg.btnsearchsavewithstartingpath.hint
 msgid "If saved then \"Start in directory\" will be restored when loading template. Use it if you want to fix searching to a certain directory"
-msgstr "저장하면 템플릿을 불러올 때 \"디렉터리에서 시작\"이 복원됩니다. 특정 디렉터리에 대한 검색을 수정하려면 이를 사용하십시오"
+msgstr "저장하면 템플릿을 불러올 때 \"디렉터리에서 시작\"이 복원됩니다. 특정 디렉터리에 대한 검색을 수정하려면 이를 사용하세요"
 
 #: tfrmfinddlg.btnusetemplate.caption
 msgid "Use template"
@@ -2994,11 +2998,6 @@ msgstr "/"
 msgid "Go to root directory"
 msgstr "루트 디렉터리로 가기"
 
-#: tfrmmain.btnleftup.caption
-msgctxt "tfrmmain.btnleftup.caption"
-msgid ".."
-msgstr ".."
-
 #: tfrmmain.btnleftup.hint
 msgid "Go to parent directory"
 msgstr "상위 디렉터리로 가기"
@@ -3031,11 +3030,6 @@ msgstr "~"
 msgctxt "TFRMMAIN.BTNRIGHTROOT.CAPTION"
 msgid "/"
 msgstr "/"
-
-#: tfrmmain.btnrightup.caption
-msgctxt "TFRMMAIN.BTNRIGHTUP.CAPTION"
-msgid ".."
-msgstr ".."
 
 #: tfrmmain.caption
 msgctxt "TFRMMAIN.CAPTION"
@@ -3515,6 +3509,10 @@ msgstr "상대 경로 호출 메뉴"
 msgid "Load Last Preset"
 msgstr "마지막 사전 설정 불러오기"
 
+#: tfrmmultirename.actloadnamesfromclipboard.caption
+msgid "Load Names from Clipboard"
+msgstr "클립보드에서 이름 가져오기"
+
 #: tfrmmultirename.actloadnamesfromfile.caption
 msgid "Load Names from File..."
 msgstr "파일에서 이름 불러오기..."
@@ -3659,6 +3657,14 @@ msgstr "파일당 한 번만 바꾸기"
 #: tfrmmultirename.cbregexp.caption
 msgid "Regular e&xpressions"
 msgstr "정규식(&X)"
+
+#: tfrmmultirename.cbrepext.caption
+msgid "E"
+msgstr "E"
+
+#: tfrmmultirename.cbrepext.hint
+msgid "Replace also in file extensions"
+msgstr "파일 확장자에서도 대체"
 
 #: tfrmmultirename.cbusesubs.caption
 msgid "&Use substitution"
@@ -3838,7 +3844,7 @@ msgstr "옵션"
 
 #: tfrmoptions.lblemptyeditor.caption
 msgid "Please select one of the subpages, this page does not contain any settings."
-msgstr "하위 페이지 중 하나를 선택하십시오. 이 페이지에는 설정이 없습니다."
+msgstr "하위 페이지 중 하나를 선택하세요. 이 페이지에는 설정이 없습니다."
 
 #: tfrmoptionsarchivers.btnarchiveradd.caption
 msgctxt "tfrmoptionsarchivers.btnarchiveradd.caption"
@@ -4121,9 +4127,8 @@ msgid "Mo&ve icon to system tray when minimized"
 msgstr "최소화 시 아이콘을 시스템 트레이로 이동(&V)"
 
 #: tfrmoptionsbehavior.cbonlyonce.caption
-msgctxt "tfrmoptionsbehavior.cbonlyonce.caption"
 msgid "A&llow only one copy of DC at a time"
-msgstr "한 번에 하나의 DC 사본만 허용(&L)"
+msgstr "한 번에 DC 사본 하나만 허용(&L)"
 
 #: tfrmoptionsbehavior.edtdrivesblacklist.hint
 msgid "Here you can enter one or more drives or mount points, separated by \";\"."
@@ -4504,31 +4509,6 @@ msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNALLUSEINVERTEDSELECTION.HINT"
 msgid "Apply modification to all columns"
 msgstr "모든 열에 수정 적용"
 
-#: tfrmoptionscustomcolumns.btnbackcolor.caption
-msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNBACKCOLOR.CAPTION"
-msgid ">>"
-msgstr ">>"
-
-#: tfrmoptionscustomcolumns.btnbackcolor2.caption
-msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNBACKCOLOR2.CAPTION"
-msgid ">>"
-msgstr ">>"
-
-#: tfrmoptionscustomcolumns.btncursorbordercolor.caption
-msgctxt "tfrmoptionscustomcolumns.btncursorbordercolor.caption"
-msgid ">>"
-msgstr ">>"
-
-#: tfrmoptionscustomcolumns.btncursorcolor.caption
-msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNCURSORCOLOR.CAPTION"
-msgid ">>"
-msgstr ">>"
-
-#: tfrmoptionscustomcolumns.btncursortext.caption
-msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNCURSORTEXT.CAPTION"
-msgid ">>"
-msgstr ">>"
-
 #: tfrmoptionscustomcolumns.btndeleteconfigcolumns.caption
 msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNDELETECONFIGCOLUMNS.CAPTION"
 msgid "&Delete"
@@ -4539,29 +4519,9 @@ msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNFONT.CAPTION"
 msgid "..."
 msgstr "..."
 
-#: tfrmoptionscustomcolumns.btnforecolor.caption
-msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNFORECOLOR.CAPTION"
-msgid ">>"
-msgstr ">>"
-
 #: tfrmoptionscustomcolumns.btngotosetdefault.caption
 msgid "Go to set default"
 msgstr "기본값 설정으로 가기"
-
-#: tfrmoptionscustomcolumns.btninactivecursorcolor.caption
-msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNINACTIVECURSORCOLOR.CAPTION"
-msgid ">>"
-msgstr ">>"
-
-#: tfrmoptionscustomcolumns.btninactivemarkcolor.caption
-msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNINACTIVEMARKCOLOR.CAPTION"
-msgid ">>"
-msgstr ">>"
-
-#: tfrmoptionscustomcolumns.btnmarkcolor.caption
-msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNMARKCOLOR.CAPTION"
-msgid ">>"
-msgstr ">>"
 
 #: tfrmoptionscustomcolumns.btnnewconfig.caption
 msgctxt "TFRMOPTIONSCUSTOMCOLUMNS.BTNNEWCONFIG.CAPTION"
@@ -5795,7 +5755,7 @@ msgstr "위로(&U)"
 
 #: tfrmoptionsfileassoc.destartpath.hint
 msgid "Starting path of the command. Never quote this string."
-msgstr "명령의 시작 경로입니다. 이 문자열을 인용하지 마십시오."
+msgstr "명령의 시작 경로입니다. 이 문자열을 인용하지 마세요."
 
 #: tfrmoptionsfileassoc.edbactionname.hint
 msgid "Name of the action. It is never passed to the system, it's just a mnemonic name chosen by you, for you"
@@ -5807,7 +5767,7 @@ msgstr "명령에 전달할 매개 변수입니다. 공백이 있는 긴 파일 
 
 #: tfrmoptionsfileassoc.fnecommand.hint
 msgid "Command to execute. Never quote this string."
-msgstr "실행할 명령입니다. 이 문자열을 인용하지 마십시오."
+msgstr "실행할 명령입니다. 이 문자열을 인용하지 마세요."
 
 #: tfrmoptionsfileassoc.gbactiondescription.caption
 msgid "Action description"
@@ -6810,11 +6770,6 @@ msgstr "로그 작업"
 msgid "Operation status"
 msgstr "작업 상태"
 
-#: tfrmoptionsmisc.btnoutputpathfortoolbar.caption
-msgctxt "TFRMOPTIONSMISC.BTNOUTPUTPATHFORTOOLBAR.CAPTION"
-msgid ">>"
-msgstr ">>"
-
 #: tfrmoptionsmisc.btnrelativeoutputpathfortoolbar.hint
 msgctxt "TFRMOPTIONSMISC.BTNRELATIVEOUTPUTPATHFORTOOLBAR.HINT"
 msgid "Some functions to select appropriate path"
@@ -7416,7 +7371,7 @@ msgid "Command:"
 msgstr "명령:"
 
 #: tfrmoptionsterminal.lbrunintermstayopenparams.caption
-msgctxt "TFRMOPTIONSTERMINAL.LBRUNINTERMSTAYOPENCMD.CAPTION"
+msgctxt "TFRMOPTIONSTERMINAL.LBRUNINTERMSTAYOPENPARAMS.CAPTION"
 msgid "Parameters:"
 msgstr "매개변수:"
 
@@ -7451,11 +7406,6 @@ msgstr "새 버튼 삽입(&I)"
 msgid "Select"
 msgstr "선택"
 
-#: tfrmoptionstoolbarbase.btnopenfile.caption
-msgctxt "tfrmoptionstoolbarbase.BTNOPENFILE.CAPTION"
-msgid ">>"
-msgstr ">>"
-
 #: tfrmoptionstoolbarbase.btnother.caption
 msgctxt "tfrmoptionstoolbarbase.btnother.caption"
 msgid "Other..."
@@ -7464,11 +7414,6 @@ msgstr "기타..."
 #: tfrmoptionstoolbarbase.btnremovehotkey.caption
 msgid "Remove hotke&y"
 msgstr "단축키 제거(&Y)"
-
-#: tfrmoptionstoolbarbase.btnstartpath.caption
-msgctxt "tfrmoptionstoolbarbase.BTNSTARTPATH.CAPTION"
-msgid ">>"
-msgstr ">>"
 
 #: tfrmoptionstoolbarbase.btnsuggestiontooltip.caption
 msgid "Suggest"
@@ -7969,11 +7914,6 @@ msgctxt "tfrmoptionstooltips.btndeletetooltipsfiletype.caption"
 msgid "Delete"
 msgstr "삭제"
 
-#: tfrmoptionstooltips.btnfieldslist.caption
-msgctxt "TFRMOPTIONSTOOLTIPS.BTNFIELDSLIST.CAPTION"
-msgid ">>"
-msgstr ">>"
-
 #: tfrmoptionstooltips.btnfieldssearchtemplate.hint
 msgctxt "TFRMOPTIONSTOOLTIPS.BTNFIELDSSEARCHTEMPLATE.HINT"
 msgid "Template..."
@@ -8220,10 +8160,6 @@ msgstr "압축파일로 이동(&V)"
 #: tfrmpackdlg.cbmultivolume.caption
 msgid "&Multiple disk archive"
 msgstr "다중 디스크 압축파일(&M)"
-
-#: tfrmpackdlg.cbotherplugins.caption
-msgid "=>"
-msgstr "=>"
 
 #: tfrmpackdlg.cbputintarfirst.caption
 msgid "P&ut in the TAR archive first"
@@ -12121,7 +12057,7 @@ msgstr "암호 (방화벽):"
 
 #: ulng.rsmsgpasswordverify
 msgid "Please re-enter the password for verification:"
-msgstr "검증을 위해 암호를 다시 입력하십시오:"
+msgstr "검증을 위해 암호를 다시 입력하세요:"
 
 #: ulng.rsmsgpopuphotdelete
 #, object-pascal-format
@@ -12154,7 +12090,7 @@ msgstr "삭제된 텍스트의 파일 이름:"
 
 #: ulng.rsmsgprovidethisfile
 msgid "Please, make this file available. Retry?"
-msgstr "이 파일을 사용할 수 있도록 설정하십시오. 다시 시도하시겠습니까?"
+msgstr "이 파일을 사용할 수 있도록 설정하세요. 다시 시도하시겠습니까?"
 
 #: ulng.rsmsgrenamefavtabs
 msgid "Enter new friendly name for this Favorite Tabs"
@@ -12180,7 +12116,7 @@ msgstr "이 텍스트를 바꾸시겠습니까?"
 
 #: ulng.rsmsgrestartforapplychanges
 msgid "Please, restart Double Commander in order to apply changes"
-msgstr "변경 사항을 적용하려면 Double Commander를 다시 시작하십시오"
+msgstr "변경 사항을 적용하려면 Double Commander를 다시 시작하세요"
 
 #: ulng.rsmsgscriptcantfindlibrary
 #, object-pascal-format
@@ -12203,11 +12139,11 @@ msgstr "실행할 파일 선택"
 
 #: ulng.rsmsgselectonlychecksumfiles
 msgid "Please select only checksum files!"
-msgstr "체크섬 파일만 선택하십시오!"
+msgstr "체크섬 파일만 선택하세요!"
 
 #: ulng.rsmsgsellocnextvol
 msgid "Please select location of next volume"
-msgstr "다음 볼륨의 위치를 선택하십시오"
+msgstr "다음 볼륨의 위치를 선택하세요"
 
 #: ulng.rsmsgsetvolumelabel
 msgid "Set volume label"
@@ -13010,7 +12946,7 @@ msgstr "새 도구 설명 파일 유형 추가"
 
 #: ulng.rsoptarchiveconfiguresavetochange
 msgid "To change current editing archive configuration, either APPLY or DELETE current editing one"
-msgstr "현재 편집 압축파일 구성을 변경하려면 현재 편집을 적용하거나 삭제하십시오"
+msgstr "현재 편집 압축파일 구성을 변경하려면 현재 편집을 적용하거나 삭제하세요"
 
 #: ulng.rsoptarchiveradditonalcmd
 msgid "Mode dependent, additional command"
@@ -13090,7 +13026,7 @@ msgstr "압축기 구성을 가져올 파일 선택"
 #: ulng.rsoptarchiverimportprompt
 msgctxt "ulng.rsoptarchiverimportprompt"
 msgid "Select the one(s) you want to import"
-msgstr "가져올 항목을 선택하십시오"
+msgstr "가져올 항목을 선택하세요"
 
 #: ulng.rsoptarchiverjustname
 msgid "Use name only, without path"
@@ -13675,7 +13611,7 @@ msgstr "도구 설명 파일 형식 구성을 가져올 파일을 선택합니�
 #: ulng.rsopttooltipfiletypeimportprompt
 msgctxt "ulng.rsopttooltipfiletypeimportprompt"
 msgid "Select the one(s) you want to import"
-msgstr "가져올 항목을 선택하십시오"
+msgstr "가져올 항목을 선택하세요"
 
 #: ulng.rsopttooltipfiletypewheretosave
 msgid "Enter location and filename where to save tooltip file type configuration"
@@ -14367,3 +14303,4 @@ msgstr "교체가 이루어지지 않았습니다."
 #, object-pascal-format
 msgid "No setup named \"%s\""
 msgstr "\"%s\"라는 이름의 설정 없음"
+
