@@ -57,7 +57,8 @@ uses
   , Glib2, Gtk2
   {$ELSEIF DEFINED(DARWIN)}
   , CocoaConfig
-  , uMyDarwin
+  , uDarwinApplication
+  , uDarwinFileView
   {$ENDIF}
   , Types, LMessages;
 
@@ -231,6 +232,7 @@ type
     actConfigToolbars: TAction;
     actDebugShowCommandParameters: TAction;
     actOpenDriveByIndex: TAction;
+    actSetSortMode: TAction;
     btnF10: TSpeedButton;
     btnF3: TSpeedButton;
     btnF4: TSpeedButton;
@@ -683,6 +685,9 @@ type
     procedure seLogWindowSpecialLineColors(Sender: TObject; Line: integer;
       var Special: boolean; var FG, BG: TColor);
 
+    procedure CloseActiveTabAsync(Data: PtrInt);
+    procedure CloseActiveTab;
+
     procedure FileViewFreeAsync(Data: PtrInt);
     function FileViewAutoSwitch(FileSource: IFileSource; var FileView: TFileView; Reason: TChangePathReason; const NewPath: String): Boolean;
     function FileViewBeforeChangePath(FileView: TFileView; NewFileSource: IFileSource; Reason: TChangePathReason; const NewPath : String): Boolean;
@@ -802,6 +807,7 @@ type
     {$IFDEF DARWIN}
     procedure GlobalMacOSKeyDownHandler(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure OpenNewWindow(Sender: TObject);
+    procedure installMacOSFNKeyTap(Sender: TObject; var Done: Boolean);
     {$ENDIF}
 
   protected
@@ -896,7 +902,6 @@ type
     procedure OnNSServiceOpenWithNewTab( filenames:TStringList );
     function NSServiceMenuIsReady(): boolean;
     function NSServiceMenuGetFilenames(): TStringArray;
-    procedure NSThemeChangedHandler();
     {$ENDIF}
     procedure LoadWindowState;
     procedure SaveWindowState;
@@ -930,6 +935,8 @@ type
     procedure DoDragDropOperation(Operation: TDragDropOperation;
                                   var DropParams: TDropParams);
 
+    function IntfUTF8KeyPress(var UTF8Key: TUTF8Char;
+                              RepeatCount: Integer; SystemKey: Boolean): Boolean; override;
 
     property Drives: TDrivesList read DrivesList;
     property SyncChangeDir: String write FSyncChangeDir;
@@ -977,11 +984,6 @@ const
 {$IF DEFINED(LCLGTK2) or DEFINED(LCLQT) or DEFINED(LCLQT5) or DEFINED(LCLQT6)}
 var
   LastActiveWindow: TCustomForm = nil;
-{$ENDIF}
-
-{$IF (DEFINED(LCLQT) or DEFINED(LCLQT5) or DEFINED(LCLQT6)) and not DEFINED(MSWINDOWS)}
-var
-  CloseQueryResult: Boolean = False;
 {$ENDIF}
 
 {$IFDEF LCLGTK2}
@@ -1138,6 +1140,15 @@ begin
   Application.AddOnKeyDownBeforeHandler( @GlobalMacOSKeyDownHandler );
   {$ENDIF}
 
+  {$IF DEFINED(LCLQT5) OR DEFINED(LCLQT6) OR DEFINED(LCLGTK3)}
+  // Save original captions
+  for I:= 0 to mnuMain.Items.Count - 1 do
+  begin
+    mnuMain.Items[I].Hint:= mnuMain.Items[I].Caption;
+  end;
+  mnuMain.Tag:= PtrInt(ktaNone);
+  {$ENDIF}
+
   ConvertToolbarBarConfig(gpCfgDir + 'default.bar');
   CreateDefaultToolbar;
   sStaticTitleBarString := GenerateTitle();
@@ -1233,8 +1244,6 @@ begin
   TDriveWatcher.AddObserver(@OnDriveWatcherEvent);
 
 {$IF (DEFINED(LCLQT) or DEFINED(LCLQT5) or DEFINED(LCLQT6)) and not DEFINED(MSWINDOWS)}
-  // Fixes bug - [0000033] "DC cancels shutdown in KDE"
-  // http://doublecmd.sourceforge.net/mantisbt/view.php?id=33
   QEventHook:= QObject_hook_create(TQtWidget(Self.Handle).Widget);
   QObject_hook_hook_events(QEventHook, @QObjectEventFilter);
 {$ENDIF}
@@ -1257,8 +1266,10 @@ begin
   ThemeServices.OnThemeChange:= @AppThemeChange;
 
 {$IF DEFINED(DARWIN)}
-  InitNSServiceProvider( @OnNSServiceOpenWithNewTab, @NSServiceMenuIsReady, @NSServiceMenuGetFilenames );
-  InitNSThemeChangedObserver( @NSThemeChangedHandler );
+  TDarwinApplicationUtil.initServiceProvider( @OnNSServiceOpenWithNewTab, @NSServiceMenuIsReady, @NSServiceMenuGetFilenames );
+  TDarwinFileViewUtil.init( @ActiveNotebook, @ActiveFrame );
+  if gForceFunctionKey then
+    Application.OnIdle:= @installMacOSFNKeyTap;
 {$ENDIF}
 end;
 
@@ -1864,10 +1875,6 @@ begin
       end;
     end;
   end;
-
-{$IF (DEFINED(LCLQT) or DEFINED(LCLQT5) or DEFINED(LCLQT6)) and not DEFINED(MSWINDOWS)}
-  CloseQueryResult:= CanClose;
-{$ENDIF}
 end;
 
 procedure TfrmMain.FormDropFiles(Sender: TObject; const FileNames: array of String);
@@ -2085,6 +2092,28 @@ begin
 
   finally
     FreeAndNil(DropParams);
+  end;
+end;
+
+function TfrmMain.IntfUTF8KeyPress(var UTF8Key: TUTF8Char;
+  RepeatCount: Integer; SystemKey: Boolean): Boolean;
+begin
+  if (RepeatCount < 0) and (gKeyTyping[ktmAlt] = ktaCommandLine) then
+  begin
+    if GetKeyShiftStateEx * KeyModifiersShortcutNoText = [ssAlt] then
+    begin
+      if FrameLeft.Focused or FrameRight.Focused then
+      begin
+        TypeInCommandLine(UTF8Key);
+        UTF8Key := '';
+        Exit(True);
+      end;
+    end;
+  end;
+  if (RepeatCount < 0) then
+    Result:= False
+  else begin
+    Result:= inherited IntfUTF8KeyPress(UTF8Key, RepeatCount, SystemKey);
   end;
 end;
 
@@ -2962,7 +2991,7 @@ constructor TfrmMain.Create(TheOwner: TComponent);
   begin
     CocoaConfigMenu.appMenu.aboutItem:= mnuHelpAbout;
     CocoaConfigMenu.appMenu.preferencesItem:= mnuConfigOptions;
-    CocoaConfigMenu.appMenu.onCreate:= @onMainMenuCreate;
+    CocoaConfigMenu.appMenu.onCreate:= @darwinOnMainMenuCreate;
   end;
 
   procedure setMacOSDockMenu();
@@ -4215,6 +4244,9 @@ var
 begin
   SetDragCursor(Shift);
 
+  if ActiveControl = nil then
+    ActiveFrame.SetFocus;
+
   // Either left or right panel has to be focused.
   if not FrameLeft.Focused and
      not FrameRight.Focused then
@@ -4541,6 +4573,20 @@ begin
   end;
 end;
 
+procedure TfrmMain.CloseActiveTabAsync(Data: PtrInt);
+begin
+  commands.DoCloseTab(ActiveNotebook, ActiveNotebook.PageIndex);
+end;
+
+procedure TfrmMain.CloseActiveTab;
+begin
+  // neither LCL nor WidgetSet prefers the App to destroy components during event handling.
+  // if DC closes the tab during event handling, LCL will output the following warning:
+  // WARNING: TDrawGridEx.Destroy with LCLRefCount>0. Hint: Maybe the component is processing an event?
+  // some WidgetSets may even cause unpredictable issues due to dangling references.
+  Application.QueueAsyncCall(@CloseActiveTabAsync, 0);
+end;
+
 procedure TfrmMain.FileViewFreeAsync(Data: PtrInt);
 var
   FileView: TFileView absolute Data;
@@ -4822,6 +4868,9 @@ begin
         ANoteBook.Hint := FileView.CurrentPath;
       end;
 
+      if Assigned(onFileViewUpdated) then
+        onFileViewUpdated(FileView);
+
       {if (fspDirectAccess in FileView.FileSource.GetProperties) then
         begin
           if gTermWindow and Assigned(Cons) then
@@ -4966,16 +5015,16 @@ end;
 
 function CompareDrives(Item1, Item2: Pointer): Integer;
 var
-  driver1: PDrive absolute Item1;
-  driver2: PDrive absolute Item2;
+  drive1: PDrive absolute Item1;
+  drive2: PDrive absolute Item2;
 begin
-  if driver1 = driver2 then
+  if drive1 = drive2 then
     Exit(0);
-  if driver1^.Path = PathDelim then
+  if drive1^.Path = PathDelim then
     Exit(-1);
-  if driver2^.Path = PathDelim then
+  if drive2^.Path = PathDelim then
     Exit(1);
-  Result := CompareText(driver1^.DisplayName, driver2^.DisplayName);
+  Result := CompareText(drive1^.DisplayName, drive2^.DisplayName);
 end;
 
 procedure TfrmMain.UpdateDiskCount;
@@ -5149,14 +5198,8 @@ begin
     FileViewFlags := [fvfDelayLoadingFiles];
   if sType = 'columns' then begin
     Result := TColumnsFileView.Create(Page, AConfig, ANode, FileViewFlags);
-    {$IFDEF DARWIN}
-    TColumnsFileView(Result).OnDrawCell:= @DarwinFileViewDrawHelper.OnDrawCell;
-    {$ENDIF}
   end else if sType = 'brief' then begin
     Result := TBriefFileView.Create(Page, AConfig, ANode, FileViewFlags);
-    {$IFDEF DARWIN}
-    TBriefFileView(Result).OnDrawCell:= @DarwinFileViewDrawHelper.OnDrawCell;
-    {$ENDIF}
   end else if sType = 'thumbnails' then
     Result := TThumbFileView.Create(Page, AConfig, ANode, FileViewFlags)
   else begin
@@ -5809,6 +5852,29 @@ begin
       UpdateFreeSpace(fpRight, True);
     end;
 
+{$IF DEFINED(LCLQT5) OR DEFINED(LCLQT6) OR DEFINED(LCLGTK3)}
+    // https://github.com/doublecmd/doublecmd/issues/1327
+    if mnuMain.Tag <> PtrInt(gKeyTyping[ktmAlt]) then
+    begin
+      if gKeyTyping[ktmAlt] = ktaNone then
+      begin
+        // Enable menu shortcuts
+        for I:= 0 to mnuMain.Items.Count - 1 do
+        begin
+          mnuMain.Items[I].Caption:= mnuMain.Items[I].Hint;
+        end;
+      end
+      else begin
+        // Disable menu shortcuts
+        for I:= 0 to mnuMain.Items.Count - 1 do
+        begin
+          mnuMain.Items[I].Caption:= StripHotkey(mnuMain.Items[I].Hint);
+        end;
+      end;
+      mnuMain.Tag:= PtrInt(gKeyTyping[ktmAlt])
+    end;
+{$ENDIF}
+
     UpdateHotDirIcons; // Preferable to be loaded even if not required in popupmenu *because* in the tree it's a must, especially when checking for missing directories
     ShowTrayIcon(gAlwaysShowTrayIcon);
     UpdateMainTitleBar;
@@ -6404,11 +6470,6 @@ begin
   FreeAndNil( files );
   Result:= filenames;
 end;
-
-procedure TfrmMain.NSThemeChangedHandler;
-begin
-  ThemeServices.IntfDoOnThemeChange;
-end;
 {$ENDIF}
 
 procedure TfrmMain.LoadWindowState;
@@ -6551,6 +6612,14 @@ var
   DrivePath: String;
   DrivePathLen: PtrInt;
   LongestPathLen: Integer = 0;
+
+  function sameAddress( const drive: PDrive ): Boolean; inline;
+  begin
+    if (drive^.DriveType=dtVirtual) and (drive^.DeviceId=Address) then
+      Exit( True );
+    Result:= Address.IsEmpty;
+  end;
+
 begin
   Result := -1;
 
@@ -6565,7 +6634,8 @@ begin
         if Pos(Address, DrivesList[I]^.Path) = 1 then
           Exit(I);
       end
-      else begin
+      else if sameAddress(DrivesList[I]) then
+      begin
         DrivePath := UTF8UpperCase(DrivesList[I]^.Path);
         DrivePathLen := UTF8Length(DrivePath);
         if (DrivePathLen > LongestPathLen) and IsInPath(DrivePath, Path, True, True) then
@@ -7370,7 +7440,13 @@ end;
 
 procedure TfrmMain.OpenNewWindow(Sender: TObject);
 begin
-  uMyDarwin.openNewInstance;
+  TDarwinApplicationUtil.openNewInstance;
+end;
+
+procedure TfrmMain.installMacOSFNKeyTap(Sender: TObject; var Done: Boolean);
+begin
+  TDarwinApplicationUtil.installFNKeyTap;
+  Application.OnIdle:= nil;
 end;
 {$ENDIF}
 
@@ -7382,15 +7458,6 @@ begin
     QEventApplicationPaletteChange:
     begin
       ThemeServices.IntfDoOnThemeChange;
-    end;
-    QEventClose:
-    begin
-      TQtWidget(Self.Handle).SlotClose;
-      Result:= CloseQueryResult;
-      if Result then
-        QEvent_accept(Event)
-      else
-        QEvent_ignore(Event);
     end;
   end;
 end;

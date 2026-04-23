@@ -138,12 +138,11 @@ type
 implementation
 
 uses
-  CRC, Laz2_XMLRead;
+  CRC, Laz2_XMLRead, LCLVersion;
 
 //==== TSynUniSyn ============================================================
 constructor TSynUniSyn.Create(AOwner: TComponent);
 begin
-  inherited Create(AOwner);
   Info := TSynInfo.Create;
   Info.History := TStringList.Create;
   Info.Sample := TStringList.Create;
@@ -157,6 +156,8 @@ begin
   fEol := False;
   fPrEol := False;
   fCurrentRule := MainRules;
+
+  inherited Create(AOwner);
 end;
 
 destructor TSynUniSyn.Destroy;
@@ -445,7 +446,20 @@ end;
 
 procedure TSynUniSyn.SetRange(Value: Pointer);
 //: Set current range
+{$if lcl_fullversion >= 4990000}
+var
+  Index: Integer;
+{$endif}
 begin
+{$if lcl_fullversion >= 4990000}
+  // Workaround, issue #2764
+  if (Value = nil) then
+  begin
+    Index:= LineIndex - 1;
+    PrepareLines(-1, 100);
+    Value:= CurrentRanges[Index];
+  end;
+{$endif}
   fCurrentRule := TSynRange(Value);
 end;
 
@@ -702,6 +716,9 @@ begin
       ReadXMLFile(Xml, TargetStream, [xrfPreserveWhiteSpace]);
       try
         LoadFromXml(Xml);
+{$if lcl_fullversion >= 4990000}
+        DefaultFilter:= GetDefaultFilter;
+{$endif}
       finally
         Xml.Free;
       end;
@@ -725,6 +742,9 @@ procedure TSynUniSyn.SaveToStream(Stream: TStream; Rule: TSynRule);
 var
   StreamWriter: TStreamWriter;
 begin
+{$if lcl_fullversion >= 4990000}
+  SetDefaultFilter(DefaultFilter);
+{$endif}
   StreamWriter := TStreamWriter.Create(Stream);
   with StreamWriter do begin
     WriteTag(0, 'UniHighlighter');

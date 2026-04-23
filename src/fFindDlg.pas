@@ -83,6 +83,7 @@ type
     btnView: TButton;
     btnEdit: TButton;
     btnWorkWithFound: TButton;
+    btnDrives: TButton;
     cbFindText: TCheckBox;
     cbNotContainingText: TCheckBox;
     cbDateFrom: TCheckBox;
@@ -204,6 +205,7 @@ type
     procedure actExecute(Sender: TObject);
     procedure btnAddAttributeClick(Sender: TObject);
     procedure btnAttrsHelpClick(Sender: TObject);
+    procedure btnDrivesClick(Sender: TObject);
     procedure btnEncodingClick(Sender: TObject);
     procedure btnNewSearchKeyDown(Sender: TObject; var Key: word;
       {%H-}Shift: TShiftState);
@@ -211,7 +213,6 @@ type
     procedure btnSearchLoadClick(Sender: TObject);
     procedure btnSearchSaveWithStartingPathClick(Sender: TObject);
     procedure btnSearchSaveClick(Sender: TObject);
-    procedure cbCaseSensChange(Sender: TObject);
     procedure cbDateFromChange(Sender: TObject);
     procedure cbDateToChange(Sender: TObject);
     procedure cbFindInArchiveChange(Sender: TObject);
@@ -401,13 +402,15 @@ implementation
 
 uses
   LCLProc, LCLType, LConvEncoding, StrUtils, HelpIntfs, fViewer, fMain,
-  uLng, uGlobs, uShowForm, uDCUtils, uFileSourceUtil, uOfficeXML,
-  uSearchResultFileSource, uFile, uFileProperty, uColumnsFileView,
-  uFileViewNotebook, uKeyboard, uOSUtils, uArchiveFileSourceUtil,
+  uLng, uGlobs, uShowForm, uDCUtils, uOfficeXML,
+   uFile, uFileProperty, uColumnsFileView,
+  uFileViewNotebook, uKeyboard, uOSUtils,
   DCOSUtils, uRegExprA, uRegExprW, uDebug, uShowMsg, uConvEncoding,
-  uColumns, uFileFunctions, uFileSorting, uWcxArchiveFileSource,
-  DCConvertEncoding, WcxPlugin, fChooseEncoding, dmCommonData
-{$IFDEF DARKWIN}
+  uColumns, uFileFunctions, uFileSorting,
+  DCConvertEncoding, WcxPlugin, fChooseEncoding, dmCommonData,
+  uLocalFileSource, uWcxArchiveFileSource, uSearchResultFileSource,
+  uFileSourceUtil, uArchiveFileSourceUtil, uDriveWatcher
+{$IFDEF DARkWIN}
   , uDarkStyle
 {$ENDIF}
   ;
@@ -526,7 +529,7 @@ begin
       LoadPlugins;
       ClearFilter;
       // SetWindowCaption(wcs_NewSearch);
-      cmbFindPathStart.Text := FileView.CurrentPath;
+      cmbFindPathStart.Text := FileView.CurrentRealPath;
 
       // Get paths of selected files, if any.
       FSelectedFiles.Clear;
@@ -541,6 +544,9 @@ begin
         finally
           FreeAndNil(ASelectedFiles);
         end;
+
+      (FileView.FileSource as ILocalFileSource).AddSearchPath(
+        FileView.CurrentRealPath, FSelectedFiles );
 
       FindInArchive(FileView);
 
@@ -803,6 +809,7 @@ begin
   cbFollowSymLinks.Visible := False;
   cbSelectedFiles.Visible := False;
   cbOpenedTabs.Visible := False;
+  btnDrives.Visible := False;
   btnStart.Visible := False;
   btnStop.Visible := False;
   btnNewSearch.Visible := False;
@@ -964,6 +971,24 @@ begin
   ShowHelpOrErrorForKeyword('', edtAttrib.HelpKeyword);
 end;
 
+procedure TfrmFindDlg.btnDrivesClick(Sender: TObject);
+var
+  Drives, Selected: TStringList;
+begin
+  Selected:= TStringList.Create;
+  Drives:= TDriveWatcher.GetUniquePaths;
+  if ShowInputMultiSelectListBox(rsFindSelectDrives, EmptyStr, Drives, Selected) then
+  begin
+    if (Selected.Count > 0) then
+    begin
+      Selected.Delimiter:= ';';
+      cmbFindPathStart.Text:= Selected.DelimitedText;
+    end;
+  end;
+  Selected.Free;
+  Drives.Free;
+end;
+
 procedure TfrmFindDlg.btnEncodingClick(Sender: TObject);
 var
   I, Index, ACount: Integer;
@@ -1035,12 +1060,6 @@ begin
   SaveTemplate(False);
 end;
 
-{ TfrmFindDlg.cbCaseSensChange }
-procedure TfrmFindDlg.cbCaseSensChange(Sender: TObject);
-begin
-  if cbCaseSens.Checked then cbTextRegExp.Checked := False;
-end;
-
 { TfrmFindDlg.cbDateFromChange }
 procedure TfrmFindDlg.cbDateFromChange(Sender: TObject);
 begin
@@ -1080,6 +1099,7 @@ begin
   cbSelectedFiles.Enabled := not cbOpenedTabs.Checked AND (FSelectedFiles.Count > 0);
   cbFollowSymLinks.Enabled := not cbOpenedTabs.Checked;
   cmbFindPathStart.Enabled := not cbOpenedTabs.Checked;
+  btnDrives.Enabled := cmbFindPathStart.Enabled;
 end;
 
 { TfrmFindDlg.cbPartialNameSearchChange }
@@ -1097,17 +1117,6 @@ end;
 { TfrmFindDlg.cbTextRegExpChange }
 procedure TfrmFindDlg.cbTextRegExpChange(Sender: TObject);
 begin
-  if cbTextRegExp.Checked then
-  begin
-    if cbCaseSens.Enabled then
-    begin
-      cbCaseSens.Tag := Integer(cbCaseSens.Checked);
-    end;
-  end
-  else if not cbCaseSens.Enabled then
-  begin
-    cbCaseSens.Checked := Boolean(cbCaseSens.Tag);
-  end;
   UpdateEncodings;
 end;
 
@@ -1115,6 +1124,7 @@ end;
 procedure TfrmFindDlg.cbSelectedFilesChange(Sender: TObject);
 begin
   cmbFindPathStart.Enabled := not cbSelectedFiles.Checked;
+  btnDrives.Enabled := cmbFindPathStart.Enabled;
 end;
 
 procedure TfrmFindDlg.chkDuplicateContentChange(Sender: TObject);
@@ -1182,7 +1192,7 @@ begin
   S := cmbFindPathStart.Text;
   AFolder:= ExtractFilePath(ExcludeTrailingBackslash(S));
   if not mbDirectoryExists(AFolder) then AFolder := EmptyStr;
-  if SelectDirectory(rsFindWhereBeg, AFolder, S, gShowSystemFiles) then
+  if SelectDirectoryEx(rsFindWhereBeg, AFolder, S, gShowSystemFiles) then
     cmbFindPathStart.Text := S;
 end;
 
@@ -1445,8 +1455,8 @@ begin
   cbTextRegExp.Enabled := cbFindText.Checked and SupportedEncoding and (not chkHex.Checked);
   if not cbTextRegExp.Enabled then cbTextRegExp.Checked := False;
 
-  cbCaseSens.Enabled:= cbFindText.Checked and (not cbReplaceText.Checked) and (not chkHex.Checked) and (not cbTextRegExp.Checked);
-  if cbFindText.Checked and (not cbCaseSens.Enabled) then cbCaseSens.Checked := not cbTextRegExp.Checked;
+  cbCaseSens.Enabled:= cbFindText.Checked and (not cbReplaceText.Checked) and (not chkHex.Checked);
+  if cbFindText.Checked and (not cbCaseSens.Enabled) then cbCaseSens.Checked := (chkHex.Checked or cbReplaceText.Checked);
 end;
 
 function TfrmFindDlg.GetEncodings(AList: TCustomComboBox): String;
@@ -1518,6 +1528,7 @@ begin
   cbFindInArchive.Enabled:= not AEnabled;
   cbReplaceText.Enabled:= (not AEnabled) and (cbFindText.Checked);
   cmbFindPathStart.Enabled:= not AEnabled;
+  btnDrives.Enabled := not AEnabled;
   btnChooseFolder.Enabled:= not AEnabled;
   chkDuplicates.Enabled:= not AEnabled;
   cmbSearchDepth.Enabled:=  not AEnabled;
@@ -2056,7 +2067,7 @@ begin
 
   // Create search result file source.
   // Currently only searching FileSystem is supported.
-  SearchResultFS := TSearchResultFileSource.Create;
+  SearchResultFS := TSearchResultFileSource.Create( rsSearchResult );
   SearchResultFS.AddList(FileList, FFileSource);
 
   // Add new tab for search results.

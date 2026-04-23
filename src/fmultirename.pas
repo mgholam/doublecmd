@@ -934,7 +934,7 @@ procedure TfrmMultiRename.SetConfigurationState(bConfigurationSaved: boolean);
 begin
   if not cbPresets.DroppedDown then
   begin
-    if bConfigurationSaved or (cbPresets.ItemIndex <> 0) then
+    if bConfigurationSaved or (cbPresets.ItemIndex > 0) then
     begin
       if cbPresets.Enabled <> bConfigurationSaved then
       begin
@@ -1003,8 +1003,18 @@ begin
             AMultiRenamePreset.Extension := AConfig.GetValue(ANode, 'Extension', '[E]');
             AMultiRenamePreset.FileNameStyle := AConfig.GetValue(ANode, 'FilenameStyle', 0);
             AMultiRenamePreset.ExtensionStyle := AConfig.GetValue(ANode, 'ExtensionStyle', 0);
-            AMultiRenamePreset.Find := AConfig.GetValue(ANode, 'Find', '');
-            AMultiRenamePreset.Replace := AConfig.GetValue(ANode, 'Replace', '');
+
+            if AConfig.TryGetAttr(ANode, 'Find/Value', PresetName) then
+              AMultiRenamePreset.Find := PresetName
+            else begin
+              AMultiRenamePreset.Find := AConfig.GetValue(ANode, 'Find', '');
+            end;
+            if AConfig.TryGetAttr(ANode, 'Replace/Value', PresetName) then
+              AMultiRenamePreset.Replace := PresetName
+            else begin
+              AMultiRenamePreset.Replace := AConfig.GetValue(ANode, 'Replace', '');
+            end;
+
             AMultiRenamePreset.RepExt := AConfig.GetValue(ANode, 'RepExt', True);
             AMultiRenamePreset.RegExp := AConfig.GetValue(ANode, 'RegExp', False);
             AMultiRenamePreset.UseSubs := AConfig.GetValue(ANode, 'UseSubs', False);
@@ -1159,8 +1169,8 @@ begin
     AConfig.AddValue(SubNode, 'Extension', FMultiRenamePresetList.MultiRenamePreset[i].Extension);
     AConfig.AddValue(SubNode, 'FilenameStyle', FMultiRenamePresetList.MultiRenamePreset[i].FileNameStyle);
     AConfig.AddValue(SubNode, 'ExtensionStyle', FMultiRenamePresetList.MultiRenamePreset[i].ExtensionStyle);
-    AConfig.AddValue(SubNode, 'Find', FMultiRenamePresetList.MultiRenamePreset[i].Find);
-    AConfig.AddValue(SubNode, 'Replace', FMultiRenamePresetList.MultiRenamePreset[i].Replace);
+    AConfig.SetAttr(SubNode, 'Find/Value', FMultiRenamePresetList.MultiRenamePreset[i].Find);
+    AConfig.SetAttr(SubNode, 'Replace/Value', FMultiRenamePresetList.MultiRenamePreset[i].Replace);
     AConfig.AddValue(SubNode, 'RepExt', FMultiRenamePresetList.MultiRenamePreset[i].RepExt);
     AConfig.AddValue(SubNode, 'RegExp', FMultiRenamePresetList.MultiRenamePreset[i].RegExp);
     AConfig.AddValue(SubNode, 'UseSubs', FMultiRenamePresetList.MultiRenamePreset[i].UseSubs);
@@ -2171,8 +2181,8 @@ begin
   end
   else
   begin
-    edFind.Color := clWindow;
-    edFind.Font.Color := clWindowText;
+    edFind.Color := clDefault;
+    edFind.Font.Color := clDefault;
   end;
 end;
 
@@ -2381,7 +2391,7 @@ end;
 procedure TfrmMultiRename.cm_LoadNamesFromFile(const {%H-}Params: array of string);
 begin
   dmComData.OpenDialog.FileName := EmptyStr;
-  dmComData.OpenDialog.Filter := AllFilesMask;
+  dmComData.OpenDialog.Filter := EmptyStr;
   if dmComData.OpenDialog.Execute then
     LoadNamesFromFile(dmComData.OpenDialog.FileName);
 end;

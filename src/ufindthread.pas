@@ -206,6 +206,7 @@ begin
           if TextRegExp then
           begin
             AEncoding.FRegExpr := TRegExprEx.Create(ATextEncoding, True);
+            AEncoding.FRegExpr.ModifierI := not CaseSensitive;
             AEncoding.FRegExpr.Expression := FSearchText;
           end;
         end;
@@ -660,7 +661,7 @@ begin
       begin
         if FSearchTemplate.IsFindText and (gWCXPlugins.Flags[Index] and PK_CAPS_SEARCHTEXT = 0) then
           Continue;
-        WcxModule:= gWCXPlugins.LoadModule(GetCmdDirFromEnvVar(gWCXPlugins.FileName[Index]));
+        WcxModule:= gWCXPlugins.LoadModule(gWCXPlugins.FileName[Index]);
         Break;
       end;
     end;
@@ -705,6 +706,7 @@ begin
             begin
               Result:= FindInFile(TargetFileName, CaseSensitive, TextRegExp);
               if NotContainingText then Result:= not Result;
+              mbFileSetReadOnly(TargetFileName, False);
               mbDeleteFile(TargetFileName);
             end;
           end;

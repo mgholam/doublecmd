@@ -173,7 +173,17 @@ type
 
 const
   { Default hotkey list version number }
-  hkVersion = 68;
+  hkVersion = 72;
+  // 72 - In "Viewer" and "Editor" context, for macOS, added:
+  //      "Cmd+G" for Find Next
+  //      "Cmd+L" for Goto Line
+  // 71 - In "Differ" context, for macOS, added:
+  //      Base ShortCut for Edit
+  // 70 - In "Main" context, for macOS, added:
+  //      "Cmd+W" for "cm_CloseTab"
+  // 69 - In "Main" context, for macOS, added:
+  //      "Cmd+[" for "cm_ViewHistoryPrev"
+  //      "Cmd+]" for "cm_ViewHistoryNext"
   // 68 - In "Main" context, for macOS, added:
   //      "Shift+Cmd+." for "cm_ShowSysFiles"
   //      "Cmd+," for "cm_Options"
@@ -331,6 +341,7 @@ var
   gNewFilesPosition: TNewFilesPosition;
   gUpdatedFilesPosition: TUpdatedFilesPosition;
   gLynxLike:Boolean;
+  gForceFunctionKey:Boolean;
   gFirstTextSearch: Boolean;
 
   { File views page }
@@ -366,6 +377,7 @@ var
   glsDirHistory:TStringListEx;
   glsCmdLineHistory: TStringListEx;
   glsMaskHistory : TStringListEx;
+  glsSyncMaskHistory : TStringListEx;
   glsSearchHistory : TStringListEx;
   glsSearchPathHistory : TStringListEx;
   glsReplaceHistory : TStringListEx;
@@ -500,6 +512,7 @@ var
   gDragAndDropAskFormatEachTime: Boolean;
   gDragAndDropTextAutoFilename: Boolean;
   gDragAndDropSaveUnicodeTextInUFT8: Boolean;
+  gAutoCopyBackward: Boolean;
   gNtfsHourTimeDelay: Boolean;
   gAutoExtractOpenMask: String;
   gFileOperationsProgressKind: TFileOperationsProgressKind;
@@ -646,6 +659,7 @@ var
   { Editor }
   gEditWaitTime: Integer;
   gEditorSynEditOptions: TSynEditorOptions;
+  gEditorSynEditSpecialChars: TSynVisibleSpecialChars;
   gEditorSynEditTabWidth,
   gEditorSynEditRightEdge,
   gEditorSynEditBlockIndent: Integer;
@@ -965,6 +979,7 @@ begin
       LoadHistory('CommandLine', glsCmdLineHistory);
       LoadHistory('VolumeSize', glsVolumeSizeHistory);
       LoadHistory('FileMask', glsMaskHistory);
+      LoadHistory('SyncDirsMask', glsSyncMaskHistory);
       LoadHistory('SearchText', glsSearchHistory, True);
       LoadHistory('SearchTextPath', glsSearchPathHistory);
       LoadHistory('ReplaceText', glsReplaceHistory);
@@ -1012,6 +1027,7 @@ begin
     if gSaveDirHistory then SaveHistory('Navigation', glsDirHistory);
     if gSaveCmdLineHistory then SaveHistory('CommandLine', glsCmdLineHistory);
     if gSaveFileMaskHistory then SaveHistory('FileMask', glsMaskHistory);
+    if gSaveFileMaskHistory then SaveHistory('SyncDirsMask', glsSyncMaskHistory);
     if gSaveVolumeSizeHistory then SaveHistory('VolumeSize', glsVolumeSizeHistory);
     if gSaveCreateDirectoriesHistory then begin
       SaveHistory('CreateDirectories', glsCreateDirectoriesHistory, True);
@@ -1212,6 +1228,9 @@ begin
       AddIfNotExists(['Cmd+,'],[],'cm_Options');
       AddIfNotExists(['Cmd+Down'],[],'cm_Open');
       AddIfNotExists(['Cmd+Up'],'cm_ChangeDirToParent',['Ctrl+PgUp'],[]);
+      AddIfNotExists(['Cmd+['],'cm_ViewHistoryPrev',['Alt+Left'],[]);
+      AddIfNotExists(['Cmd+]'],'cm_ViewHistoryNext',['Alt+Right'],[]);
+      AddIfNotExists(['Cmd+W'],'cm_CloseTab',['Ctrl+W'],[]);
       {$ENDIF}
 
       if HotMan.Version < 38 then
@@ -1328,7 +1347,11 @@ begin
 
       AddIfNotExists(['Num+'],[],'cm_ZoomIn');
       AddIfNotExists(['Num-'],[],'cm_ZoomOut');
-      {$IFDEF DARWIN}
+      {$IFnDEF DARWIN}
+      AddIfNotExists(VK_G, [ssModifier], 'cm_GotoLine');
+      {$ELSE}
+      AddIfNotExists(['Cmd+L'],[],'cm_GotoLine');
+      AddIfNotExists(['Cmd+G'],'cm_FindNext',['F3'],[]);
       AddIfNotExists(['Cmd+='],'cm_ZoomIn',['Num+'],[]);
       AddIfNotExists(['Cmd+-'],'cm_ZoomOut',['Num-'],[]);
       {$ENDIF}
@@ -1339,7 +1362,6 @@ begin
       //AddIfNotExists(['Down'],[],'cm_Rotate90');
 
       AddIfNotExists(VK_P, [ssModifier], 'cm_Print');
-      AddIfNotExists(VK_G, [ssModifier], 'cm_GotoLine');
       AddIfNotExists(VK_A, [ssModifier], 'cm_SelectAll');
       AddIfNotExists(VK_C, [ssModifier], 'cm_CopyToClipboard');
       AddIfNotExists(VK_Z, [ssModifier], 'cm_Undo');
@@ -1354,12 +1376,11 @@ begin
   HMForm := HotMan.Forms.FindOrCreate('Differ');
   with HMForm.Hotkeys do
     begin
-      AddIfNotExists(['Ctrl+R'],[],'cm_Reload');
+      AddIfNotExists(VK_R, [ssModifier], 'cm_Reload');
       AddIfNotExists([SmkcSuper + 'F' ,'','',
                       'F7'            ,'',''],'cm_Find');
       AddIfNotExists(['F3'],[],'cm_FindNext');
       AddIfNotExists(['Shift+F3'],[],'cm_FindPrev');
-      AddIfNotExists(VK_G, [ssModifier], 'cm_GotoLine');
       AddIfNotExists(['Alt+Down'],[],'cm_NextDifference');
       AddIfNotExists(['Alt+Up'],[],'cm_PrevDifference');
       AddIfNotExists(['Alt+Home'],[],'cm_FirstDifference');
@@ -1367,6 +1388,18 @@ begin
       AddIfNotExists(['Alt+X'],[],'cm_Exit');
       AddIfNotExists(['Alt+Left'],[],'cm_CopyRightToLeft');
       AddIfNotExists(['Alt+Right'],[],'cm_CopyLeftToRight');
+
+      AddIfNotExists(VK_X, [ssModifier], 'cm_EditCut');
+      AddIfNotExists(VK_C, [ssModifier], 'cm_EditCopy');
+      AddIfNotExists(VK_Z, [ssModifier], 'cm_EditUndo');
+      AddIfNotExists(VK_V, [ssModifier], 'cm_EditPaste');
+      AddIfNotExists(VK_A, [ssModifier], 'cm_EditSelectAll');
+      AddIfNotExists(VK_Z, [ssModifier, ssShift], 'cm_EditRedo');
+      AddIfNotExists(VK_L, [ssModifier], 'cm_GotoLine');
+
+      {$IFDEF DARWIN}
+      AddIfNotExists(['Cmd+G'],'cm_FindNext',['F3'],[]);
+      {$ENDIF}
     end;
 
   HMForm := HotMan.Forms.FindOrCreate('Confirmation');
@@ -1433,9 +1466,12 @@ begin
       AddIfNotExists(VK_V, [ssModifier], 'cm_EditPaste');
       AddIfNotExists(VK_A, [ssModifier], 'cm_EditSelectAll');
       AddIfNotExists(VK_Z, [ssModifier, ssShift], 'cm_EditRedo');
-      AddIfNotExists(VK_G, [ssModifier], 'cm_EditGotoLine');
 
-      {$IFDEF DARWIN}
+      {$IFnDEF DARWIN}
+      AddIfNotExists(VK_G, [ssModifier], 'cm_EditGotoLine');
+      {$ELSE}
+      AddIfNotExists(['Cmd+L'],[],'cm_EditGotoLine');
+      AddIfNotExists(['Cmd+G'],'cm_EditFindNext',['F3'],[]);
       AddIfNotExists(['Cmd+='],[],'cm_ZoomIn');
       AddIfNotExists(['Cmd+-'],[],'cm_ZoomOut');
       {$ENDIF}
@@ -1637,6 +1673,7 @@ begin
   glsCmdLineHistory := TStringListEx.Create;
   glsVolumeSizeHistory := TStringListEx.Create;
   glsMaskHistory := TStringListEx.Create;
+  glsSyncMaskHistory := TStringListEx.Create;
   glsSearchHistory := TStringListEx.Create;
   glsSearchPathHistory := TStringListEx.Create;
   glsReplaceHistory := TStringListEx.Create;
@@ -1672,6 +1709,7 @@ begin
   FreeAndNil(gDirectoryHotlist);
   FreeAndNil(gFavoriteTabsList);
   FreeAndNil(glsMaskHistory);
+  FreeAndNil(glsSyncMaskHistory);
   FreeAndNil(glsSearchHistory);
   FreeAndNil(glsSearchPathHistory);
   FreeAndNil(glsReplaceHistory);
@@ -1747,6 +1785,7 @@ begin
   gRunTermParams := RunTermParams;
   gOnlyOneAppInstance := False;
   gLynxLike := True;
+  gForceFunctionKey:= False;
   gSortCaseSensitivity := cstNotSensitive;
   gSortNatural := False;
   gSortSpecial := False;
@@ -1903,7 +1942,7 @@ begin
 
   { Layout page }
   gMainMenu := True;
-  gButtonBar := True;
+  gButtonBar := {$IFnDEF DARWIN}True{$ELSE}False{$ENDIF};
   gToolBarFlat := True;
   gMiddleToolBar := False;
   gToolBarButtonSize := 24;
@@ -1982,6 +2021,7 @@ begin
   gDragAndDropAskFormatEachTime := False;
   gDragAndDropTextAutoFilename := False;
   gDragAndDropSaveUnicodeTextInUFT8 := True;
+  gAutoCopyBackward := True;
   gNtfsHourTimeDelay := False;
   gAutoExtractOpenMask := EmptyStr;
   gFileOperationsProgressKind := fopkSeparateWindow;
@@ -2119,7 +2159,7 @@ begin
   gIconsSizeNew := gIconsSize;
   gDiskIconsSize := 16;
   gDiskIconsAlpha := 50;
-  gToolIconsSize := 24;
+  gToolIconsSize := {$IFnDEF DARWIN}24{$ELSE}16{$ENDIF};  // Theme icons lack precision on Retina displays
   gIconsExclude := False;
   gIconsExcludeDirs := EmptyStr;
   gPixelsPerInch := 96;
@@ -2167,6 +2207,7 @@ begin
   { Editor }
   gEditWaitTime := 2000;
   gEditorSynEditOptions := SYNEDIT_DEFAULT_OPTIONS;
+  gEditorSynEditSpecialChars := [vscSpace, vscTabAtLast];
   gEditorSynEditTabWidth := 8;
   gEditorSynEditRightEdge := 80;
   gEditorSynEditBlockIndent := 2;
@@ -2278,6 +2319,7 @@ begin
   gFavoriteTabsList.Clear;
   glsDirHistory.Clear;
   glsMaskHistory.Clear;
+  glsSyncMaskHistory.Clear;
   glsSearchHistory.Clear;
   glsSearchPathHistory.Clear;
   glsReplaceHistory.Clear;
@@ -2677,6 +2719,7 @@ begin
 
       gOnlyOneAppInstance := GetValue(Node, 'OnlyOneAppInstance', gOnlyOneAppInstance);
       gLynxLike := GetValue(Node, 'LynxLike', gLynxLike);
+      gForceFunctionKey := GetValue(Node, 'ForceFunctionKey', gForceFunctionKey);
       if LoadedConfigVersion < 5 then
       begin
         if GetValue(Node, 'SortCaseSensitive', False) = False then
@@ -2948,6 +2991,7 @@ begin
       gDragAndDropAskFormatEachTime := GetValue(Node,'DragAndDropAskFormatEachTime', gDragAndDropAskFormatEachTime);
       gDragAndDropTextAutoFilename := GetValue(Node, 'DragAndDropTextAutoFilename', gDragAndDropTextAutoFilename);
       gDragAndDropSaveUnicodeTextInUFT8 := GetValue(Node, 'DragAndDropSaveUnicodeTextInUFT8', gDragAndDropSaveUnicodeTextInUFT8);
+      gAutoCopyBackward := GetValue(Node, 'AutoCopyBackward', gAutoCopyBackward);
       gNtfsHourTimeDelay := GetValue(Node, 'NtfsHourTimeDelay', gNtfsHourTimeDelay);
       gAutoExtractOpenMask := GetValue(Node, 'AutoExtractOpenMask', gAutoExtractOpenMask);
       gSearchDefaultTemplate := GetValue(Node, 'SearchDefaultTemplate', gSearchDefaultTemplate);
@@ -3170,6 +3214,10 @@ begin
       gCustomIcons := TCustomIconsMode(GetValue(Node, 'CustomIcons', Integer(gCustomIcons)));
       gIconsInMenus := GetAttr(Node, 'ShowInMenus/Enabled', gIconsInMenus);
       gIconsInMenusSize := GetValue(Node, 'ShowInMenus/Size', gIconsInMenusSize);
+      if gIconsInMenus then
+        Application.ShowMenuGlyphs:= sbgAlways
+      else
+        Application.ShowMenuGlyphs:= sbgNever;
       Application.ShowButtonGlyphs := TApplicationShowGlyphs(GetValue(Node, 'ShowButtonGlyphs', Integer(Application.ShowButtonGlyphs)));
     end;
 
@@ -3228,6 +3276,7 @@ begin
     begin
       gEditWaitTime := GetValue(Node, 'EditWaitTime', gEditWaitTime);
       gEditorSynEditOptions := TSynEditorOptions(GetValue(Node, 'SynEditOptions', Integer(gEditorSynEditOptions)));
+      gEditorSynEditSpecialChars := TSynVisibleSpecialChars(GetValue(Node, 'SynEditSpecialChars', Integer(gEditorSynEditSpecialChars)));
       gEditorSynEditTabWidth := GetValue(Node, 'SynEditTabWidth', gEditorSynEditTabWidth);
       gEditorSynEditRightEdge := GetValue(Node, 'SynEditRightEdge', gEditorSynEditRightEdge);
       gEditorSynEditBlockIndent := GetValue(Node, 'SynEditBlockIndent', gEditorSynEditBlockIndent);
@@ -3438,6 +3487,7 @@ begin
 
     SetValue(Node, 'OnlyOneAppInstance', gOnlyOneAppInstance);
     SetValue(Node, 'LynxLike', gLynxLike);
+    SetValue(Node, 'ForceFunctionKey', gForceFunctionKey);
     SetValue(Node, 'FileSizeFormat', Ord(gFileSizeFormat));
     SetValue(Node, 'OperationSizeFormat', Ord(gOperationSizeFormat));
     SetValue(Node, 'HeaderSizeFormat', Ord(gHeaderSizeFormat));
@@ -3634,6 +3684,7 @@ begin
     SetValue(Node, 'DragAndDropAskFormatEachTime', gDragAndDropAskFormatEachTime);
     SetValue(Node, 'DragAndDropTextAutoFilename', gDragAndDropTextAutoFilename);
     SetValue(Node, 'DragAndDropSaveUnicodeTextInUFT8', gDragAndDropSaveUnicodeTextInUFT8);
+    SetValue(Node, 'AutoCopyBackward', gAutoCopyBackward);
     SetValue(Node, 'NtfsHourTimeDelay', gNtfsHourTimeDelay);
     SetValue(Node, 'AutoExtractOpenMask', gAutoExtractOpenMask);
     SetValue(Node, 'SearchDefaultTemplate', gSearchDefaultTemplate);
@@ -3820,6 +3871,7 @@ begin
     Node := FindNode(Root, 'Editor',True);
     SetValue(Node, 'EditWaitTime', gEditWaitTime);
     SetValue(Node, 'SynEditOptions', Integer(gEditorSynEditOptions));
+    SetValue(Node, 'SynEditSpecialChars', Integer(gEditorSynEditSpecialChars));
     SetValue(Node, 'SynEditTabWidth', gEditorSynEditTabWidth);
     SetValue(Node, 'SynEditRightEdge', gEditorSynEditRightEdge);
     SetValue(Node, 'SynEditBlockIndent', gEditorSynEditBlockIndent);

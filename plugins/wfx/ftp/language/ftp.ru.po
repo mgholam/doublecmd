@@ -43,7 +43,7 @@ msgid "Send keepalive during a transfer"
 msgstr "Поддерживать соединение во время передачи"
 
 #: tdialogbox.chkmasterpassword.caption
-msgid "Use master password to protect the password"
+msgid "Use main password to protect the password"
 msgstr "Использовать &главный пароль для защиты пароля"
 
 #: tdialogbox.chkpassivemode.caption
@@ -151,4 +151,12 @@ msgstr "Прокси"
 #: tfrmfileproperties.caption
 msgid "Properties"
 msgstr "Свойства"
+
+#: ftplng.rsaddconnection
+msgid "Add connection"
+msgstr "Добавить соединение"
+
+#: ftplng.rsquickconnection
+msgid "Quick connection"
+msgstr "Быстрое подключение"
 

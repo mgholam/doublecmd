@@ -17,7 +17,7 @@ DC_VER=$DC_MAJOR.$DC_MINOR.$DC_MICRO
 
 # Get libraries
 pushd install
-wget https://github.com/doublecmd/snapshots/raw/main/darwin.tar.gz
+wget https://github.com/doublecmd/external/raw/main/darwin.tar.gz
 tar xzf darwin.tar.gz
 rm -f darwin.tar.gz
 popd
@@ -107,6 +107,6 @@ build_doublecmd
 # Set processor architecture
 export CPU_TARGET=x86_64
 # Set minimal Mac OS X target version
-export MACOSX_DEPLOYMENT_TARGET=10.11
+export MACOSX_DEPLOYMENT_TARGET=11.0
 
 build_doublecmd

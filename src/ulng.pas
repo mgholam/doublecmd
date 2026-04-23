@@ -186,12 +186,14 @@ resourcestring
   rsOptToolTipFileTypeExportCaption = 'Export tooltip file type configuration';
   rsOptToolTipFileTypeExportDone = 'Exportation of %d elements to file "%s" completed.';
 
-  rsMsgMasterPassword = 'Master Password';
-  rsMsgMasterPasswordEnter = 'Please enter the master password:';
+  rsMsgMasterPassword = 'Main Password';
+  rsMsgMasterPasswordEnter = 'Please enter the main password:';
   rsMsgWrongPasswordTryAgain = 'Wrong password!'#13'Please try again!';
   rsMsgPasswordEnter = 'Please enter the password:';
   rsMsgPasswordVerify = 'Please re-enter the password for verification:';
   rsMsgPasswordDiff = 'Passwords are different!';
+  rsMsgKeyTransformTime = 'The key transformation took %f seconds.';
+  rsMsgKeyTransformError = 'The key transformation failed (error code %d)!';
   rsMsgUserName = 'User name:';
   rsMsgPassword = 'Password:';
   rsMsgAccount = 'Account:';
@@ -363,8 +365,8 @@ resourcestring
   rsMnuOpen = 'Open';
   rsMnuView = 'View';
   rsMnuEdit = 'Edit';
-  rsMnuiCloudDriverDownloadNow = 'Download Now';
-  rsMnuiCloudDriverRemoveDownload = 'Remove Download';
+  rsMnuiCloudDriveDownloadNow = 'Download Now';
+  rsMnuiCloudDriveRemoveDownload = 'Remove Download';
   rsMnuOpenWith = 'Open with';
   rsMnuOpenWithOther = 'Other...';
   rsMenuMacOSShare = 'Share...';
@@ -618,6 +620,7 @@ resourcestring
   rsFindDepthAll = 'all (unlimited depth)';
   rsFindDepthCurDir = 'current dir only';
   rsFindDepth = '%s level(s)';
+  rsFindSelectDrives = 'Select drives';
   rsFindSaveTemplateCaption = 'Save search template';
   rsFindSaveTemplateTitle = 'Template name:';
   rsSearchTemplateUnnamed = '<unnamed template>';
@@ -1024,9 +1027,13 @@ resourcestring
   rsMFSTBIHorzSplitTips = 'Toggle Horizontal Split Mode';
   rsMFSTBISwapPanelsTitle = 'SwapPanels';
   rsMFSTBISwapPanelsTips = 'Swap Panels';
+  rsMFSTBIGoBackwardTitle = 'Backward';
+  rsMFSTBIGoBackwardTips = 'Backward';
+  rsMFSTBIGoForwardTitle = 'Forward';
+  rsMFSTBIGoForwardTips = 'Forward';
 
-  rsMFSTBIiCloudDriverTitle = 'iCloud Drive';
-  rsMFSTBIiCloudDriverTips = 'iCloud Drive';
+  rsMFSTBIiCloudDriveTitle = 'iCloud Drive';
+  rsMFSTBIiCloudDriveTips = 'iCloud Drive';
 
   rsMFSTBINetworkTitle = 'network';
   rsMFSTBINetworkTips = 'network';
@@ -1080,9 +1087,11 @@ resourcestring
   rsMountedFileSourceCopyMultiFilesToWcxDlgMessage = 'Some virtual filesystem contain specific directory structures. When copying from it to a compressed archive, only one directory can be selected at a time, unless the actual locations of the selected directories are all located under the same parent directory.'#13#13'For example, for iCloud Drive, when copying directory from the root to a compressed archive, maybe only one directory should be selected.'#13#13'It is recommended that you follow your usual practice and try to select only one directory when you receive this prompt.';
 
   // macOS
-  rsiCloudDriverCopySeedFileConfirmDlgTitle = 'The operation may contain files that were not downloaded, continue anyway?';
-  rsiCloudDriverCopySeedFileConfirmDlgMessage = 'It is recommended to download the files first. Otherwise, what is copied is not the content of the files, but the corresponding placeholder files, which will result in hidden files with the .iCloud extension.';
+  rsiCloudDriveCopySeedFileConfirmDlgTitle = 'The operation may contain files that were not downloaded, continue anyway?';
+  rsiCloudDriveCopySeedFileConfirmDlgMessage = 'It is recommended to download the files first. Otherwise, what is copied is not the content of the files, but the corresponding placeholder files, which will result in hidden files with the .iCloud extension.';
   rsMacOSAssignFinderTagsToMultiItems = 'Assign tags to %d items';
+  rsMacOSConnectServerTitle = 'SMB / Samba / WebDAV / NFS ...';
+  rsMacOSConnectServerPrompt = 'URL:'#10'(eg. smb://server/share; https://dav.server.com; nfs://server/path)'#10' ';
 
   //Columns Menu
   rsMenuConfigureCustomColumns= 'Configure custom columns';

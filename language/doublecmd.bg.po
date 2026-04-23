@@ -523,23 +523,31 @@ msgid "Cancel"
 msgstr "Отказ"
 
 #: tfrmdiffer.actcopylefttoright.caption
+#, fuzzy
+#| msgid "Copy Block Right"
 msgctxt "TFRMDIFFER.ACTCOPYLEFTTORIGHT.CAPTION"
-msgid "Copy Block Right"
+msgid "Copy Block To Right"
 msgstr "Замяна в дясното крило със съдържанието от лявото"
 
 #: tfrmdiffer.actcopylefttoright.hint
+#, fuzzy
+#| msgid "Copy Block Right"
 msgctxt "TFRMDIFFER.ACTCOPYLEFTTORIGHT.HINT"
-msgid "Copy Block Right"
+msgid "Copy Block From Left To Right"
 msgstr "Замяна в дясното крило със съдържанието от лявото"
 
 #: tfrmdiffer.actcopyrighttoleft.caption
+#, fuzzy
+#| msgid "Copy Block Left"
 msgctxt "TFRMDIFFER.ACTCOPYRIGHTTOLEFT.CAPTION"
-msgid "Copy Block Left"
+msgid "Copy Block To Left"
 msgstr "Замяна в лявото крило със съдържанието от дясното"
 
 #: tfrmdiffer.actcopyrighttoleft.hint
+#, fuzzy
+#| msgid "Copy Block Left"
 msgctxt "TFRMDIFFER.ACTCOPYRIGHTTOLEFT.HINT"
-msgid "Copy Block Left"
+msgid "Copy Block From Right To Left"
 msgstr "Замяна в лявото крило със съдържанието от дясното"
 
 #: tfrmdiffer.acteditcopy.caption
@@ -1657,6 +1665,10 @@ msgstr "&Добавяне"
 msgctxt "TFRMFINDDLG.BTNATTRSHELP.CAPTION"
 msgid "&Help"
 msgstr "Помо&щ"
+
+#: tfrmfinddlg.btndrives.caption
+msgid "Drives"
+msgstr ""
 
 #: tfrmfinddlg.btnsavetemplate.caption
 msgctxt "TFRMFINDDLG.BTNSAVETEMPLATE.CAPTION"
@@ -3341,6 +3353,7 @@ msgid "Select all categories by default"
 msgstr ""
 
 #: tfrmmaincommandsdlg.gbselection.caption
+msgctxt "tfrmmaincommandsdlg.gbselection.caption"
 msgid "Selection:"
 msgstr ""
 
@@ -3432,6 +3445,65 @@ msgstr ""
 
 #: tfrmmaskinputdlg.lblsearchtemplate.caption
 msgid "O&r select predefined selection type:"
+msgstr ""
+
+#: tfrmmasterkey.btntest.caption
+msgid "Test"
+msgstr ""
+
+#: tfrmmasterkey.caption
+msgid "Create Key"
+msgstr ""
+
+#: tfrmmasterkey.gbkeytransform.caption
+msgid "Key transformation"
+msgstr ""
+
+#: tfrmmasterkey.gbmasterkey.caption
+#, fuzzy
+msgctxt "tfrmmasterkey.gbmasterkey.caption"
+msgid "Main Password"
+msgstr "Главна парола"
+
+#: tfrmmasterkey.lblfooter.caption
+msgid "The more iterations, the harder are dictionary and guessing attacks, but also password store loading/saving takes more time."
+msgstr ""
+
+#: tfrmmasterkey.lblfunction.caption
+msgid "&Key derivation function:"
+msgstr ""
+
+#: tfrmmasterkey.lblheader.caption
+msgid "The key is transformed using a key derivation function. This adds a work factor and makes dictionary and guessing attacks harder."
+msgstr ""
+
+#: tfrmmasterkey.lbliterations.caption
+msgid "&Iterations:"
+msgstr ""
+
+#: tfrmmasterkey.lblmemory.caption
+msgid "&Memory:"
+msgstr ""
+
+#: tfrmmasterkey.lblparallelism.caption
+msgid "&Parallelism:"
+msgstr ""
+
+#: tfrmmasterkey.lblpassword.caption
+msgid "Pass&word:"
+msgstr ""
+
+#: tfrmmasterkey.lblrepeat.caption
+msgid "&Repeat password:"
+msgstr ""
+
+#: tfrmmasterkey.lbltext.caption
+msgid "Specify a new key, which will be used to encrypt the password store."
+msgstr ""
+
+#: tfrmmasterkey.lblunit.caption
+msgctxt "tfrmmasterkey.lblunit.caption"
+msgid "MB"
 msgstr ""
 
 #: tfrmmkdir.caption
@@ -4384,6 +4456,11 @@ msgstr "Променен:"
 
 #: tfrmoptionscolors.lblright.caption
 msgid "Right:"
+msgstr ""
+
+#: tfrmoptionscolors.lblselection.caption
+msgctxt "tfrmoptionscolors.lblselection.caption"
+msgid "Selection:"
 msgstr ""
 
 #: tfrmoptionscolors.lblsuccess.caption
@@ -6899,6 +6976,23 @@ msgstr "&Пренебрегване (скриване) на следните ф�
 msgctxt "TFRMOPTIONSIGNORELIST.LBLSAVEIN.CAPTION"
 msgid "&Save in:"
 msgstr "&Съхраняване в:"
+
+#: tfrmoptionskeyboard.cbfnkey.caption
+msgid ""
+"Force F1, F2, etc. to be treated as function keys\n"
+"ignore the settings in System Settings > Keyboard"
+msgstr ""
+
+#: tfrmoptionskeyboard.cbfnkey.hint
+msgid ""
+"This feature requires additional system permission.\n"
+"\n"
+"Enabling it will automatically guide you to the\n"
+"System Settings > Privacy & Security > Accessibility Panel.\n"
+"\n"
+"Each time a new version of DC is installed, you must first\n"
+"remove DC from the list and then add it back in."
+msgstr ""
 
 #: tfrmoptionskeyboard.cblynxlike.caption
 msgid "Le&ft, Right arrows change directory (Lynx-like movement)"
@@ -10490,6 +10584,7 @@ msgid "KB"
 msgstr ""
 
 #: ulng.rsdefaultpersonalizedabbrevmega
+msgctxt "ulng.rsdefaultpersonalizedabbrevmega"
 msgid "MB"
 msgstr ""
 
@@ -10998,6 +11093,10 @@ msgctxt "ulng.rsfindsearchfiles"
 msgid "Find files"
 msgstr "Търсене на файлове"
 
+#: ulng.rsfindselectdrives
+msgid "Select drives"
+msgstr ""
+
 #: ulng.rsfindtimeofscan
 msgid "Time of scan: "
 msgstr ""
@@ -11240,11 +11339,13 @@ msgstr ""
 msgid "By command name;By shortcut key (grouped);By shortcut key (one per row)"
 msgstr ""
 
-#: ulng.rsiclouddrivercopyseedfileconfirmdlgmessage
+#: ulng.rsiclouddrivecopyseedfileconfirmdlgmessage
+msgctxt "ulng.rsiclouddrivecopyseedfileconfirmdlgmessage"
 msgid "It is recommended to download the files first. Otherwise, what is copied is not the content of the files, but the corresponding placeholder files, which will result in hidden files with the .iCloud extension."
 msgstr ""
 
-#: ulng.rsiclouddrivercopyseedfileconfirmdlgtitle
+#: ulng.rsiclouddrivecopyseedfileconfirmdlgtitle
+msgctxt "ulng.rsiclouddrivecopyseedfileconfirmdlgtitle"
 msgid "The operation may contain files that were not downloaded, continue anyway?"
 msgstr ""
 
@@ -11280,6 +11381,17 @@ msgstr ""
 #: ulng.rsmacosassignfindertagstomultiitems
 #, object-pascal-format
 msgid "Assign tags to %d items"
+msgstr ""
+
+#: ulng.rsmacosconnectserverprompt
+msgid ""
+"URL:\n"
+"(eg. smb://server/share; https://dav.server.com; nfs://server/path)\n"
+" "
+msgstr ""
+
+#: ulng.rsmacosconnectservertitle
+msgid "SMB / Samba / WebDAV / NFS ..."
 msgstr ""
 
 #: ulng.rsmarkminus
@@ -11402,6 +11514,26 @@ msgstr ""
 msgid "Finder"
 msgstr ""
 
+#: ulng.rsmfstbigobackwardtips
+msgctxt "ulng.rsmfstbigobackwardtips"
+msgid "Backward"
+msgstr ""
+
+#: ulng.rsmfstbigobackwardtitle
+msgctxt "ulng.rsmfstbigobackwardtitle"
+msgid "Backward"
+msgstr ""
+
+#: ulng.rsmfstbigoforwardtips
+msgctxt "ulng.rsmfstbigoforwardtips"
+msgid "Forward"
+msgstr ""
+
+#: ulng.rsmfstbigoforwardtitle
+msgctxt "ulng.rsmfstbigoforwardtitle"
+msgid "Forward"
+msgstr ""
+
 #: ulng.rsmfstbigotips
 msgctxt "ulng.rsmfstbigotips"
 msgid "Go"
@@ -11420,13 +11552,13 @@ msgstr ""
 msgid "HorzSplit"
 msgstr ""
 
-#: ulng.rsmfstbiiclouddrivertips
-msgctxt "ulng.rsmfstbiiclouddrivertips"
+#: ulng.rsmfstbiiclouddrivetips
+msgctxt "ulng.rsmfstbiiclouddrivetips"
 msgid "iCloud Drive"
 msgstr ""
 
-#: ulng.rsmfstbiiclouddrivertitle
-msgctxt "ulng.rsmfstbiiclouddrivertitle"
+#: ulng.rsmfstbiiclouddrivetitle
+msgctxt "ulng.rsmfstbiiclouddrivetitle"
 msgid "iCloud Drive"
 msgstr ""
 
@@ -11578,11 +11710,13 @@ msgstr "Изваждане"
 msgid "Extract here..."
 msgstr "Извличане тук..."
 
-#: ulng.rsmnuiclouddriverdownloadnow
+#: ulng.rsmnuiclouddrivedownloadnow
+msgctxt "ulng.rsmnuiclouddrivedownloadnow"
 msgid "Download Now"
 msgstr ""
 
-#: ulng.rsmnuiclouddriverremovedownload
+#: ulng.rsmnuiclouddriveremovedownload
+msgctxt "ulng.rsmnuiclouddriveremovedownload"
 msgid "Remove Download"
 msgstr ""
 
@@ -12368,6 +12502,16 @@ msgstr "Неправилно цитиране"
 msgid "Invalid selection."
 msgstr "Неправилно избиране"
 
+#: ulng.rsmsgkeytransformerror
+#, object-pascal-format
+msgid "The key transformation failed (error code %d)!"
+msgstr ""
+
+#: ulng.rsmsgkeytransformtime
+#, object-pascal-format
+msgid "The key transformation took %f seconds."
+msgstr ""
+
 #: ulng.rsmsgloadingfilelist
 msgid "Loading file list..."
 msgstr "Зареждане на списък с файлове..."
@@ -12469,11 +12613,12 @@ msgid "Wipe directory %s"
 msgstr "Унищожаване на папка „%s‟"
 
 #: ulng.rsmsgmasterpassword
-msgid "Master Password"
+msgctxt "ulng.rsmsgmasterpassword"
+msgid "Main Password"
 msgstr "Главна парола"
 
 #: ulng.rsmsgmasterpasswordenter
-msgid "Please enter the master password:"
+msgid "Please enter the main password:"
 msgstr ""
 
 #: ulng.rsmsgnewfile

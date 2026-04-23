@@ -354,7 +354,7 @@ msgstr ""
 
 #: tfrmchecksumcalc.rghashalgorithm.caption
 msgid "Algorithm"
-msgstr ""
+msgstr "算法"
 
 #: tfrmchecksumverify.btnclose.caption
 msgctxt "TFRMCHECKSUMVERIFY.BTNCLOSE.CAPTION"
@@ -512,23 +512,23 @@ msgstr "取消"
 
 #: tfrmdiffer.actcopylefttoright.caption
 msgctxt "tfrmdiffer.actcopylefttoright.caption"
-msgid "Copy Block Right"
-msgstr "复制右侧的块"
+msgid "Copy Block To Right"
+msgstr "复制到右侧"
 
 #: tfrmdiffer.actcopylefttoright.hint
 msgctxt "TFRMDIFFER.ACTCOPYLEFTTORIGHT.HINT"
-msgid "Copy Block Right"
-msgstr "复制右侧的块"
+msgid "Copy Block From Left To Right"
+msgstr "将内容从左侧复制到右侧"
 
 #: tfrmdiffer.actcopyrighttoleft.caption
 msgctxt "tfrmdiffer.actcopyrighttoleft.caption"
-msgid "Copy Block Left"
-msgstr "复制左侧的块"
+msgid "Copy Block To Left"
+msgstr "复制到左侧"
 
 #: tfrmdiffer.actcopyrighttoleft.hint
 msgctxt "TFRMDIFFER.ACTCOPYRIGHTTOLEFT.HINT"
-msgid "Copy Block Left"
-msgstr "复制左侧的块"
+msgid "Copy Block From Right To Left"
+msgstr "将内容从右侧复制到左侧"
 
 #: tfrmdiffer.acteditcopy.caption
 msgctxt "tfrmdiffer.acteditcopy.caption"
@@ -1593,6 +1593,10 @@ msgstr "添加(&A)"
 msgctxt "TFRMFINDDLG.BTNATTRSHELP.CAPTION"
 msgid "&Help"
 msgstr "帮助(&H)"
+
+#: tfrmfinddlg.btndrives.caption
+msgid "Drives"
+msgstr "驱动器"
 
 #: tfrmfinddlg.btnsavetemplate.caption
 msgctxt "TFRMFINDDLG.BTNSAVETEMPLATE.CAPTION"
@@ -3239,6 +3243,7 @@ msgid "Select all categories by default"
 msgstr "默认选择所有类别"
 
 #: tfrmmaincommandsdlg.gbselection.caption
+msgctxt "tfrmmaincommandsdlg.gbselection.caption"
 msgid "Selection:"
 msgstr "选择："
 
@@ -3329,6 +3334,64 @@ msgstr "输入掩码："
 #: tfrmmaskinputdlg.lblsearchtemplate.caption
 msgid "O&r select predefined selection type:"
 msgstr "或选择预定义的选择类型(&R)："
+
+#: tfrmmasterkey.btntest.caption
+msgid "Test"
+msgstr "测试"
+
+#: tfrmmasterkey.caption
+msgid "Create Key"
+msgstr "创建密钥"
+
+#: tfrmmasterkey.gbkeytransform.caption
+msgid "Key transformation"
+msgstr "密钥变换"
+
+#: tfrmmasterkey.gbmasterkey.caption
+msgctxt "tfrmmasterkey.gbmasterkey.caption"
+msgid "Main Password"
+msgstr "主密码"
+
+#: tfrmmasterkey.lblfooter.caption
+msgid "The more iterations, the harder are dictionary and guessing attacks, but also password store loading/saving takes more time."
+msgstr "迭代次数越多，字典攻击和猜测攻击就越难，但密码存储的加载/保存也需要更多时间。"
+
+#: tfrmmasterkey.lblfunction.caption
+msgid "&Key derivation function:"
+msgstr "密钥变换函数(&K)："
+
+#: tfrmmasterkey.lblheader.caption
+msgid "The key is transformed using a key derivation function. This adds a work factor and makes dictionary and guessing attacks harder."
+msgstr "密钥通过密钥变换函数进行转换。这增加了工作量，使字典攻击和猜测攻击更加困难。"
+
+#: tfrmmasterkey.lbliterations.caption
+msgid "&Iterations:"
+msgstr "迭代次数(&I)："
+
+#: tfrmmasterkey.lblmemory.caption
+msgid "&Memory:"
+msgstr "内存(&M)："
+
+#: tfrmmasterkey.lblparallelism.caption
+msgid "&Parallelism:"
+msgstr "并行(&P)："
+
+#: tfrmmasterkey.lblpassword.caption
+msgid "Pass&word:"
+msgstr "密码(&W)："
+
+#: tfrmmasterkey.lblrepeat.caption
+msgid "&Repeat password:"
+msgstr "重复密码(&R)："
+
+#: tfrmmasterkey.lbltext.caption
+msgid "Specify a new key, which will be used to encrypt the password store."
+msgstr "指定一个新密钥，该密钥将用于加密密码存储。"
+
+#: tfrmmasterkey.lblunit.caption
+msgctxt "tfrmmasterkey.lblunit.caption"
+msgid "MB"
+msgstr ""
 
 #: tfrmmkdir.caption
 msgid "Create new directory"
@@ -3510,7 +3573,7 @@ msgstr "加载上次预设"
 
 #: tfrmmultirename.actloadnamesfromclipboard.caption
 msgid "Load Names from Clipboard"
-msgstr ""
+msgstr "从剪贴板加载名称"
 
 #: tfrmmultirename.actloadnamesfromfile.caption
 msgid "Load Names from File..."
@@ -3663,7 +3726,7 @@ msgstr ""
 
 #: tfrmmultirename.cbrepext.hint
 msgid "Replace also in file extensions"
-msgstr ""
+msgstr "也在文件扩展名中替换"
 
 #: tfrmmultirename.cbusesubs.caption
 msgid "&Use substitution"
@@ -4135,7 +4198,7 @@ msgstr "在此处您可以输入一个或多个驱动器或挂载点，用 \";\"
 
 #: tfrmoptionsbehavior.lbldrivesblacklist.caption
 msgid "Drives &blacklist"
-msgstr "驱动黑名单(&B)"
+msgstr "驱动器黑名单(&B)"
 
 #: tfrmoptionsbriefview.gbcolumns.caption
 msgid "Columns size"
@@ -4254,6 +4317,11 @@ msgstr "修改时间："
 #: tfrmoptionscolors.lblright.caption
 msgid "Right:"
 msgstr "右边："
+
+#: tfrmoptionscolors.lblselection.caption
+msgctxt "tfrmoptionscolors.lblselection.caption"
+msgid "Selection:"
+msgstr "选择："
 
 #: tfrmoptionscolors.lblsuccess.caption
 msgctxt "tfrmoptionscolors.lblsuccess.caption"
@@ -6584,6 +6652,32 @@ msgstr "忽略（不显示）以下文件和文件夹(&I)："
 msgid "&Save in:"
 msgstr "保存在(&S)："
 
+#: tfrmoptionskeyboard.cbfnkey.caption
+msgid ""
+"Force F1, F2, etc. to be treated as function keys\n"
+"ignore the settings in System Settings > Keyboard"
+msgstr ""
+"强制将F1、F2等键用作标准功能键\n"
+"忽略【系统偏好设置 > 键盘】中的设定"
+
+#: tfrmoptionskeyboard.cbfnkey.hint
+msgid ""
+"This feature requires additional system permission.\n"
+"\n"
+"Enabling it will automatically guide you to the\n"
+"System Settings > Privacy & Security > Accessibility Panel.\n"
+"\n"
+"Each time a new version of DC is installed, you must first\n"
+"remove DC from the list and then add it back in."
+msgstr ""
+"该功能需要额外的系统权限。\n"
+"\n"
+"启用该功能将会自动引导到授权设置页：\n"
+"【系统偏好设置 > 安全性与隐私 > 辅助功能】\n"
+"\n"
+"以后每次安装DC新版本，必须先在授权列表中\n"
+"将DC移除，然后再重新添加DC到列表。"
+
 #: tfrmoptionskeyboard.cblynxlike.caption
 msgid "Le&ft, Right arrows change directory (Lynx-like movement)"
 msgstr "左、右箭头更改文件夹（类似 Lynx 运动）(&F)"
@@ -7815,7 +7909,7 @@ msgstr "在当前选择之前"
 
 #: tfrmoptionstoolbarbase.rblinebreak.caption
 msgid "Line break"
-msgstr ""
+msgstr "換行"
 
 #: tfrmoptionstoolbarbase.rbseparator.caption
 msgid "Separator"
@@ -9996,6 +10090,7 @@ msgid "KB"
 msgstr ""
 
 #: ulng.rsdefaultpersonalizedabbrevmega
+msgctxt "ulng.rsdefaultpersonalizedabbrevmega"
 msgid "MB"
 msgstr ""
 
@@ -10495,6 +10590,10 @@ msgctxt "ulng.rsfindsearchfiles"
 msgid "Find files"
 msgstr "查找文件"
 
+#: ulng.rsfindselectdrives
+msgid "Select drives"
+msgstr "选择驱动器"
+
 #: ulng.rsfindtimeofscan
 msgid "Time of scan: "
 msgstr "扫描时间："
@@ -10743,11 +10842,13 @@ msgstr "没有带回车键的快捷键"
 msgid "By command name;By shortcut key (grouped);By shortcut key (one per row)"
 msgstr "按命令名称;按快捷键（分组）;按快捷键（每行一个）"
 
-#: ulng.rsiclouddrivercopyseedfileconfirmdlgmessage
+#: ulng.rsiclouddrivecopyseedfileconfirmdlgmessage
+msgctxt "ulng.rsiclouddrivecopyseedfileconfirmdlgmessage"
 msgid "It is recommended to download the files first. Otherwise, what is copied is not the content of the files, but the corresponding placeholder files, which will result in hidden files with the .iCloud extension."
 msgstr "建议先完成文件下载后再操作。否则，复制的不是文件本身的内容，而是对应的占位符文件，这只会复制以.iCloud为扩展名的隐藏文件。"
 
-#: ulng.rsiclouddrivercopyseedfileconfirmdlgtitle
+#: ulng.rsiclouddrivecopyseedfileconfirmdlgtitle
+msgctxt "ulng.rsiclouddrivecopyseedfileconfirmdlgtitle"
 msgid "The operation may contain files that were not downloaded, continue anyway?"
 msgstr "操作可能包含未下载的文件，仍然继续吗？"
 
@@ -10784,6 +10885,20 @@ msgstr "<查找文件> 窗口列表"
 #, object-pascal-format
 msgid "Assign tags to %d items"
 msgstr "将标签分配给%d个项目"
+
+#: ulng.rsmacosconnectserverprompt
+msgid ""
+"URL:\n"
+"(eg. smb://server/share; https://dav.server.com; nfs://server/path)\n"
+" "
+msgstr ""
+"URL:\n"
+"(样例：smb://server/share; https://dav.server.com; nfs://server/path)\n"
+" "
+
+#: ulng.rsmacosconnectservertitle
+msgid "SMB / Samba / WebDAV / NFS ..."
+msgstr ""
 
 #: ulng.rsmarkminus
 msgid "Unselect mask"
@@ -10903,6 +11018,26 @@ msgctxt "ulng.rsmfstbifinderrevealtitle"
 msgid "Finder"
 msgstr "访达"
 
+#: ulng.rsmfstbigobackwardtips
+msgctxt "ulng.rsmfstbigobackwardtips"
+msgid "Backward"
+msgstr "返回"
+
+#: ulng.rsmfstbigobackwardtitle
+msgctxt "ulng.rsmfstbigobackwardtitle"
+msgid "Backward"
+msgstr "返回"
+
+#: ulng.rsmfstbigoforwardtips
+msgctxt "ulng.rsmfstbigoforwardtips"
+msgid "Forward"
+msgstr "前进"
+
+#: ulng.rsmfstbigoforwardtitle
+msgctxt "ulng.rsmfstbigoforwardtitle"
+msgid "Forward"
+msgstr "前进"
+
 #: ulng.rsmfstbigotips
 msgctxt "ulng.rsmfstbigotips"
 msgid "Go"
@@ -10923,13 +11058,13 @@ msgctxt "ulng.rsmfstbihorzsplittitle"
 msgid "HorzSplit"
 msgstr "水平分隔"
 
-#: ulng.rsmfstbiiclouddrivertips
-msgctxt "ulng.rsmfstbiiclouddrivertips"
+#: ulng.rsmfstbiiclouddrivetips
+msgctxt "ulng.rsmfstbiiclouddrivetips"
 msgid "iCloud Drive"
 msgstr "iCloud云盘"
 
-#: ulng.rsmfstbiiclouddrivertitle
-msgctxt "ulng.rsmfstbiiclouddrivertitle"
+#: ulng.rsmfstbiiclouddrivetitle
+msgctxt "ulng.rsmfstbiiclouddrivetitle"
 msgid "iCloud Drive"
 msgstr "iCloud云盘"
 
@@ -11097,11 +11232,13 @@ msgstr "弹出"
 msgid "Extract here..."
 msgstr "解压缩到此处..."
 
-#: ulng.rsmnuiclouddriverdownloadnow
+#: ulng.rsmnuiclouddrivedownloadnow
+msgctxt "ulng.rsmnuiclouddrivedownloadnow"
 msgid "Download Now"
 msgstr "现在下载"
 
-#: ulng.rsmnuiclouddriverremovedownload
+#: ulng.rsmnuiclouddriveremovedownload
+msgctxt "ulng.rsmnuiclouddriveremovedownload"
 msgid "Remove Download"
 msgstr "移除下载项"
 
@@ -11904,6 +12041,16 @@ msgstr "无效引用"
 msgid "Invalid selection."
 msgstr "无效选择。"
 
+#: ulng.rsmsgkeytransformerror
+#, object-pascal-format
+msgid "The key transformation failed (error code %d)!"
+msgstr "密钥变换失败（错误代码 %d）！"
+
+#: ulng.rsmsgkeytransformtime
+#, object-pascal-format
+msgid "The key transformation took %f seconds."
+msgstr "密钥变换需要%f秒。"
+
 #: ulng.rsmsgloadingfilelist
 msgid "Loading file list..."
 msgstr "正在加载文件列表..."
@@ -12005,11 +12152,12 @@ msgid "Wipe directory %s"
 msgstr "擦除文件夹 %s"
 
 #: ulng.rsmsgmasterpassword
-msgid "Master Password"
+msgctxt "ulng.rsmsgmasterpassword"
+msgid "Main Password"
 msgstr "主密码"
 
 #: ulng.rsmsgmasterpasswordenter
-msgid "Please enter the master password:"
+msgid "Please enter the main password:"
 msgstr "请输入主密码："
 
 #: ulng.rsmsgnewfile

@@ -90,7 +90,9 @@ type
     FAutoRenameItSelf: Boolean;
     FCorrectSymLinks: Boolean;
     FCopyAttributesOptions: TCopyAttributesOptions;
+{$IF DEFINED(MSWINDOWS)}
     FMaxPathOption: TFileSourceOperationUIResponse;
+{$ENDIF}
     FCopyOnWrite: TFileSourceOperationOptionGeneral;
     FDeleteFileOption: TFileSourceOperationUIResponse;
     FFileExistsOption: TFileSourceOperationOptionFileExists;
@@ -188,6 +190,9 @@ uses
 {$ENDIF}
 {$IFDEF DARWIN}
   , DCDarwin
+{$ENDIF}
+{$IFDEF MSWINDOWS}
+  , LCLStrConsts
 {$ENDIF}
   ;
 
@@ -1203,14 +1208,14 @@ begin
         end;
       end;
     end;
-
+{$IF DEFINED(MSWINDOWS)}
     // Check MAX_PATH
     if gLongNameAlert and (UTF8Length(TargetName) > MAX_PATH - 1) then
     begin
       if FMaxPathOption <> fsourInvalid then
         AskResult := FMaxPathOption
       else begin
-        AskResult := AskQuestion(Format(rsMsgFilePathOverMaxPath,
+        AskResult := AskQuestion(rsMtWarning + LineEnding + LineEnding + Format(rsMsgFilePathOverMaxPath,
                          [UTF8Length(TargetName), MAX_PATH - 1, LineEnding + WrapTextSimple(TargetName, 100) + LineEnding]), '',
                          [fsourIgnore, fsourSkip, fsourAbort, fsourIgnoreAll, fsourSkipAll], fsourIgnore, fsourSkip);
         if AskResult = fsourSkipAll then FMaxPathOption := fsourSkip;
@@ -1230,7 +1235,7 @@ begin
         fsourIgnoreAll: FMaxPathOption := fsourIgnore;
       end;
     end;
-
+{$ENDIF}
     if aFile.IsLink then
       ProcessedOk := ProcessLink(CurrentSubNode, TargetName)
     else if aFile.IsDirectory then
@@ -1633,6 +1638,34 @@ var
     end;
   end;
 
+  function DoLinkExists(): TFileSystemOperationTargetExistsResult;
+  begin
+    case FileExists(SourceFile, AbsoluteTargetFileName, False) of
+      fsoofeSkip:
+        Exit(fsoterSkip);
+      fsoofeOverwrite:
+        begin
+          if FileIsReadOnly(Attrs) then
+          begin
+            FileSetReadOnlyUAC(AbsoluteTargetFileName, False);
+          end;
+          if FPS_ISDIR(Attrs) then
+            RemoveDirectoryUAC(AbsoluteTargetFileName)
+          else begin
+            DeleteFileUAC(AbsoluteTargetFileName);
+          end;
+          Exit(fsoterDeleted);
+        end;
+      fsoofeAutoRenameTarget,
+      fsoofeAutoRenameSource:
+        begin
+          Exit(fsoterRenamed);
+        end
+      else
+        raise Exception.Create('Invalid link exists option');
+    end;
+  end;
+
   function IsLinkFollowed: Boolean;
   begin
     // If link was followed then it's target is stored in a subnode.
@@ -1648,7 +1681,7 @@ var
 
   function AllowCopyInto: Boolean;
   begin
-    Result := SourceFile.AttributesProperty.IsDirectory or
+    Result := (SourceFile.IsDirectory and not SourceFile.IsLinkToDirectory) or
               (IsLinkFollowed and aNode.SubNodes[0].TheFile.IsDirectory);
   end;
 
@@ -1667,13 +1700,18 @@ begin
         if (LinkTargetAttrs <> faInvalidAttributes) then
         begin
           if FPS_ISDIR(LinkTargetAttrs) then
-            Result := DoDirectoryExists(AllowCopyInto, False)
+          begin
+            if (SourceFile.IsLinkToDirectory and not IsLinkFollowed) then
+              Result := DoLinkExists()
+            else
+              Result := DoDirectoryExists(AllowCopyInto, False);
+          end
           else
-            Result := DoFileExists(AllowAppendFile);
+            Result := DoLinkExists();
         end
         else
           // Target of link doesn't exist. Treat link as file and don't allow append.
-          Result := DoFileExists(False);
+          Result := DoLinkExists();
       end
       else if FPS_ISDIR(Attrs) then
       begin

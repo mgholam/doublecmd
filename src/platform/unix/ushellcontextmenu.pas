@@ -78,7 +78,7 @@ uses
   uOSUtils, uFileProcs, uShellExecute, uLng, uPixMapManager, uMyUnix, uOSForms,
   fMain, fFileProperties, DCOSUtils, DCStrUtils, uExts, uArchiveFileSourceUtil, uSysFolders
   {$IF DEFINED(DARWIN)}
-  , LCLStrConsts, MacOSAll, CocoaAll, uMyDarwin, uDarwinUtil
+  , LCLStrConsts, MacOSAll, CocoaAll, uDarwinApplication, uDarwinPanel, uDarwinUtil
   {$ELSEIF NOT DEFINED(HAIKU)}
   , uKeyFile, uMimeActions
     {$IF DEFINED(LINUX)}
@@ -449,6 +449,7 @@ begin
   appDialog.DefaultExt:= 'app';
   appDialog.InitialDir:= '/Applications';
   appDialog.Filter:= rsOpenWithMacOSFilter;
+  appDialog.OptionsEx:= [ofShowsFilePackagesSwitch];
   if appDialog.Execute and (NOT appDialog.FileName.IsEmpty) then begin
     Result:= appDialog.FileName;
   end;
@@ -526,6 +527,7 @@ begin
     for I:= 0 to appArray.count-1 do begin
       appUrl:= NSURL( appArray.objectAtIndex(I) );
       mi:= TMenuItem.Create( miOpenWith );
+      mi.GlyphShowMode:= gsmAlways;
       mi.Caption:= NSFileManager.defaultManager.displayNameAtPath(appUrl.path).UTF8String;
       mi.Hint := appUrl.path.UTF8String;
       ImageIndex:= PixMapManager.CheckAddFileUniqueIcon(appUrl.path.UTF8String,gIconsInMenusSize);
@@ -586,6 +588,7 @@ begin
       begin
         Entry := PDesktopFileEntry(DesktopEntries[I]);
         mi := TMenuItem.Create(miOpenWith);
+        mi.GlyphShowMode:= gsmAlways;
         mi.Caption := Entry^.DisplayName;
         mi.Hint := Entry^.Exec;
         bmpTemp:= PixMapManager.LoadBitmapEnhanced(Entry^.IconName, 16, True, clMenu);
@@ -629,7 +632,7 @@ var
 begin
   addDelimiterMenuItem( self );
 
-  // attach Services Menu in TMacosServiceMenuHelper
+  // attach Services Menu in TDarwinApplicationUtil.popUpMenuWithServiceSubmenu()
   mi:=TMenuItem.Create(Self);
   mi.Caption:=LCLStrConsts.rsMacOSMenuServices;
   Self.Items.Add(mi);
@@ -657,12 +660,12 @@ end;
 
 procedure TShellContextMenu.SharingMenuItemAction(Sender: TObject);
 begin
-  showMacOSSharingServiceMenu;
+  TDarwinPanelUtil.showSharingService;
 end;
 
 procedure TShellContextMenu.EditFinderTagsAction(Sender: TObject);
 begin
-  showEditFinderTagsPanel( nil, frmMain );
+  TDarwinPanelUtil.showEditFinderTags( nil, frmMain );
 end;
 
 {$ENDIF}

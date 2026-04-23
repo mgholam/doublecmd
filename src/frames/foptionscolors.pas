@@ -34,6 +34,7 @@ type
     cbRight: TKASColorBoxButton;
     cbSuccess: TKASColorBoxButton;
     cbUnknown: TKASColorBoxButton;
+    cbSelection: TKASColorBoxButton;
     cmbGroup: TComboBox;
     cbModified: TKASColorBoxButton;
     dbBookMode: TDividerBevel;
@@ -62,6 +63,7 @@ type
     lblRight: TLabel;
     lblSuccess: TLabel;
     lblUnknown: TLabel;
+    lblSelection: TLabel;
     nbColors: TNotebook;
     pgDriveFreeInd: TPage;
     pbxFakeDrive: TPaintBox;
@@ -102,7 +104,7 @@ uses
   {$IF not DEFINED(darwin)}
   , uDarkStyle
   {$ELSE}
-  , uMyDarwin
+  , uDarwinApplication
   {$ENDIF}
 {$ENDIF}
   ;
@@ -201,6 +203,7 @@ begin
     cbLeft.Selected:= LeftColor;
     cbRight.Selected:= RightColor;
     cbUnknown.Selected:= UnknownColor;
+    cbSelection.Selected:= SelectedColor;
   end;
   with gColors.FreeSpaceInd^ do
   begin
@@ -269,7 +272,7 @@ begin
     if g_darkModeSupported then
       Result:= [oesfNeedsRestart];
     {$ELSE}
-    setMacOSAppearance( gAppMode );
+    TDarwinApplicationUtil.setTheme( gAppMode );
     {$ENDIF}
     SaveEarlyConfig;
   except
@@ -301,6 +304,7 @@ begin
     LeftColor:= cbLeft.Selected;
     RightColor:= cbRight.Selected;
     UnknownColor:= cbUnknown.Selected;
+    SelectedColor:= cbSelection.Selected;
   end;
   gIndUseGradient:= cbbUseGradientInd.Checked;
   with gColors.FreeSpaceInd^ do

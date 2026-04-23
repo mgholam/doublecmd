@@ -45,27 +45,30 @@ type
 
   TDriveWatcherObserverList = specialize TFPGList<TDriveWatcherEventNotify>;
 
+  { TDriveWatcher }
+
   TDriveWatcher = class
     class procedure Initialize(Handle: HWND);
     class procedure Finalize;
     class procedure AddObserver(Func: TDriveWatcherEventNotify);
     class procedure RemoveObserver(Func: TDriveWatcherEventNotify);
     class function GetDrivesList: TDrivesList;
+    class function GetUniquePaths: TStringList;
   end;
 
 implementation
 
 uses
   {$IFDEF UNIX}
-  Unix, DCConvertEncoding, uMyUnix, uDebug
+  Unix, DCConvertEncoding, DCStrUtils, uMyUnix, uDebug
    {$IFDEF BSD_not_DARWIN}
    , BSD, BaseUnix, StrUtils, FileUtil
    {$ENDIF}
    {$IFDEF LINUX}
-   , uUDisks, uUDev, uMountWatcher, DCStrUtils, uOSUtils, FileUtil, uGVolume, DCOSUtils
+   , uUDisks, uUDev, uMountWatcher, uOSUtils, FileUtil, uGVolume, DCOSUtils
    {$ENDIF}
    {$IFDEF DARWIN}
-   , StrUtils, uMyDarwin, uDarwinFSWatch, uDarwinIO, ExtCtrls
+   , StrUtils, uDarwinFSWatch, uDarwinIO, ExtCtrls
    {$ENDIF}
    {$IFDEF HAIKU}
    , BaseUnix, DCHaiku
@@ -76,6 +79,9 @@ uses
   uShlObjAdditional, JwaNative, uGlobs
   {$ENDIF}
   ;
+
+const
+  MAX_FS = 128;
 
 {$IFDEF LINUX}
 type
@@ -100,14 +106,15 @@ const
 
 type
   
-  { TDarwinDriverWatcher }
+  { TDarwinDriveWatcher }
 
-  TDarwinDriverWatcher = class
+  TDarwinDriveWatcher = class( IDarwinVolumnHandler )
   private
-    _monitor: TSimpleDarwinFSWatcher;
     _drivePath: String;
     _timer: TTimer;
-    procedure handleEvent( event:TDarwinFSWatchEvent );
+    procedure handleAdded( const fullpath: String );
+    procedure handleRemoved( const fullpath: String );
+    procedure handleRenamed( const fullpath: String );
     procedure createTimer;
     procedure tryAddDrive( Sender: TObject );
   public
@@ -172,7 +179,7 @@ var
   OldWProc: WNDPROC;
   {$ENDIF}
   {$IFDEF DARWIN}
-  DarwinDriverWatcher: TDarwinDriverWatcher;
+  DarwinDriveWatcher: TDarwinDriveWatcher;
   {$ENDIF}
   {$IFDEF BSD_not_DARWIN}
   KQueueDriveWatcher: TKQueueDriveEventWatcher;
@@ -213,46 +220,56 @@ end;
 
 {$IFDEF DARWIN}
 
-{ TDarwinDriverWatcher }
+{ TDarwinDriveWatcher }
 
-procedure TDarwinDriverWatcher.handleEvent( event:TDarwinFSWatchEvent );
+procedure TDarwinDriveWatcher.handleAdded(const fullpath: String);
 var
   drive: TDrive;
 begin
-  drive.Path:= event.fullPath;
-  if ecCreated in event.categories then begin
-    _drivePath:= drive.Path;
-    _timer.Interval:= 1*1000;
-    _timer.Enabled:= True;
-  end else if ecRemoved in event.categories then begin
-    DoDriveRemoved( @drive );
-  end else if not event.fullPath.IsEmpty then begin
-    DoDriveChanged( @drive );
-  end;
+  drive.Path:= fullpath;
+  _drivePath:= fullpath;
+  _timer.Interval:= 1*1000;
+  _timer.Enabled:= True;
 end;
 
-procedure TDarwinDriverWatcher.createTimer;
+procedure TDarwinDriveWatcher.handleRemoved(const fullpath: String);
+var
+  drive: TDrive;
+begin
+  drive.Path:= fullpath;
+  DoDriveRemoved( @drive );
+end;
+
+procedure TDarwinDriveWatcher.handleRenamed(const fullpath: String);
+var
+  drive: TDrive;
+begin
+  drive.Path:= fullpath;
+  DoDriveChanged( @drive );
+end;
+
+procedure TDarwinDriveWatcher.createTimer;
 begin
   _timer:= TTimer.Create( nil );
   _timer.Enabled:= False;
   _timer.OnTimer:= @tryAddDrive;
 end;
 
-procedure TDarwinDriverWatcher.tryAddDrive( Sender: TObject );
+procedure TDarwinDriveWatcher.tryAddDrive( Sender: TObject );
   function driveReady: Boolean;
   var
-    driveList: TDrivesList = nil;
+    fsPtr: ^TFixedStatfs;
+    fsList: array[0..MAX_FS] of TFixedStatfs;
+    count: Integer;
     i: Integer;
   begin
     Result:= False;
-    driveList:= TDriveWatcher.GetDrivesList;
-    try
-      for i:=0 to driveList.Count-1 do begin
-        if _drivePath = driveList[i]^.Path then
-          Exit( True );
-      end;
-    finally
-      FreeAndNil( driveList );
+    count := getfsstat(@fsList, SizeOf(fsList), MNT_WAIT);
+    fsPtr := @fsList;
+    for i:=0 to count-1 do begin
+      if _drivePath = fsPtr^.mountpoint then
+        Exit( True );
+      inc( fsPtr );
     end;
   end;
 var
@@ -276,19 +293,17 @@ begin
   end;
 end;
 
-constructor TDarwinDriverWatcher.Create;
-const
-  VOLUME_PATH = '/Volumes';
+constructor TDarwinDriveWatcher.Create;
 begin
   Inherited;
-  _monitor:= TSimpleDarwinFSWatcher.Create( VOLUME_PATH , @handleEvent );
+  TDarwinVolumnUtil.setHandler( self );
   self.createTimer;
 end;
 
-destructor TDarwinDriverWatcher.Destroy;
+destructor TDarwinDriveWatcher.Destroy;
 begin
+  TDarwinVolumnUtil.removeHandler;
   FreeAndNil( _timer );
-  FreeAndNil( _monitor );
   inherited Destroy;
 end;
 
@@ -449,7 +464,7 @@ begin
   {$ENDIF}
 
   {$IFDEF DARWIN}
-  DarwinDriverWatcher := TDarwinDriverWatcher.Create;
+  DarwinDriveWatcher := TDarwinDriveWatcher.Create;
   {$ENDIF}
 
   {$IFDEF BSD_not_DARWIN}
@@ -480,7 +495,7 @@ begin
   {$ENDIF}
 
   {$IFDEF DARWIN}
-  FreeAndNil( DarwinDriverWatcher );
+  FreeAndNil( DarwinDriveWatcher );
   {$ENDIF}
 
   {$IFDEF BSD_not_DARWIN}
@@ -1296,8 +1311,6 @@ end;
     else
       Result := dtUnknown; // devfs, nullfs, procfs, etc.
   end;
-const
-  MAX_FS = 128;
 var
   drive: PDrive;
   fstab: PFSTab;
@@ -1510,6 +1523,46 @@ begin
   Result := TDrivesList.Create;
 end;
 {$ENDIF}
+
+class function TDriveWatcher.GetUniquePaths: TStringList;
+var
+  I: Integer;
+{$IFDEF UNIX}
+  J: Integer;
+  APath: String;
+{$ENDIF}
+  ADrive: PDrive;
+  Drives: TDrivesList;
+begin
+  Drives:= GetDrivesList;
+  Result:= TStringList.Create;
+  for I:= 0 to Drives.Count - 1 do
+  begin
+    ADrive:= Drives[I];
+    if (ADrive^.IsMounted) and (ADrive^.DriveType <> dtSpecial) and
+       (Length(ADrive^.Path) > 0) and (ADrive^.Path <> PathDelim) then
+    begin
+      Result.Add(ADrive^.Path);
+    end;
+  end;
+  Drives.Free;
+{$IF DEFINED(UNIX)}
+  // Remove a sub-drives
+  for I:= Result.Count - 1 downto 0 do
+  begin
+    APath:= Result[I];
+
+    for J:= Result.Count - 1 downto 0 do
+    begin
+      if IsInPath(Result[J], APath, True, False) then
+      begin
+        Result.Delete(I);
+        Break;
+      end;
+    end;
+  end;
+{$ENDIF}
+end;
 
 {$IFDEF LINUX}
 procedure TFakeClass.OnMountWatcherNotify(Sender: TObject);

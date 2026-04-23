@@ -99,8 +99,8 @@ type
        as a list of UTF-8 strings.
        @returns(List of filenames or nil in case of an error.)
     }
-    function GetDropFileGroupFilenames(const dataObj: IDataObject; var Medium: TSTGMedium; Format: TFormatETC): TStringList;
-    function SaveCfuContentToFile(const dataObj:IDataObject; Index:Integer; WantedFilename:String; FileInfo: PFileDescriptorW):boolean;
+    class function GetDropFileGroupFilenames(const dataObj: IDataObject; var Medium: TSTGMedium; Format: TFormatETC): TStringList;
+    class function SaveCfuContentToFile(const dataObj:IDataObject; Index:Integer; WantedFilename:String; FileInfo: PFileDescriptorW):boolean;
 
     {en
        Retrieves the text from the CF_UNICODETEXT/CF_TEXT format, will store this in a single file
@@ -804,30 +804,30 @@ function TFileDropTarget.Drop(const dataObj: IDataObject; grfKeyState: LongWord;
   pt: TPoint; var dwEffect: LongWord): HResult; stdcall;
 
 var
+  I: Integer;
+  Index: Integer;
+  CfFormat:  Word;
   Medium: TSTGMedium;
-  CyclingThroughFormat, ChosenFormat: TFormatETC;
-  i: Integer;
-  DropInfo: TDragDropInfo;
-  FileNames, DragTextModeOfferedList: TStringList;
-  SelectedFormatName:String;
-  DropEffect: TDropEffect;
   Enum: IEnumFormatEtc;
+  UnusedInteger: Integer;
+  DropEffect: TDropEffect;
+  DropInfo: TDragDropInfo;
+  SelectedFormatName: String;
   DragAndDropSupportedFormatList: TWordList;
-  UnusedInteger : integer;
+  CyclingThroughFormat, ChosenFormat: TFormatETC;
+  FileNames, DragTextModeOfferedList: TStringList;
 
 begin
   DragAndDropSupportedFormatList:= TWordList.Create;
   try
-    FileNames:=nil;
-    UnusedInteger:=0;
+    FileNames:= nil;
+    Result:= S_FALSE;
+    UnusedInteger:= 0;
+    ChosenFormat.CfFormat:= 0;
 
     dataObj._AddRef;
 
-    { Получаем данные.
-      Структура TFormatETC сообщает dataObj.GetData, как получить данные и в каком формате они должны храниться
-      (эта информация содержится в структуре TSTGMedium). }
-
-    //1. Let's build as quick list of the supported formats of what we've just been dropped.
+    // 1. Let's build as quick list of the supported formats of what we've just been dropped.
     // We scan through all because sometimes the best one is not the first compatible one.
     OleCheck(DataObj.EnumFormatEtc(DATADIR_GET, Enum));
     while Enum.Next(1, CyclingThroughFormat, nil) = S_OK do
@@ -835,38 +835,41 @@ begin
       DragAndDropSupportedFormatList.Add(CyclingThroughFormat.CfFormat);
     end;
 
-    //2. Let's determine our best guess.
-    // The order for this will be:
-    // 1nd) CFU_FILEGROUPDESCRIPTORW + CFU_FILECONTENTS (Outlook 2010 / Windows Live Mail, etc.)
-    // 2rd) CFU_FILEGROUPDESCRIPTOR + CFU_FILECONTENTS (Outlook 2010 / Windows Live Mail, etc.)
-    // 3st) CF_HDROP (for legacy purpose, since DC was using it first).
-    // 4th) We'll see if user would like to create a new text file from possible selected text dropped on the panel
+    // 2. Let's determine our best guess.
+    for Index:= 0 to DragAndDropSupportedFormatList.Count - 1 do
+    begin
+      CfFormat:= DragAndDropSupportedFormatList[Index];
+
+      // The locations of a group of existing files
+      if (CfFormat = CF_HDROP) then
+      begin
+        ChosenFormat.CfFormat:= CF_HDROP;
+        Result:= GetFiles(dataObj, ChosenFormat, FileNames, Medium);
+      end
+      // Usually a virtual files (Outlook 2010 / Windows Live Mail, etc.)
+      else if (CfFormat = CFU_FILECONTENTS) then
+      begin
+        if (DragAndDropSupportedFormatList.IndexOf(CFU_FILEGROUPDESCRIPTORW) > -1) then
+        begin
+          ChosenFormat.CfFormat:= CFU_FILEGROUPDESCRIPTORW;
+          Result:= GetFiles(dataObj, ChosenFormat, FileNames, Medium);
+        end;
+        if (Result <> S_OK) AND (DragAndDropSupportedFormatList.IndexOf(CFU_FILEGROUPDESCRIPTOR) > -1) then
+        begin
+          ChosenFormat.CfFormat:= CFU_FILEGROUPDESCRIPTOR;
+          Result:= GetFiles(dataObj, ChosenFormat, FileNames, Medium);
+        end;
+      end;
+
+      if (Result = S_OK) then Break;
+    end;
+
+    // If we have no chosen format yet, let's attempt for text ones...
+    // We'll see if user would like to create a new text file from possible selected text dropped on the panel
     // CF_UNICODETEXT (Notepad++ / Wordpad / Firefox)
     // CF_TEXT (Notepad / Wordpad / Firefox)
     // CFU_HTML (Firefox)
     // Rich Text (Wordpad / Microsoft Word)
-    Result:= S_FALSE;
-    ChosenFormat.CfFormat:= 0;
-    if (DragAndDropSupportedFormatList.IndexOf(CFU_FILECONTENTS) > -1) then
-    begin
-      if (DragAndDropSupportedFormatList.IndexOf(CFU_FILEGROUPDESCRIPTORW) > -1) then
-      begin
-        ChosenFormat.CfFormat:= CFU_FILEGROUPDESCRIPTORW;
-        Result:= GetFiles(dataObj, ChosenFormat, FileNames, Medium);
-      end;
-      if (Result <> S_OK) AND (DragAndDropSupportedFormatList.IndexOf(CFU_FILEGROUPDESCRIPTOR) > -1) then
-      begin
-        ChosenFormat.CfFormat:= CFU_FILEGROUPDESCRIPTOR;
-        Result:= GetFiles(dataObj, ChosenFormat, FileNames, Medium);
-      end;
-    end;
-    if (Result <> S_OK) AND (DragAndDropSupportedFormatList.IndexOf(CF_HDROP) > -1) then
-    begin
-      ChosenFormat.CfFormat:= CF_HDROP;
-      Result:= GetFiles(dataObj, ChosenFormat, FileNames, Medium);
-    end;
-
-    // If we have no chosen format yet, let's attempt for text ones...
     if (Result <> S_OK) then
     begin
       ChosenFormat.CfFormat:= 0;
@@ -880,21 +883,21 @@ begin
 
         if DragTextModeOfferedList.Count>0 then SelectedFormatName:=DragTextModeOfferedList.Strings[0] else SelectedFormatName:='';
         if (DragTextModeOfferedList.Count>1) AND (gDragAndDropAskFormatEachTime) then if not ShowInputListBox(rsCaptionForTextFormatToImport,rsMsgForTextFormatToImport,DragTextModeOfferedList,SelectedFormatName,UnusedInteger) then SelectedFormatName:='';
-        if SelectedFormatName<>'' then
-          begin
-            if SelectedFormatName=gDragAndDropDesiredTextFormat[DropTextRichText_Index].Name then ChosenFormat.CfFormat:=CFU_RICHTEXT;
-            if SelectedFormatName=gDragAndDropDesiredTextFormat[DropTextHtml_Index].Name then ChosenFormat.CfFormat:=CFU_HTML;
-            if SelectedFormatName=gDragAndDropDesiredTextFormat[DropTextUnicode_Index].Name then ChosenFormat.CfFormat:=CF_UNICODETEXT;
-            if SelectedFormatName=gDragAndDropDesiredTextFormat[DropTextSimpleText_Index].Name then ChosenFormat.CfFormat:=CF_TEXT;
-          end;
-        finally
-          DragTextModeOfferedList.Free;
-        end;
-        if ChosenFormat.CfFormat <> 0 then
+        if SelectedFormatName <> '' then
         begin
-          Result:= GetFiles(dataObj, ChosenFormat, FileNames, Medium);
+          if SelectedFormatName=gDragAndDropDesiredTextFormat[DropTextRichText_Index].Name then ChosenFormat.CfFormat:=CFU_RICHTEXT;
+          if SelectedFormatName=gDragAndDropDesiredTextFormat[DropTextHtml_Index].Name then ChosenFormat.CfFormat:=CFU_HTML;
+          if SelectedFormatName=gDragAndDropDesiredTextFormat[DropTextUnicode_Index].Name then ChosenFormat.CfFormat:=CF_UNICODETEXT;
+          if SelectedFormatName=gDragAndDropDesiredTextFormat[DropTextSimpleText_Index].Name then ChosenFormat.CfFormat:=CF_TEXT;
         end;
+      finally
+        DragTextModeOfferedList.Free;
       end;
+      if ChosenFormat.CfFormat <> 0 then
+      begin
+        Result:= GetFiles(dataObj, ChosenFormat, FileNames, Medium);
+      end;
+    end;
 
     //3. If we have some filenames in our list, continue to process the actual "Drop" of files
     if (Result = S_OK) then
@@ -904,7 +907,7 @@ begin
 
       if Assigned(FileNames) then
       begin
-        for i := 0 to FileNames.Count - 1 do DropInfo.Add(FileNames[i]);
+        for I := 0 to FileNames.Count - 1 do DropInfo.Add(FileNames[I]);
         FreeAndNil(FileNames);
       end;
 
@@ -991,7 +994,7 @@ begin
 end;
 
 { TFileDropTarget.SaveCfuContentToFile }
-function TFileDropTarget.SaveCfuContentToFile(const dataObj: IDataObject;
+class function TFileDropTarget.SaveCfuContentToFile(const dataObj: IDataObject;
   Index: Integer; WantedFilename: String; FileInfo: PFileDescriptorW): boolean;
 const
   TEMPFILENAME='CfuContentFile.bin';
@@ -1003,37 +1006,44 @@ var
   hFile: THandle;
   pvStrm: IStream;
   statstg: TStatStg;
-  dwSize:     LongInt;
+  dwRead: ULONG;
   AnyPointer: PAnsiChar;
   InnerFilename: String;
   StgDocFile: WideString;
   msStream:   TMemoryStream;
   i64Size, i64Move: {$IF FPC_FULLVERSION < 030002}Int64{$ELSE}QWord{$ENDIF};
+  hr: HRESULT;
 begin
   result:=FALSE;
   InnerFilename:= ExtractFilepath(WantedFilename) + TEMPFILENAME;
+  
   Format.cfFormat := CFU_FILECONTENTS;
   Format.dwAspect := DVASPECT_CONTENT;
   Format.lindex := Index;
   Format.ptd := nil;
   Format.TYMED := TYMED_ISTREAM OR TYMED_ISTORAGE or TYMED_HGLOBAL;
 
-  if dataObj.GetData(Format, Medium) = S_OK then
-  begin
+  hr := dataObj.GetData(Format, Medium);
+  if hr <> S_OK then Exit;
+
+  try
     if Medium.TYMED = TYMED_ISTORAGE then
     begin
       iStg := IStorage(Medium.pstg);
       StgDocFile := CeUtf8ToUtf16(InnerFilename);
-      StgCreateDocfile(PWideChar(StgDocFile), STGM_CREATE Or STGM_READWRITE Or STGM_SHARE_EXCLUSIVE, 0, iFile);
-      tIID:=nil;
-      iStg.CopyTo(0, tIID, nil, iFile);
-      iFile.Commit(0);
-      iFile := nil;
+      if StgCreateDocfile(PWideChar(StgDocFile), STGM_CREATE Or STGM_READWRITE Or STGM_SHARE_EXCLUSIVE, 0, iFile) = S_OK then
+      begin
+        tIID:=nil;
+        iStg.CopyTo(0, tIID, nil, iFile);
+        iFile.Commit(0);
+        iFile := nil;
+      end;
       iStg := nil;
     end
     else if Medium.Tymed = TYMED_HGLOBAL then
     begin
       AnyPointer := GlobalLock(Medium.HGLOBAL);
+      if AnyPointer <> nil then
       try
         hFile := mbFileCreate(InnerFilename);
         if hFile <> feInvalidHandle then
@@ -1044,39 +1054,53 @@ begin
       finally
         GlobalUnlock(Medium.HGLOBAL);
       end;
-      if Medium.PUnkForRelease = nil then GlobalFree(Medium.HGLOBAL);
     end
-    else
+    else if Medium.Tymed = TYMED_ISTREAM then
     begin
       pvStrm:= IStream(Medium.pstm);
-      // Figure out how large the data is
-      if (FileInfo^.dwFlags and FD_FILESIZE <> 0) then
-        i64Size:= Int64(FileInfo.nFileSizeLow) or (Int64(FileInfo.nFileSizeHigh) shl 32)
-      else if (pvStrm.Stat(statstg, STATFLAG_DEFAULT) = S_OK) then
-        i64Size:= statstg.cbSize
-      else if (pvStrm.Seek(0, STREAM_SEEK_END, i64Size) = S_OK) then
-        // Seek back to start of stream
-        pvStrm.Seek(0, STREAM_SEEK_SET, i64Move)
-      else begin
-        Exit;
+      if pvStrm <> nil then
+      begin
+        // Figure out how large the data is
+        i64Size := 0;
+        if (FileInfo^.dwFlags and FD_FILESIZE <> 0) then
+          i64Size:= Int64(FileInfo.nFileSizeLow) or (Int64(FileInfo.nFileSizeHigh) shl 32)
+        else if (pvStrm.Stat(statstg, STATFLAG_NONAME) = S_OK) then
+          i64Size:= statstg.cbSize
+        else if (pvStrm.Seek(0, STREAM_SEEK_END, i64Size) = S_OK) then
+        begin
+          // Seek back to start of stream
+          pvStrm.Seek(0, STREAM_SEEK_SET, i64Move);
+        end;
+
+        if i64Size > 0 then
+        begin
+          // Create memory stream to convert to
+          msStream:= TMemoryStream.Create;
+          try
+            // Allocate size
+            msStream.Size:= i64Size;
+            // Read from the IStream into the memory for the TMemoryStream
+            dwRead := 0;
+            if pvStrm.Read(msStream.Memory, i64Size, @dwRead) = S_OK then
+              msStream.Size:= dwRead
+            else
+              msStream.Size:= 0;
+
+            if msStream.Size > 0 then
+            begin
+              msStream.Position:=0;
+              msStream.SaveToFile(UTF8ToSys(InnerFilename));
+            end;
+          finally
+            msStream.Free;
+          end;
+        end;
+        pvStrm := nil;
       end;
-
-      // Create memory stream to convert to
-      msStream:= TMemoryStream.Create;
-      // Allocate size
-      msStream.Size:= i64Size;
-      // Read from the IStream into the memory for the TMemoryStream
-      if pvStrm.Read(msStream.Memory, i64Size, @dwSize) = S_OK then
-        msStream.Size:= dwSize
-      else
-        msStream.Size:= 0;
-      // Release interface
-      pvStrm:=nil;
-
-      msStream.Position:=0;
-      msStream.SaveToFile(UTF8ToSys(InnerFilename));
-      msStream.Free;
     end;
+  finally
+    // Always release the medium - this is required by COM
+    ReleaseStgMedium(@Medium);
   end;
 
   if mbFileExists(InnerFilename) then
@@ -1093,7 +1117,7 @@ begin
 end;
 
 { TFileDropTarget.GetDropFileGroupFilenames }
-function TFileDropTarget.GetDropFileGroupFilenames(const dataObj: IDataObject; var Medium: TSTGMedium; Format: TFormatETC): TStringList;
+class function TFileDropTarget.GetDropFileGroupFilenames(const dataObj: IDataObject; var Medium: TSTGMedium; Format: TFormatETC): TStringList;
 var
   SuffixStr: String;
   AnyPointer: Pointer;

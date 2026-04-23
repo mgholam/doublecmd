@@ -110,6 +110,9 @@ procedure ShowTrashContextMenu(Parent: TWinControl; X, Y : Integer;
 }
 function ShowOpenIconDialog(Owner: TCustomControl; var sFileName : String) : Boolean;
 
+function SelectDirectoryEx(const Caption, InitialDirectory: string;
+                           out Directory: string; ShowHidden: Boolean): Boolean;
+
 {$IF DEFINED(UNIX) AND NOT (DEFINED(DARWIN) OR DEFINED(HAIKU))}
 {en
    Show open with dialog
@@ -128,14 +131,14 @@ function DarkStyle: Boolean;
 implementation
 
 uses
-  ExtDlgs, LCLProc, Menus, Graphics, InterfaceBase, WSForms, LCLIntf,
-  fMain, uConnectionManager, uShowMsg, uLng, uDCUtils, uDebug
+  ExtDlgs, LCLProc, Menus, Dialogs, Graphics, InterfaceBase, WSForms, LCLIntf,
+  LCLVersion, fMain, uConnectionManager, uShowMsg, uLng, uDCUtils, uDebug
   {$IF DEFINED(MSWINDOWS)}
   , LCLStrConsts, ComObj, ActiveX, DCOSUtils, uOSUtils, uFileSystemFileSource
   , uTotalCommander, FileUtil, Windows, ShlObj, uShlObjAdditional
   , uWinNetFileSource, uVfsModule, uMyWindows, DCStrUtils, uOleDragDrop
   , uDCReadRSVG, uFileSourceUtil, uGdiPlusJPEG, uListGetPreviewBitmap
-  , Dialogs, Clipbrd, JwaDbt, uThumbnailProvider, uShellFolder
+  , Clipbrd, JwaDbt, uThumbnailProvider, uShellFolder
   , uRecycleBinFileSource, uWslFileSource, uDCReadHEIF, uDCReadJXL
   , uDCReadWIC, uShellFileSource, uPixMapManager
     {$IF DEFINED(DARKWIN)}
@@ -145,16 +148,16 @@ uses
     {$ENDIF}
   {$ENDIF}
   {$IF DEFINED(DARWIN)}
-  , LCLStrConsts
+  , LCLStrConsts, CocoaConfig
   , BaseUnix, Errors, fFileProperties
-  , uQuickLook, uOpenDocThumb, uMyDarwin, uDefaultTerminal
+  , uQuickLook, uOpenDocThumb, uDarwinApplication, uDarwinFile, uDefaultTerminal
   {$ELSEIF DEFINED(UNIX)}
   , BaseUnix, Errors, fFileProperties, uJpegThumb, uOpenDocThumb
     {$IF NOT DEFINED(HAIKU)}
     , uDCReadRSVG, uMagickWand, uGio, uGioFileSource, uVfsModule, uVideoThumb
     , uDCReadWebP, uFolderThumb, uAudioThumb, uDefaultTerminal, uDCReadHEIF
     , uTrashFileSource, uFileManager, uFileSystemFileSource, fOpenWith
-    , uDCReadJXL, uFileSourceUtil, uNetworkFileSource
+    , uDCReadJXL, uFileSourceUtil, uNetworkFileSource, uGoogleFileSource
     {$ENDIF}
     {$IF DEFINED(LINUX)}
     , uFlatpak
@@ -694,6 +697,7 @@ begin
       RegisterVirtualFileSource(rsVfsRecycleBin, TTrashFileSource, True);
     if TGioFileSource.IsSupportedPath('network://') then
       RegisterVirtualFileSource(rsVfsNetwork, TNetworkFileSource, True);
+    RegisterVirtualFileSource('Google', TGoogleFileSource, False);
     RegisterVirtualFileSource('GVfs', TGioFileSource, False);
   end;
   {$ENDIF}
@@ -720,7 +724,7 @@ begin
   {$ENDIF}
 
   {$IF DEFINED(DARWIN)}
-  if HasMountURL then
+  if TDarwinFileUtil.isMountSupported then
   begin
     with frmMain do
     begin
@@ -787,7 +791,7 @@ begin
     ShellContextMenu.OnClose := CloseEvent;
     frmMain.ActiveFrame.FileSource.QueryContextMenu(contextFiles, TPopupMenu(ShellContextMenu));
     // Show context menu
-    MacosServiceMenuHelper.PopUp( ShellContextMenu, rsMacOSMenuServices, getFilepaths(contextFiles) );
+    TDarwinApplicationUtil.popUpMenuWithServiceSubmenu( ShellContextMenu, rsMacOSMenuServices, getFilepaths(contextFiles) );
   finally
     // Free created menu
     FreeAndNil(ShellContextMenu);
@@ -965,6 +969,9 @@ begin
     begin
       opdDialog := TOpenPictureDialog.Create(Owner);
       opdDialog.InitialDir:=ExtractFileDir(sFileName);
+{$if lcl_fullversion >= 4990000}
+      opdDialog.OptionsEx:= [ofShowsFilePackagesSwitch];
+{$endif}
 {$IFDEF MSWINDOWS}
       opdDialog.Filter:= sFilter;
 {$ENDIF}
@@ -975,6 +982,18 @@ begin
 
   if Assigned(opdDialog) then
     FreeAndNil(opdDialog);
+end;
+
+function SelectDirectoryEx(const Caption, InitialDirectory: string; out
+  Directory: string; ShowHidden: Boolean): Boolean;
+begin
+{$IF DEFINED(DARWIN) AND (LCL_FULLVERSION >= 4990000)}
+  CocoaConfigFileDialog.selectDirectory.allowsFilePackagesContents:= True;
+{$ENDIF}
+  Result:= SelectDirectory(Caption, InitialDirectory, Directory, ShowHidden);
+{$IF DEFINED(DARWIN) AND (LCL_FULLVERSION >= 4990000)}
+  CocoaConfigFileDialog.selectDirectory.allowsFilePackagesContents:= False;
+{$ENDIF}
 end;
 
 function GetControlHandle(AWindow: TWinControl): HWND;
@@ -1068,10 +1087,10 @@ end;
 var
   Address: String = '';
 begin
-  if ShowInputQuery(Application.Title, rsMsgURL, False, Address) then
+  if ShowInputQuery(rsMacOSConnectServerTitle, rsMacOSConnectServerPrompt, False, Address) then
   begin
   {$IF DEFINED(DARWIN)}
-    MountNetworkDrive(Address);
+    TDarwinFileUtil.mount(Address);
   {$ELSE}
     ChooseFileSource(frmMain.ActiveFrame, Address);
   {$ENDIF}

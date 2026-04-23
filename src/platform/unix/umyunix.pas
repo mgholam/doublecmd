@@ -119,6 +119,10 @@ function ExecutableInSystemPath(const FileName: String): Boolean;
 function GetDefaultAppCmd(const FileName: String): String;
 function GetFileMimeType(const FileName: String): String;
 {en
+   Fix invalid default format settings
+}
+procedure FixFormatSettings;
+{en
    Fix separators in case they are broken UTF-8 characters
    (FPC takes only first byte as it doesn't support Unicode).
 }
@@ -174,7 +178,7 @@ uses
   , uFontConfig, uMimeActions, uMimeType, uGVolume
 {$ENDIF}
 {$IFDEF DARWIN}
-  , uMyDarwin
+  , uDarwinFile
 {$ENDIF}
 {$IFDEF LINUX}
   , uUDisks2
@@ -369,6 +373,20 @@ begin
 end;
 {$ENDIF}
 
+procedure FixFormatSettings;
+begin
+  try
+    FormatDateTime(DefaultFormatSettings.ShortDateFormat, Now);
+  except
+    on E: Exception do
+    begin
+      DebugLn('Warning: %s (%s)', [E.Message, DefaultFormatSettings.ShortDateFormat]);
+      DefaultFormatSettings.ShortDateFormat:= 'yyyy.mm.dd';
+    end;
+  end;
+  FixDateTimeSeparators;
+end;
+
 procedure FixDateTimeSeparators;
 var
   TimeEnv: String;
@@ -503,7 +521,7 @@ begin
       Result := fpSystemStatus('pumount ' + Drive^.DeviceId) = 0;
     if not Result then
 {$ELSEIF DEFINED(DARWIN)}
-    Result := unmountAndEject( Drive^.Path );
+    Result := TDarwinFileUtil.unmountAndEject( Drive^.Path );
     if not Result then
 {$ENDIF}
     Result := fpSystemStatus('umount ' + Drive^.Path) = 0;
@@ -525,7 +543,7 @@ begin
     Result := uUDisks2.Eject(Drive^.DeviceId);
   if not Result then
 {$ELSEIF DEFINED(DARWIN)}
-  Result := unmountAndEject( Drive^.Path );
+  Result := TDarwinFileUtil.unmountAndEject( Drive^.Path );
   if not Result then
 {$ENDIF}
   Result := fpSystemStatus('eject ' + Drive^.DeviceId) = 0;

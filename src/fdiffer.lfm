@@ -162,6 +162,7 @@ object frmDiffer: TfrmDiffer
         HideDirectories = False
         ButtonWidth = 23
         NumGlyphs = 1
+        ImageWidth = 16
         Anchors = [akTop, akLeft, akRight]
         MaxLength = 0
         TabOrder = 0
@@ -180,6 +181,7 @@ object frmDiffer: TfrmDiffer
         Anchors = [akTop, akLeft, akBottom]
         Images = dmComData.ilEditorImages
         ImageIndex = 44
+        ImageWidth = 16
         OnClick = btnLeftEncodingClick
       end
       object btnLeftSave: TSpeedButton
@@ -195,6 +197,7 @@ object frmDiffer: TfrmDiffer
         Anchors = [akTop, akLeft, akBottom]
         Images = dmComData.ilEditorImages
         ImageIndex = 34
+        ImageWidth = 16
         ShowCaption = False
       end
       object btnLeftSaveAs: TSpeedButton
@@ -211,6 +214,7 @@ object frmDiffer: TfrmDiffer
         Anchors = [akTop, akLeft, akBottom]
         Images = dmComData.ilEditorImages
         ImageIndex = 35
+        ImageWidth = 16
         ShowCaption = False
       end
     end
@@ -258,6 +262,7 @@ object frmDiffer: TfrmDiffer
         HideDirectories = False
         ButtonWidth = 23
         NumGlyphs = 1
+        ImageWidth = 16
         Anchors = [akTop, akLeft, akRight]
         MaxLength = 0
         TabOrder = 0
@@ -276,6 +281,7 @@ object frmDiffer: TfrmDiffer
         Anchors = [akTop, akLeft, akBottom]
         Images = dmComData.ilEditorImages
         ImageIndex = 44
+        ImageWidth = 16
         OnClick = btnRightEncodingClick
       end
       object btnRightSave: TSpeedButton
@@ -291,6 +297,7 @@ object frmDiffer: TfrmDiffer
         Anchors = [akTop, akLeft, akBottom]
         Images = dmComData.ilEditorImages
         ImageIndex = 34
+        ImageWidth = 16
         ShowCaption = False
       end
       object btnRightSaveAs: TSpeedButton
@@ -307,6 +314,7 @@ object frmDiffer: TfrmDiffer
         Anchors = [akTop, akLeft, akBottom]
         Images = dmComData.ilEditorImages
         ImageIndex = 35
+        ImageWidth = 16
         ShowCaption = False
       end
     end
@@ -332,7 +340,6 @@ object frmDiffer: TfrmDiffer
     SimplePanel = False
   end
   object MainMenu: TMainMenu
-    Images = dmComData.ilEditorImages
     Left = 88
     Top = 136
     object mnuFile: TMenuItem
@@ -603,14 +610,14 @@ object frmDiffer: TfrmDiffer
       OnExecute = actPaintBackgroundExecute
     end
     object actCopyLeftToRight: TAction
-      Caption = 'Copy Block Right'
-      Hint = 'Copy Block Right'
+      Caption = 'Copy Block To Right'
+      Hint = 'Copy Block From Left To Right'
       ImageIndex = 43
       OnExecute = actExecute
     end
     object actCopyRightToLeft: TAction
-      Caption = 'Copy Block Left'
-      Hint = 'Copy Block Left'
+      Caption = 'Copy Block To Left'
+      Hint = 'Copy Block From Right To Left'
       ImageIndex = 42
       OnExecute = actExecute
     end

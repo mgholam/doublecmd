@@ -247,6 +247,7 @@ function TrimPath(const Path: String): String;
 }
 function TrimRightLineEnding(const sText: String; TextLineBreakStyle: TTextLineBreakStyle): String;
 function mbCompareText(const s1, s2: String): PtrInt;
+function mbCompareStr(const s1, s2: String): PtrInt;
 
 function StrNewW(const mbString: String): PWideChar;
 procedure StrDisposeW(var pStr : PWideChar);
@@ -752,12 +753,12 @@ begin
 
   sBasePath := IncludeTrailingPathDelimiter(sBasePath);
 
-  BasePathLength := Length(sBasePath);
-  PathToCheckLength := Length(sPathToCheck);
+  BasePathLength := UTF8Length(sBasePath);
+  PathToCheckLength := UTF8Length(sPathToCheck);
 
   if PathToCheckLength > BasePathLength then
   begin
-    if mbCompareFileNames(Copy(sPathToCheck, 1, BasePathLength), sBasePath) then
+    if mbCompareFileNames(UTF8Copy(sPathToCheck, 1, BasePathLength), sBasePath) then
     begin
       if AllowSubDirs then
         Result := True
@@ -766,10 +767,10 @@ begin
         // Additionally check if the remaining path is a relative path.
 
         // Look for a path delimiter in the middle of the filepath.
-        sPathToCheck := Copy(sPathToCheck, 1 + BasePathLength,
+        sPathToCheck := UTF8Copy(sPathToCheck, 1 + BasePathLength,
                              PathToCheckLength - BasePathLength);
 
-        DelimiterPos := Pos(DirectorySeparator, sPathToCheck);
+        DelimiterPos := UTF8Pos(DirectorySeparator, sPathToCheck);
 
         // If no delimiter was found or it was found at then end (directories
         // may end with it), then the 'sPathToCheck' is in 'sBasePath'.
@@ -784,7 +785,7 @@ begin
       (((PathToCheckLength = BasePathLength) and
         (mbCompareFileNames(sPathToCheck, sBasePath))) or
        ((PathToCheckLength = BasePathLength - 1) and
-        (mbCompareFileNames(Copy(sBasePath, 1, PathToCheckLength), sPathToCheck))));
+        (mbCompareFileNames(UTF8Copy(sBasePath, 1, PathToCheckLength), sPathToCheck))));
 end;
 
 function ExtractDirLevel(const sPrefix, sPath: String): String;
@@ -1024,9 +1025,12 @@ end;
 
 function mbCompareText(const s1, s2: String): PtrInt; inline;
 begin
-// From 0.9.31 LazUtils can be used but this package does not exist in 0.9.30.
-//  Result := LazUTF8.UTF8CompareText(s1, s2);
-  Result := WideCompareText(CeUtf8ToUtf16(s1), CeUtf8ToUtf16(s2));
+  Result := UnicodeCompareText(CeUtf8ToUtf16(s1), CeUtf8ToUtf16(s2));
+end;
+
+function mbCompareStr(const s1, s2: String): PtrInt; inline;
+begin
+  Result := UnicodeCompareStr(CeUtf8ToUtf16(s1), CeUtf8ToUtf16(s2));
 end;
 
 function StrNewW(const mbString: String): PWideChar;

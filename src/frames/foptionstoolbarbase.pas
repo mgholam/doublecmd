@@ -392,6 +392,7 @@ begin
   miImportTCINI.free;
   miImportTCBAR.free;
 {$ENDIF}
+  AlignControlsEx(pnlEditControls, cbInternalCommand, lblInternalCommand);
 end;
 
 procedure TfrmOptionsToolbarBase.LoadCurrentButton;
@@ -1041,6 +1042,9 @@ procedure TfrmOptionsToolbarBase.btnOpenFileClick(Sender: TObject);
 begin
   OpenDialog.DefaultExt:= EmptyStr;
   OpenDialog.Filter:= EmptyStr;
+{$if lcl_fullversion >= 4990000}
+  OpenDialog.OptionsEx:= [ofShowsFilePackagesSwitch];
+{$endif}
   if edtExternalCommand.Text<>'' then OpenDialog.InitialDir:=ExtractFilePath(edtExternalCommand.Text);
   if OpenDialog.Execute then
   begin
@@ -1057,7 +1061,7 @@ var
 begin
   MaybeResultingOutputPath := edtStartPath.Text;
   if MaybeResultingOutputPath = '' then MaybeResultingOutputPath := frmMain.ActiveFrame.CurrentPath;
-  if SelectDirectory(rsSelectDir, MaybeResultingOutputPath, MaybeResultingOutputPath, False) then
+  if SelectDirectoryEx(rsSelectDir, MaybeResultingOutputPath, MaybeResultingOutputPath, False) then
     edtStartPath.Text := GetToolbarFilenameToSave(tpmeStartingPath, MaybeResultingOutputPath);
 end;
 

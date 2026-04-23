@@ -28,11 +28,7 @@ interface
 
 uses
   Classes, SysUtils, ActnList, uFileView, uFileViewNotebook, uFileSourceOperation,
-  uGlobs, uFileFunctions, uFormCommands, uFileSorting, uShellContextMenu, Menus, ufavoritetabs,ufile
-{$IFDEF DARWIN}
-  , uMyDarwin
-{$ENDIF}
-  ;
+  uGlobs, uFileFunctions, uFormCommands, uFileSorting, uShellContextMenu, Menus, ufavoritetabs,ufile;
 
 type
 
@@ -385,6 +381,7 @@ type
    procedure cm_OpenDriveByIndex(const Params: array of string);
    procedure cm_AddPlugin(const Params: array of string);
    procedure cm_LoadList(const Params: array of string);
+   procedure cm_SetSortMode(const Params: array of string);
 
    // Internal commands
    procedure cm_ExecuteToolbarItem(const Params: array of string);
@@ -413,7 +410,7 @@ uses fOptionsPluginsBase, fOptionsPluginsDSX, fOptionsPluginsWCX,
      uHotDir, DCXmlConfig, dmCommonData, fOptionsFrame, foptionsDirectoryHotlist,
      fMainCommandsDlg, uConnectionManager, fOptionsFavoriteTabs, fTreeViewMenu,
      uArchiveFileSource, fOptionsHotKeys, fBenchmark, uAdministrator, uWcxArchiveFileSource,
-     uColumnsFileView
+     uColumnsFileView, uTypes
      ;
 
 resourcestring
@@ -1414,7 +1411,7 @@ begin
       bConfirmation := focTestArchive in gFileOperationsConfirmations;
     end;
 
-    if (bConfirmation = False) or (ShowDeleteDialog(rsMsgTestArchive, ActiveFrame.FileSource, QueueId)) then
+    if (bConfirmation = False) or (ShowDeleteDialog(frmMain, rsMsgTestArchive, ActiveFrame.FileSource, QueueId)) then
     begin
       SelectedFiles := ActiveFrame.CloneSelectedOrActiveFiles;
       try
@@ -1712,7 +1709,7 @@ begin
         Exit;
 
       Message:= frmMain.GetFileDlgStr(rsMsgWipeSel, rsMsgWipeFlDr, theFilesToWipe);
-      if not ShowDeleteDialog(Message, FileSource, QueueId) then
+      if not ShowDeleteDialog(frmMain, Message, FileSource, QueueId) then
         Exit;
 
       Operation := FileSource.CreateWipeOperation(theFilesToWipe);
@@ -1746,13 +1743,15 @@ end;
 
 procedure TMainCommands.cm_RenameTab(const Params: array of string);
 begin
-  DoRenameTab(frmMain.ActiveNotebook.ActivePage);
+  if Length(Params) > 0 then
+    frmMain.ActiveNotebook.ActivePage.PermanentTitle := Params[0]
+  else
+    DoRenameTab(frmMain.ActiveNotebook.ActivePage);
 end;
 
 procedure TMainCommands.cm_CloseTab(const Params: array of string);
 begin
-  with frmMain do
-    DoCloseTab(ActiveNotebook, ActiveNotebook.PageIndex);
+  frmMain.CloseActiveTab;
 end;
 
 { TMainCommands.cm_CloseAllTabs }
@@ -2228,9 +2227,6 @@ begin
   with frmMain do
   begin
     aFileView:= TBriefFileView.Create(ActiveNotebook.ActivePage, ActiveFrame);
-    {$IFDEF DARWIN}
-    TBriefFileView(aFileView).OnDrawCell:= @DarwinFileViewDrawHelper.OnDrawCell;
-    {$ENDIF}
     ActiveNotebook.ActivePage.FileView:= aFileView;
     ActiveFrame.SetFocus;
   end;
@@ -2243,9 +2239,6 @@ begin
   with frmMain do
   begin
     aFileView:= TBriefFileView.Create(LeftTabs.ActivePage, FrameLeft);
-    {$IFDEF DARWIN}
-    TBriefFileView(aFileView).OnDrawCell:= @DarwinFileViewDrawHelper.OnDrawCell;
-    {$ENDIF}
     LeftTabs.ActivePage.FileView:= aFileView;
   end;
 end;
@@ -2257,9 +2250,6 @@ begin
   with frmMain do
   begin
     aFileView:= TBriefFileView.Create(RightTabs.ActivePage, FrameRight);
-    {$IFDEF DARWIN}
-    TBriefFileView(aFileView).OnDrawCell:= @DarwinFileViewDrawHelper.OnDrawCell;
-    {$ENDIF}
     RightTabs.ActivePage.FileView:= aFileView;
   end;
 end;
@@ -2276,9 +2266,6 @@ begin
       TColumnsFileView(ActiveFrame).SetColumnSet(AParam)
     else begin
       aFileView:= TColumnsFileView.Create(ActiveNotebook.ActivePage, ActiveFrame, AParam);
-      {$IFDEF DARWIN}
-      TColumnsFileView(aFileView).OnDrawCell:= @DarwinFileViewDrawHelper.OnDrawCell;
-      {$ENDIF}
       ActiveNotebook.ActivePage.FileView:= aFileView;
       ActiveFrame.SetFocus;
     end;
@@ -2297,9 +2284,6 @@ begin
       TColumnsFileView(FrameLeft).SetColumnSet(AParam)
     else begin
       aFileView:= TColumnsFileView.Create(LeftTabs.ActivePage, FrameLeft, AParam);
-      {$IFDEF DARWIN}
-      TColumnsFileView(aFileView).OnDrawCell:= @DarwinFileViewDrawHelper.OnDrawCell;
-      {$ENDIF}
       LeftTabs.ActivePage.FileView:= aFileView;
     end;
   end;
@@ -2317,9 +2301,6 @@ begin
       TColumnsFileView(FrameRight).SetColumnSet(AParam)
     else begin
       aFileView:= TColumnsFileView.Create(RightTabs.ActivePage, FrameRight, AParam);
-      {$IFDEF DARWIN}
-      TColumnsFileView(aFileView).OnDrawCell:= @DarwinFileViewDrawHelper.OnDrawCell;
-      {$ENDIF}
       RightTabs.ActivePage.FileView:= aFileView;
     end;
   end;
@@ -2604,6 +2585,7 @@ end;
 // "recyclesetting"    - if gUseTrash then delete to trash, otherwise delete directly
 // "recyclesettingrev" - if gUseTrash then delete directly, otherwise delete to trash
 procedure TMainCommands.cm_Delete(const Params: array of string);
+{$OPTIMIZATION OFF}
 var
   I: Integer;
   Message: String;
@@ -2702,8 +2684,13 @@ begin
          end;
          if theFilesToDelete.Count > 5 then Message+= LineEnding + '...';
       end;
-      if (bConfirmation = False) or (ShowDeleteDialog(Message, FileSource, QueueId)) then
+      if (bConfirmation = False) or (ShowDeleteDialog(frmMain, Message, FileSource, QueueId)) then
       begin
+        // Restore focus to main window after confirmation dialog closes
+        if bConfirmation and frmMain.ActiveFrame.CanSetFocus then
+        begin
+          frmMain.ActiveFrame.SetFocus;
+        end;
         if FileSource.IsClass(TFileSystemFileSource) then
         begin
           if frmMain.NotActiveFrame.FileSource.IsClass(TFileSystemFileSource) then
@@ -2758,6 +2745,7 @@ begin
     end;
   end;
 end;
+{$OPTIMIZATION DEFAULT}
 
 procedure TMainCommands.cm_CheckSumCalc(const Params: array of string);
 var
@@ -2901,7 +2889,7 @@ begin
           end;
         end;
 
-      if (bConfirmation = False) or (ShowDeleteDialog(rsMsgVerifyChecksum, ActiveFrame.FileSource, QueueId)) then
+      if (bConfirmation = False) or (ShowDeleteDialog(frmMain, rsMsgVerifyChecksum, ActiveFrame.FileSource, QueueId)) then
       begin
         Operation := ActiveFrame.FileSource.CreateCalcChecksumOperation(
                        SelectedFiles, Hash, '') as TFileSourceCalcChecksumOperation;
@@ -4450,7 +4438,7 @@ begin
   begin
     if PasteFromClipboard(ClipboardOp, filenamesList) = True then
     try
-      // fill file list with files
+      // Create file list from filenames
       Files := TFileSystemFileSource.CreateFilesFromFileList(
           ExtractFilePath(filenamesList[0]), fileNamesList, True);
 
@@ -4523,6 +4511,7 @@ begin
 
         if Assigned(Operation) then
         begin
+          // Don't access Files after creating operation - it may have taken ownership
           if Operation is TFileSystemCopyOperation then
             (Operation as TFileSystemCopyOperation).AutoRenameItSelf:= True;
           OperationsManager.AddOperation(Operation);
@@ -5666,6 +5655,60 @@ begin
     end;
     StringList.Free;
   end;
+end;
+
+procedure TMainCommands.cm_SetSortMode(const Params: array of string);
+var
+  Param, Value: String;
+  State: Boolean;
+begin
+  for Param in Params do
+  begin
+    if GetParamValue(Param, 'casesensitivity', Value) then
+    begin
+      if Value = 'notsensitive' then
+        gSortCaseSensitivity:= cstNotSensitive
+      else if Value = 'locale' then
+        gSortCaseSensitivity:= cstLocale
+      else if Value = 'charvalue' then
+        gSortCaseSensitivity:= cstCharValue;
+    end
+    else if GetParamValue(Param, 'foldermode', Value) then
+    begin
+      if Value = 'nameshowfirst' then
+        gSortFolderMode:= sfmSortNameShowFirst
+      else if Value = 'likefileshowfirst' then
+        gSortFolderMode:= sfmSortLikeFileShowFirst
+      else if Value = 'likefile' then
+        gSortFolderMode:= sfmSortLikeFile;
+    end
+    else if GetParamBoolValue(Param, 'natural', State) then
+      gSortNatural:= State
+    else if GetParamBoolValue(Param, 'special', State) then
+      gSortSpecial:= State
+    else if GetParamValue(Param, 'newfiles', Value) then
+    begin
+      if Value = 'top' then
+        gNewFilesPosition:= nfpTop
+      else if Value = 'topafterdirectories' then
+        gNewFilesPosition:= nfpTopAfterDirectories
+      else if Value = 'sortedposition' then
+        gNewFilesPosition:= nfpSortedPosition
+      else if Value = 'bottom' then
+        gNewFilesPosition:= nfpBottom;
+    end
+    else if GetParamValue(Param, 'updatedfiles', Value) then
+    begin
+      if Value = 'nochange' then
+        gUpdatedFilesPosition:= ufpNoChange
+      else if Value = 'sameasnewfiles' then
+        gUpdatedFilesPosition:= ufpSameAsNewFiles
+      else if Value = 'sortedposition' then
+        gUpdatedFilesPosition:= ufpSortedPosition;
+    end
+  end;
+  frmMain.ActiveFrame.Reload(True);
+  frmMain.NotActiveFrame.Reload(True);
 end;
 
 end.
