@@ -27,7 +27,7 @@ interface
 
 uses
   Classes, SysUtils, LResources, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Buttons, Themes, Types, ImgList;
+  Buttons, Themes, Types, ImgList, LMessages;
 
 type
 
@@ -37,6 +37,7 @@ type
   private
     FState: TButtonState;
     FShowCaption: Boolean;
+    FMouseInControl: Boolean;
     FButtonGlyph: TButtonGlyph;
     FImageChangeLink: TChangeLink;
   private
@@ -67,6 +68,7 @@ type
     procedure ImageListChange(Sender: TObject);
     class function GetControlClassDefaultSize: TSize; override;
     procedure ActionChange(Sender: TObject; CheckDefaults: Boolean); override;
+    procedure CMEnabledChanged(var Message: TLMessage); message CM_ENABLEDCHANGED;
     procedure CalculatePreferredSize(var PreferredWidth, PreferredHeight: Integer; WithThemeSpace: Boolean); override;
   public
     constructor Create(TheOwner: TComponent); override;
@@ -91,6 +93,9 @@ procedure Register;
 begin
   RegisterComponents('KASComponents',[TKASButton]);
 end;
+
+const
+  UpState: array[Boolean] of TButtonState = (bsUp, bsHot);
 
 { TKASButton }
 
@@ -254,6 +259,7 @@ end;
 procedure TKASButton.MouseEnter;
 begin
   inherited MouseEnter;
+  FMouseInControl:= True;
   FState:= bsHot;
   Invalidate;
 end;
@@ -261,6 +267,7 @@ end;
 procedure TKASButton.MouseLeave;
 begin
   inherited MouseLeave;
+  FMouseInControl:= False;
   FState:= bsUp;
   Invalidate;
 end;
@@ -352,6 +359,16 @@ begin
         ActionList.Images.GetBitmap(ImageIndex, Glyph);
     end;
   end;
+end;
+
+procedure TKASButton.CMEnabledChanged(var Message: TLMessage);
+begin
+  if Enabled then
+    FState:= UpState[FMouseInControl]
+  else begin
+    FState:= bsDisabled;
+  end;
+  inherited CMEnabledChanged(Message);
 end;
 
 procedure TKASButton.CalculatePreferredSize(var PreferredWidth,

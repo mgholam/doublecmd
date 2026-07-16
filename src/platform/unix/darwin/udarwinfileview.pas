@@ -187,9 +187,6 @@ begin
     Exit;
 
   macOSProperty:= params.displayFile.FSFile.MacOSSpecificProperty;
-  if macOSProperty = nil then
-    Exit;
-
   drawTagsAsDecoration( macOSProperty.FinderTagPrimaryColors, params.decorationRect, params.focused );
 end;
 
@@ -261,8 +258,9 @@ begin
 
   if newPage then begin
     page:= Notebook.NewPage(fileView);
-    page.MakeActive;
     fileView:= page.FileView;
+    fileView.clearFilesOnly;
+    page.MakeActive;
   end;
 
   fileView.AddFileSource(fs, fs.GetRootDir);
@@ -273,7 +271,7 @@ class procedure TDarwinFileViewUtil.addiCloudDrivePage;
 var
   iCloudFS: TiCloudDriveFileSource;
 begin
-  iCloudFS := TiCloudDriveFileSource.GetFileSource;
+  iCloudFS := TiCloudDriveFileSource.GetFileSource as TiCloudDriveFileSource;
   _activeFrameFunc().AddFileSource(iCloudFS, iCloudFS.GetRootDir);
   _activeFrameFunc().SetFocus;
 end;

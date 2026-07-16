@@ -2556,6 +2556,10 @@ begin
           end;
         end; { aaAdd ... }
       end; { case }
+
+      DoProcessItemContinue(CurItem, Abort);
+      if Abort then
+        raise EAbUserAbort.Create;
     end; { for i ... }
 
     if NewStream.Position > 0  then

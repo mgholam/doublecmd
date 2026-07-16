@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Double Commander 1.3.0 alpha\n"
-"POT-Creation-Date: 2026-03-27 12:00+0300\n"
-"PO-Revision-Date: 2026-03-27 13:29+0300\n"
+"POT-Creation-Date: 2026-06-09 17:30+0300\n"
+"PO-Revision-Date: 2026-06-09 19:30+0300\n"
 "Last-Translator: Alexander Koblov <alexx2000@mail.ru>\n"
 "Language-Team: \n"
 "Language: ru\n"
@@ -1091,6 +1091,10 @@ msgstr "Сохранить &как..."
 msgid "Save As"
 msgstr "Сохранить как..."
 
+#: tfrmeditor.actwordwrap.caption
+msgid "&Word wrap"
+msgstr "&Перенос слов"
+
 #: tfrmeditor.actzoomin.caption
 msgctxt "tfrmeditor.actzoomin.caption"
 msgid "Zoom In"
@@ -1142,6 +1146,11 @@ msgstr "Подсветка &синтаксиса"
 #: tfrmeditor.milineendtype.caption
 msgid "End Of Line"
 msgstr "Конец строки"
+
+#: tfrmeditor.miview.caption
+msgctxt "tfrmeditor.miview.caption"
+msgid "&View"
+msgstr "&Вид"
 
 #: tfrmeditsearchreplace.buttonpanel.cancelbutton.caption
 msgctxt "tfrmeditsearchreplace.buttonpanel.cancelbutton.caption"
@@ -2076,6 +2085,20 @@ msgstr "Копировать путь в командную строку"
 msgid "Add Plugin"
 msgstr "Добавить плагин"
 
+#: tfrmmain.actaddtostash.caption
+msgid "Add to Stash"
+msgstr "Добавить во временную панель"
+
+#: tfrmmain.actairdrop.caption
+msgctxt "tfrmmain.actairdrop.caption"
+msgid "AirDrop"
+msgstr "AirDrop"
+
+#: tfrmmain.actairdrop.hint
+msgctxt "tfrmmain.actairdrop.hint"
+msgid "AirDrop"
+msgstr "AirDrop"
+
 #: tfrmmain.actbenchmark.caption
 msgid "&Benchmark"
 msgstr "&Тест производительности"
@@ -2338,6 +2361,10 @@ msgstr "Создать новый текстовый файл или откры�
 #: tfrmmain.acteditpath.caption
 msgid "Edit path field above file list"
 msgstr "Редактировать путь в заголовке панели"
+
+#: tfrmmain.actemptystash.caption
+msgid "Empty Stash"
+msgstr "Очистить временную панель"
 
 #: tfrmmain.actexchange.caption
 msgid "Swap &Panels"
@@ -2629,6 +2656,20 @@ msgstr "Открыть пап&ку в новой вкладке"
 msgid "Open Drive by Index"
 msgstr "Открыть диск по индексу"
 
+#: tfrmmain.actopenicloud.caption
+msgctxt "tfrmmain.actopenicloud.caption"
+msgid "iCloud Drive"
+msgstr "Диск iCloud"
+
+#: tfrmmain.actopenicloud.hint
+msgctxt "tfrmmain.actopenicloud.hint"
+msgid "iCloud Drive"
+msgstr "Диск iCloud"
+
+#: tfrmmain.actopenstash.caption
+msgid "Open Stash"
+msgstr "Открыть временную панель"
+
 #: tfrmmain.actopenvirtualfilesystemlist.caption
 msgctxt "TFRMMAIN.ACTOPENVIRTUALFILESYSTEMLIST.CAPTION"
 msgid "Open &VFS List"
@@ -2683,6 +2724,10 @@ msgstr "&Обновить"
 msgid "Reload the last Favorite Tabs loaded"
 msgstr "Перезагрузить последние загруженные избранные вкладки"
 
+#: tfrmmain.actremovefromstash.caption
+msgid "Remove Stash Items"
+msgstr "Удалить из временной панели"
+
 #: tfrmmain.actrename.caption
 msgctxt "tfrmmain.actrename.caption"
 msgid "Move"
@@ -2708,6 +2753,14 @@ msgstr "Пересохранить последние загруженные и�
 #: tfrmmain.actrestoreselection.caption
 msgid "&Restore Selection"
 msgstr "Восс&тановить выделение"
+
+#: tfrmmain.actrevealinsystemfilemanager.caption
+msgid "Reveal in File Manager"
+msgstr ""
+
+#: tfrmmain.actrevealinsystemfilemanager.hint
+msgid "Reveal in System File Manager"
+msgstr ""
 
 #: tfrmmain.actreverseorder.caption
 msgid "Re&verse Order"
@@ -2810,6 +2863,10 @@ msgctxt "TFRMMAIN.ACTSETFILEPROPERTIES.CAPTION"
 msgid "Change &Attributes..."
 msgstr "Изменить атри&буты"
 
+#: tfrmmain.actsetsortmode.caption
+msgid "Set Sort Mode"
+msgstr "Установить метод сортировки"
+
 #: tfrmmain.actsettaboptiondirsinnewtab.caption
 msgid "Locked with Directories Opened in New &Tabs"
 msgstr "Заблокировать и открывать каталоги в &новых вкладках"
@@ -2826,6 +2883,11 @@ msgstr "&Заблокировать вкладку"
 msgctxt "TFRMMAIN.ACTSETTABOPTIONPATHRESETS.CAPTION"
 msgid "Locked with &Directory Changes Allowed"
 msgstr "Заблокировать с возможностью &смены каталога"
+
+#: tfrmmain.actshare.caption
+msgctxt "tfrmmain.actshare.caption"
+msgid "Share..."
+msgstr "Поделиться..."
 
 #: tfrmmain.actshellexecute.caption
 msgctxt "tfrmmain.actshellexecute.caption"
@@ -4700,7 +4762,7 @@ msgstr "Переименовать"
 #: tfrmoptionscustomcolumns.btnresetallowovercolor.caption
 msgctxt "tfrmoptionscustomcolumns.btnresetallowovercolor.caption"
 msgid "R"
-msgstr ""
+msgstr "С"
 
 #: tfrmoptionscustomcolumns.btnresetallowovercolor.hint
 msgctxt "tfrmoptionscustomcolumns.btnresetallowovercolor.hint"
@@ -4710,7 +4772,7 @@ msgstr "Восстановить значение по умолчанию"
 #: tfrmoptionscustomcolumns.btnresetbackcolor.caption
 msgctxt "tfrmoptionscustomcolumns.btnresetbackcolor.caption"
 msgid "R"
-msgstr ""
+msgstr "С"
 
 #: tfrmoptionscustomcolumns.btnresetbackcolor.hint
 msgctxt "tfrmoptionscustomcolumns.btnresetbackcolor.hint"
@@ -4720,7 +4782,7 @@ msgstr "Восстановить значение по умолчанию"
 #: tfrmoptionscustomcolumns.btnresetbackcolor2.caption
 msgctxt "tfrmoptionscustomcolumns.btnresetbackcolor2.caption"
 msgid "R"
-msgstr ""
+msgstr "С"
 
 #: tfrmoptionscustomcolumns.btnresetbackcolor2.hint
 msgctxt "tfrmoptionscustomcolumns.btnresetbackcolor2.hint"
@@ -4730,7 +4792,7 @@ msgstr "Восстановить значение по умолчанию"
 #: tfrmoptionscustomcolumns.btnresetcursorborder.caption
 msgctxt "tfrmoptionscustomcolumns.btnresetcursorborder.caption"
 msgid "R"
-msgstr ""
+msgstr "С"
 
 #: tfrmoptionscustomcolumns.btnresetcursorborder.hint
 msgctxt "tfrmoptionscustomcolumns.btnresetcursorborder.hint"
@@ -4740,7 +4802,7 @@ msgstr "Восстановить значение по умолчанию"
 #: tfrmoptionscustomcolumns.btnresetcursorcolor.caption
 msgctxt "tfrmoptionscustomcolumns.btnresetcursorcolor.caption"
 msgid "R"
-msgstr ""
+msgstr "С"
 
 #: tfrmoptionscustomcolumns.btnresetcursorcolor.hint
 msgctxt "tfrmoptionscustomcolumns.btnresetcursorcolor.hint"
@@ -4750,7 +4812,7 @@ msgstr "Восстановить значение по умолчанию"
 #: tfrmoptionscustomcolumns.btnresetcursortext.caption
 msgctxt "tfrmoptionscustomcolumns.btnresetcursortext.caption"
 msgid "R"
-msgstr ""
+msgstr "С"
 
 #: tfrmoptionscustomcolumns.btnresetcursortext.hint
 msgctxt "tfrmoptionscustomcolumns.btnresetcursortext.hint"
@@ -4760,7 +4822,7 @@ msgstr "Восстановить значение по умолчанию"
 #: tfrmoptionscustomcolumns.btnresetfont.caption
 msgctxt "tfrmoptionscustomcolumns.btnresetfont.caption"
 msgid "R"
-msgstr ""
+msgstr "С"
 
 #: tfrmoptionscustomcolumns.btnresetfont.hint
 msgctxt "tfrmoptionscustomcolumns.btnresetfont.hint"
@@ -4770,7 +4832,7 @@ msgstr "Восстановить значение по умолчанию"
 #: tfrmoptionscustomcolumns.btnresetforecolor.caption
 msgctxt "tfrmoptionscustomcolumns.btnresetforecolor.caption"
 msgid "R"
-msgstr ""
+msgstr "С"
 
 #: tfrmoptionscustomcolumns.btnresetforecolor.hint
 msgctxt "tfrmoptionscustomcolumns.btnresetforecolor.hint"
@@ -4780,7 +4842,7 @@ msgstr "Восстановить значение по умолчанию"
 #: tfrmoptionscustomcolumns.btnresetframecursor.caption
 msgctxt "tfrmoptionscustomcolumns.btnresetframecursor.caption"
 msgid "R"
-msgstr ""
+msgstr "С"
 
 #: tfrmoptionscustomcolumns.btnresetframecursor.hint
 msgctxt "tfrmoptionscustomcolumns.btnresetframecursor.hint"
@@ -4790,7 +4852,7 @@ msgstr "Восстановить значение по умолчанию"
 #: tfrmoptionscustomcolumns.btnresetinactivecursorcolor.caption
 msgctxt "tfrmoptionscustomcolumns.btnresetinactivecursorcolor.caption"
 msgid "R"
-msgstr ""
+msgstr "С"
 
 #: tfrmoptionscustomcolumns.btnresetinactivecursorcolor.hint
 msgctxt "tfrmoptionscustomcolumns.btnresetinactivecursorcolor.hint"
@@ -4800,7 +4862,7 @@ msgstr "Восстановить значение по умолчанию"
 #: tfrmoptionscustomcolumns.btnresetinactivemarkcolor.caption
 msgctxt "tfrmoptionscustomcolumns.btnresetinactivemarkcolor.caption"
 msgid "R"
-msgstr ""
+msgstr "С"
 
 #: tfrmoptionscustomcolumns.btnresetinactivemarkcolor.hint
 msgctxt "tfrmoptionscustomcolumns.btnresetinactivemarkcolor.hint"
@@ -4810,7 +4872,7 @@ msgstr "Восстановить значение по умолчанию"
 #: tfrmoptionscustomcolumns.btnresetmarkcolor.caption
 msgctxt "tfrmoptionscustomcolumns.btnresetmarkcolor.caption"
 msgid "R"
-msgstr ""
+msgstr "С"
 
 #: tfrmoptionscustomcolumns.btnresetmarkcolor.hint
 msgctxt "tfrmoptionscustomcolumns.btnresetmarkcolor.hint"
@@ -4820,7 +4882,7 @@ msgstr "Восстановить значение по умолчанию"
 #: tfrmoptionscustomcolumns.btnresetuseinactiveselcolor.caption
 msgctxt "tfrmoptionscustomcolumns.btnresetuseinactiveselcolor.caption"
 msgid "R"
-msgstr ""
+msgstr "С"
 
 #: tfrmoptionscustomcolumns.btnresetuseinactiveselcolor.hint
 msgctxt "tfrmoptionscustomcolumns.btnresetuseinactiveselcolor.hint"
@@ -4830,7 +4892,7 @@ msgstr "Восстановить значение по умолчанию"
 #: tfrmoptionscustomcolumns.btnresetuseinvertedselection.caption
 msgctxt "tfrmoptionscustomcolumns.btnresetuseinvertedselection.caption"
 msgid "R"
-msgstr ""
+msgstr "С"
 
 #: tfrmoptionscustomcolumns.btnresetuseinvertedselection.hint
 msgctxt "tfrmoptionscustomcolumns.btnresetuseinvertedselection.hint"
@@ -6528,6 +6590,11 @@ msgctxt "tfrmoptionsfilesviewscomplement.lbattributemask.caption"
 msgid "Default attribute mask value to use:"
 msgstr "Маска атрибута по умолчанию:"
 
+#: tfrmoptionsfilesviewscomplement.lblextralinespan.caption
+msgctxt "tfrmoptionsfilesviewscomplement.lblextralinespan.caption"
+msgid "Extra line span:"
+msgstr "Добавить к высоте строк:"
+
 #: tfrmoptionsfiletypescolors.btnaddcategory.caption
 msgctxt "TFRMOPTIONSFILETYPESCOLORS.BTNADDCATEGORY.CAPTION"
 msgid "A&dd"
@@ -6817,9 +6884,7 @@ msgstr "&Сохранить в:"
 msgid ""
 "Force F1, F2, etc. to be treated as function keys\n"
 "ignore the settings in System Settings > Keyboard"
-msgstr ""
-"Обрабатывать F1, F2 и т.д. как функциональные клавиши,"
-"игнорируя настройки в Системные настройки > Клавиатура"
+msgstr "Обрабатывать F1, F2 и т.д. как функциональные клавиши,игнорируя настройки в Системные настройки > Клавиатура"
 
 #: tfrmoptionskeyboard.cbfnkey.hint
 msgid ""
@@ -6831,7 +6896,7 @@ msgid ""
 "Each time a new version of DC is installed, you must first\n"
 "remove DC from the list and then add it back in."
 msgstr ""
-"Для этой функции требуется дополнительное системное разрешение.\n"
+"Требуется дополнительное системное разрешение.\n"
 "\n"
 "Включение этой функции автоматически перенаправит вас в\n"
 "Системные настройки > Конфиденциальность и безопасность > Универсальный доступ.\n"
@@ -11209,10 +11274,6 @@ msgstr "Предоставьте разрешение \"Полный досту�
 msgid "Remove \"%s\""
 msgstr "Удалить \"%s\""
 
-#: ulng.rsmenumacosshare
-msgid "Share..."
-msgstr "Поделиться..."
-
 #: ulng.rsmfstbiairdroptips
 msgctxt "ulng.rsmfstbiairdroptips"
 msgid "AirDrop"
@@ -11315,16 +11376,6 @@ msgstr "Переключить режим расположения панеле�
 msgid "HorzSplit"
 msgstr "Горизонтальное разделение"
 
-#: ulng.rsmfstbiiclouddrivetips
-msgctxt "ulng.rsmfstbiiclouddrivetips"
-msgid "iCloud Drive"
-msgstr "Диск iCloud"
-
-#: ulng.rsmfstbiiclouddrivetitle
-msgctxt "ulng.rsmfstbiiclouddrivetitle"
-msgid "iCloud Drive"
-msgstr "Диск iCloud"
-
 #: ulng.rsmfstbinetworktips
 msgctxt "ulng.rsmfstbinetworktips"
 msgid "network"
@@ -11338,6 +11389,14 @@ msgstr ""
 #: ulng.rsmfstbiprivilegetips
 msgid "As a file manager, Double Command requires full disk access permissions. Clicking this button will pop up the macOS system settings page. Please add \"Double Commander.app\" to the \"Full Disk Access\" list to complete the authorization."
 msgstr "Как файловый менеджер, Double Commander требует разрешения на полный доступ к диску. Нажатие этой кнопки откроет страницу системных настроек macOS. Пожалуйста, добавьте \"Double Commande.app\" в список \"Полный доступ к диску\", чтобы завершить авторизацию."
+
+#: ulng.rsmfstbiprivilegetips2
+msgid "If you can see me, it means DC has not been authorized yet. DC will hide me once it is complete."
+msgstr "Если вы видите это сообщение, значит DC ещё не авторизован. Как только это будет сделано, DC скроет сообщение."
+
+#: ulng.rsmfstbiprivilegetips3
+msgid "You must re-authorize every time you install a new version. In this case you need to remove DC from the list first and then add DC back again. Because the new version has different fingerprints, simply enabling the checkboxes will not work."
+msgstr "При каждой установке новой версии DC требуется повторная авторизация. Необходимо сначала удалить DC из списка, а затем добавить обратно. Поскольку новые версии имеют разные отпечатки, простое включение флажков не сработает."
 
 #: ulng.rsmfstbiprivilegetitle
 msgid "Privilege"
@@ -14340,6 +14399,10 @@ msgstr "Автоматически;1457664 B - 3.5\" High Density 1.44 M;1213952
 #: ulng.rssplitseldir
 msgid "Select directory:"
 msgstr "Выберите каталог:"
+
+#: ulng.rsstashname
+msgid "Stash"
+msgstr "Временная панель"
 
 #: ulng.rsstrpreviewjustpreview
 msgid "Just preview"

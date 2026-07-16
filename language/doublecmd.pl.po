@@ -1085,6 +1085,10 @@ msgstr "Zapisz j&ako..."
 msgid "Save As"
 msgstr "Zapisz jako"
 
+#: tfrmeditor.actwordwrap.caption
+msgid "&Word wrap"
+msgstr ""
+
 #: tfrmeditor.actzoomin.caption
 msgctxt "tfrmeditor.actzoomin.caption"
 msgid "Zoom In"
@@ -1136,6 +1140,12 @@ msgstr "Podświetlanie &składni"
 #: tfrmeditor.milineendtype.caption
 msgid "End Of Line"
 msgstr "Koniec wiersza"
+
+#: tfrmeditor.miview.caption
+#, fuzzy
+msgctxt "tfrmeditor.miview.caption"
+msgid "&View"
+msgstr "&Widok"
 
 #: tfrmeditsearchreplace.buttonpanel.cancelbutton.caption
 msgctxt "tfrmeditsearchreplace.buttonpanel.cancelbutton.caption"
@@ -2041,6 +2051,20 @@ msgstr "Kopiuj ścieżkę do wiersza poleceń"
 msgid "Add Plugin"
 msgstr "Dodaj wtyczkę"
 
+#: tfrmmain.actaddtostash.caption
+msgid "Add to Stash"
+msgstr ""
+
+#: tfrmmain.actairdrop.caption
+msgctxt "tfrmmain.actairdrop.caption"
+msgid "AirDrop"
+msgstr ""
+
+#: tfrmmain.actairdrop.hint
+msgctxt "tfrmmain.actairdrop.hint"
+msgid "AirDrop"
+msgstr ""
+
 #: tfrmmain.actbenchmark.caption
 msgid "&Benchmark"
 msgstr "&Test wydajności"
@@ -2297,6 +2321,10 @@ msgstr "Edytuj nowy plik"
 #: tfrmmain.acteditpath.caption
 msgid "Edit path field above file list"
 msgstr "Edytuj pole ścieżki nad listą plików"
+
+#: tfrmmain.actemptystash.caption
+msgid "Empty Stash"
+msgstr ""
 
 #: tfrmmain.actexchange.caption
 msgid "Swap &Panels"
@@ -2586,6 +2614,20 @@ msgstr "Otwórz &katalog w nowej zakładce"
 msgid "Open Drive by Index"
 msgstr "Otwórz dysk według indeksu"
 
+#: tfrmmain.actopenicloud.caption
+msgctxt "tfrmmain.actopenicloud.caption"
+msgid "iCloud Drive"
+msgstr ""
+
+#: tfrmmain.actopenicloud.hint
+msgctxt "tfrmmain.actopenicloud.hint"
+msgid "iCloud Drive"
+msgstr ""
+
+#: tfrmmain.actopenstash.caption
+msgid "Open Stash"
+msgstr ""
+
 #: tfrmmain.actopenvirtualfilesystemlist.caption
 msgid "Open &VFS List"
 msgstr "Otwórz listę &VFS"
@@ -2638,6 +2680,10 @@ msgstr "&Odśwież"
 msgid "Reload the last Favorite Tabs loaded"
 msgstr "Załaduj ponownie ostatnio wczytane ulubione zakładki"
 
+#: tfrmmain.actremovefromstash.caption
+msgid "Remove Stash Items"
+msgstr ""
+
 #: tfrmmain.actrename.caption
 msgctxt "tfrmmain.actrename.caption"
 msgid "Move"
@@ -2663,6 +2709,14 @@ msgstr "Zapisz w ostatnio załadowanych ulubionych zakładkach"
 #: tfrmmain.actrestoreselection.caption
 msgid "&Restore Selection"
 msgstr "P&rzywróć zaznaczenie"
+
+#: tfrmmain.actrevealinsystemfilemanager.caption
+msgid "Reveal in File Manager"
+msgstr ""
+
+#: tfrmmain.actrevealinsystemfilemanager.hint
+msgid "Reveal in System File Manager"
+msgstr ""
 
 #: tfrmmain.actreverseorder.caption
 msgid "Re&verse Order"
@@ -2764,6 +2818,10 @@ msgstr "Wszystkie zakładki zablokowane z możliwością zmiany katalogu"
 msgid "Change &Attributes..."
 msgstr "Zmień &atrybuty..."
 
+#: tfrmmain.actsetsortmode.caption
+msgid "Set Sort Mode"
+msgstr ""
+
 #: tfrmmain.actsettaboptiondirsinnewtab.caption
 msgid "Locked with Directories Opened in New &Tabs"
 msgstr "Zablokowana z możliwością &otwierania katalogów w nowych zakładkach"
@@ -2779,6 +2837,11 @@ msgstr "&Zablokowana"
 #: tfrmmain.actsettaboptionpathresets.caption
 msgid "Locked with &Directory Changes Allowed"
 msgstr "Zablokowana z możliwością zmiany &katalogu"
+
+#: tfrmmain.actshare.caption
+msgctxt "tfrmmain.actshare.caption"
+msgid "Share..."
+msgstr "Udostępnij..."
 
 #: tfrmmain.actshellexecute.caption
 msgctxt "tfrmmain.actshellexecute.caption"
@@ -6372,6 +6435,11 @@ msgstr "Zaznaczenie/Odznaczenie wpisów"
 #: tfrmoptionsfilesviewscomplement.lbattributemask.caption
 msgid "Default attribute mask value to use:"
 msgstr "Domyślna wartość maski atrybutu do użycia:"
+
+#: tfrmoptionsfilesviewscomplement.lblextralinespan.caption
+msgctxt "tfrmoptionsfilesviewscomplement.lblextralinespan.caption"
+msgid "Extra line span:"
+msgstr ""
 
 #: tfrmoptionsfiletypescolors.btnaddcategory.caption
 msgctxt "TFRMOPTIONSFILETYPESCOLORS.BTNADDCATEGORY.CAPTION"
@@ -10918,10 +10986,6 @@ msgstr ""
 msgid "Remove \"%s\""
 msgstr ""
 
-#: ulng.rsmenumacosshare
-msgid "Share..."
-msgstr "Udostępnij..."
-
 #: ulng.rsmfstbiairdroptips
 msgctxt "ulng.rsmfstbiairdroptips"
 msgid "AirDrop"
@@ -11029,16 +11093,6 @@ msgstr ""
 msgid "HorzSplit"
 msgstr ""
 
-#: ulng.rsmfstbiiclouddrivetips
-msgctxt "ulng.rsmfstbiiclouddrivetips"
-msgid "iCloud Drive"
-msgstr ""
-
-#: ulng.rsmfstbiiclouddrivetitle
-msgctxt "ulng.rsmfstbiiclouddrivetitle"
-msgid "iCloud Drive"
-msgstr ""
-
 #: ulng.rsmfstbinetworktips
 msgctxt "ulng.rsmfstbinetworktips"
 msgid "network"
@@ -11051,6 +11105,14 @@ msgstr ""
 
 #: ulng.rsmfstbiprivilegetips
 msgid "As a file manager, Double Command requires full disk access permissions. Clicking this button will pop up the macOS system settings page. Please add \"Double Commander.app\" to the \"Full Disk Access\" list to complete the authorization."
+msgstr ""
+
+#: ulng.rsmfstbiprivilegetips2
+msgid "If you can see me, it means DC has not been authorized yet. DC will hide me once it is complete."
+msgstr ""
+
+#: ulng.rsmfstbiprivilegetips3
+msgid "You must re-authorize every time you install a new version. In this case you need to remove DC from the list first and then add DC back again. Because the new version has different fingerprints, simply enabling the checkboxes will not work."
 msgstr ""
 
 #: ulng.rsmfstbiprivilegetitle
@@ -14024,6 +14086,10 @@ msgstr "Automatycznie;1457664B - 3.5\" Wysoka gęstość 1.44M;1213952B - 5.25\"
 #: ulng.rssplitseldir
 msgid "Select directory:"
 msgstr "Wybierz katalog:"
+
+#: ulng.rsstashname
+msgid "Stash"
+msgstr ""
 
 #: ulng.rsstrpreviewjustpreview
 msgid "Just preview"

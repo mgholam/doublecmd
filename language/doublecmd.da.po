@@ -1140,6 +1140,10 @@ msgstr "Gem &som..."
 msgid "Save As"
 msgstr "Gem som"
 
+#: tfrmeditor.actwordwrap.caption
+msgid "&Word wrap"
+msgstr ""
+
 #: tfrmeditor.actzoomin.caption
 msgctxt "tfrmeditor.actzoomin.caption"
 msgid "Zoom In"
@@ -1191,6 +1195,12 @@ msgstr "Fremhæv syntaks"
 #: tfrmeditor.milineendtype.caption
 msgid "End Of Line"
 msgstr "Linjeafslutning"
+
+#: tfrmeditor.miview.caption
+#, fuzzy
+msgctxt "tfrmeditor.miview.caption"
+msgid "&View"
+msgstr "&Vis"
 
 #: tfrmeditsearchreplace.buttonpanel.cancelbutton.caption
 msgctxt "TFRMEDITSEARCHREPLACE.BUTTONPANEL.CANCELBUTTON.CAPTION"
@@ -2137,6 +2147,20 @@ msgstr "Kopiér sti til kommandolinje"
 msgid "Add Plugin"
 msgstr ""
 
+#: tfrmmain.actaddtostash.caption
+msgid "Add to Stash"
+msgstr ""
+
+#: tfrmmain.actairdrop.caption
+msgctxt "tfrmmain.actairdrop.caption"
+msgid "AirDrop"
+msgstr ""
+
+#: tfrmmain.actairdrop.hint
+msgctxt "tfrmmain.actairdrop.hint"
+msgid "AirDrop"
+msgstr ""
+
 #: tfrmmain.actbenchmark.caption
 msgid "&Benchmark"
 msgstr "&Benchmark"
@@ -2426,6 +2450,10 @@ msgstr "Rediger ny fil"
 #: tfrmmain.acteditpath.caption
 msgid "Edit path field above file list"
 msgstr "Rediger stifeltet over fillisten"
+
+#: tfrmmain.actemptystash.caption
+msgid "Empty Stash"
+msgstr ""
 
 # Kommandoer
 #: tfrmmain.actexchange.caption
@@ -2757,6 +2785,20 @@ msgstr "Åbn mappe i ny &fane"
 msgid "Open Drive by Index"
 msgstr "Åbn drev efter indeks"
 
+#: tfrmmain.actopenicloud.caption
+msgctxt "tfrmmain.actopenicloud.caption"
+msgid "iCloud Drive"
+msgstr ""
+
+#: tfrmmain.actopenicloud.hint
+msgctxt "tfrmmain.actopenicloud.hint"
+msgid "iCloud Drive"
+msgstr ""
+
+#: tfrmmain.actopenstash.caption
+msgid "Open Stash"
+msgstr ""
+
 # Kommandoer
 #: tfrmmain.actopenvirtualfilesystemlist.caption
 msgid "Open &VFS List"
@@ -2817,6 +2859,10 @@ msgstr "&Opdatér vindue"
 msgid "Reload the last Favorite Tabs loaded"
 msgstr "Genindlæs seneste anvendte Favoritfaneblad"
 
+#: tfrmmain.actremovefromstash.caption
+msgid "Remove Stash Items"
+msgstr ""
+
 #: tfrmmain.actrename.caption
 msgctxt "tfrmmain.actrename.caption"
 msgid "Move"
@@ -2845,6 +2891,14 @@ msgstr "Gem seneste Favoritfaneblad"
 #: tfrmmain.actrestoreselection.caption
 msgid "&Restore Selection"
 msgstr "&Gendan valg"
+
+#: tfrmmain.actrevealinsystemfilemanager.caption
+msgid "Reveal in File Manager"
+msgstr ""
+
+#: tfrmmain.actrevealinsystemfilemanager.hint
+msgid "Reveal in System File Manager"
+msgstr ""
 
 # Vis
 #: tfrmmain.actreverseorder.caption
@@ -2966,6 +3020,10 @@ msgstr "Alle faneblade låste. Tillad ændring af mappe"
 msgid "Change &Attributes..."
 msgstr "&Ændre attributter..."
 
+#: tfrmmain.actsetsortmode.caption
+msgid "Set Sort Mode"
+msgstr ""
+
 # Faner - Indstillinger
 #: tfrmmain.actsettaboptiondirsinnewtab.caption
 msgid "Locked with Directories Opened in New &Tabs"
@@ -2985,6 +3043,11 @@ msgstr "&Lås faneblad"
 #: tfrmmain.actsettaboptionpathresets.caption
 msgid "Locked with &Directory Changes Allowed"
 msgstr "Lås faneblad, men tilla&d mappeskift"
+
+#: tfrmmain.actshare.caption
+msgctxt "tfrmmain.actshare.caption"
+msgid "Share..."
+msgstr ""
 
 #: tfrmmain.actshellexecute.caption
 msgctxt "TFRMMAIN.ACTSHELLEXECUTE.CAPTION"
@@ -7001,6 +7064,11 @@ msgstr "Markering/fjernelse af markeringer"
 #: tfrmoptionsfilesviewscomplement.lbattributemask.caption
 msgid "Default attribute mask value to use:"
 msgstr "Anvend disse standardattributter i maske: "
+
+#: tfrmoptionsfilesviewscomplement.lblextralinespan.caption
+msgctxt "tfrmoptionsfilesviewscomplement.lblextralinespan.caption"
+msgid "Extra line span:"
+msgstr ""
 
 # Opsætning - Indstillinger - Visning_ekstra
 #: tfrmoptionsfiletypescolors.btnaddcategory.caption
@@ -12038,10 +12106,6 @@ msgstr ""
 msgid "Remove \"%s\""
 msgstr ""
 
-#: ulng.rsmenumacosshare
-msgid "Share..."
-msgstr ""
-
 #: ulng.rsmfstbiairdroptips
 msgctxt "ulng.rsmfstbiairdroptips"
 msgid "AirDrop"
@@ -12149,16 +12213,6 @@ msgstr ""
 msgid "HorzSplit"
 msgstr ""
 
-#: ulng.rsmfstbiiclouddrivetips
-msgctxt "ulng.rsmfstbiiclouddrivetips"
-msgid "iCloud Drive"
-msgstr ""
-
-#: ulng.rsmfstbiiclouddrivetitle
-msgctxt "ulng.rsmfstbiiclouddrivetitle"
-msgid "iCloud Drive"
-msgstr ""
-
 #: ulng.rsmfstbinetworktips
 msgctxt "ulng.rsmfstbinetworktips"
 msgid "network"
@@ -12171,6 +12225,14 @@ msgstr ""
 
 #: ulng.rsmfstbiprivilegetips
 msgid "As a file manager, Double Command requires full disk access permissions. Clicking this button will pop up the macOS system settings page. Please add \"Double Commander.app\" to the \"Full Disk Access\" list to complete the authorization."
+msgstr ""
+
+#: ulng.rsmfstbiprivilegetips2
+msgid "If you can see me, it means DC has not been authorized yet. DC will hide me once it is complete."
+msgstr ""
+
+#: ulng.rsmfstbiprivilegetips3
+msgid "You must re-authorize every time you install a new version. In this case you need to remove DC from the list first and then add DC back again. Because the new version has different fingerprints, simply enabling the checkboxes will not work."
 msgstr ""
 
 #: ulng.rsmfstbiprivilegetitle
@@ -15252,6 +15314,10 @@ msgstr "Automatisk;1457664B - 3.5\" High Density 1.44M;1213952B - 5.25\" High De
 #: ulng.rssplitseldir
 msgid "Select directory:"
 msgstr "Vælg mappe:"
+
+#: ulng.rsstashname
+msgid "Stash"
+msgstr ""
 
 # Opsætning - Indstillinger - Layout - Mappeoversigt_Layout og Farver
 #: ulng.rsstrpreviewjustpreview
